@@ -3,6 +3,20 @@
 > **🤖 Roadmap mis à jour automatiquement le 15 août 2025**
 > **Basé sur l'analyse autonome des préférences et recommandations IA**
 
+## 🌐 Vision PaniniFS : Décomposition Sémantique Universelle
+
+**PaniniFS adopte une approche linguistique mais ne se limite pas au texte.**  
+**Le système permet la décomposition sémantique ET la recomposition à l'identique de TOUS types de fichiers :**
+
+- **📝 Fichiers texte** : Analyse morphologique, syntaxique et sémantique
+- **🔧 Code source** : AST, documentation, relations entre symboles
+- **🗃️ Binaires** : Décomposition structurelle, métadonnées, dépendances
+- **🖼️ Médias** : Extraction de contenu (OCR, transcription), métadonnées techniques
+- **📄 Documents structurés** : PDF, Office, formats propriétaires
+- **🔗 Données** : JSON, XML, bases de données, configurations
+
+**Principe fondamental** : Chaque fichier devient un ensemble d'**atomes sémantiques** liés par des **relations typées**, permettant une **recomposition parfaite** et une **navigation sémantique** universelle.
+
 ## 📊 Vue d'ensemble des priorités
 
 **Effort total estimé** : 16-21 semaines  
@@ -51,13 +65,16 @@
 - [ ] Profiling mémoire et CPU avec `perf` et `valgrind`
 
 ### 🚀 Interface FUSE fonctionnelle (4-6 semaines)
-**🎯 OBJECTIF PRINCIPAL - Cœur de PaniniFS**
+**🎯 OBJECTIF PRINCIPAL - Cœur de PaniniFS avec support universel**
 - [ ] Implémenter les opérations FUSE de base (read, write, list)
-- [ ] Ajouter la gestion des métadonnées étendues
+- [ ] **Décomposition binaire intelligente** : Support natif pour tous formats de fichiers
+- [ ] **Recomposition à l'identique** : Garantie de préservation des données binaires
+- [ ] Ajouter la gestion des métadonnées étendues pour formats non-texte
 - [ ] Implémenter la recherche sémantique via des répertoires virtuels
-- [ ] Tests avec différents types de fichiers (code, config, docs)
-- [ ] Optimisation des performances I/O
-- [ ] Gestion des erreurs et récupération
+- [ ] **Analyseurs spécialisés** : Binaires, médias, code compilé, formats propriétaires
+- [ ] Tests avec différents types de fichiers (texte, binaire, multimédia, exécutables)
+- [ ] Optimisation des performances I/O pour gros fichiers binaires
+- [ ] Gestion des erreurs et récupération avec intégrité garantie
 
 ## 🟡 Phase 3: Développements Moyens (PRIORITÉ MOYENNE)
 
@@ -87,15 +104,21 @@
 
 ## 🟢 Phase 4: Fonctionnalités Avancées (PRIORITÉ BASSE)
 
-### 🧠 Analyse sémantique
-- [ ] Analyseur morphologique français/anglais
-- [ ] Extraction d'entités nommées
-- [ ] Relations grammaticales et syntaxiques
-- [ ] Détection de concepts et topics
-- [ ] Inférence automatique de relations
-- [ ] Calcul de force des relations
-- [ ] Détection de contradictions
-- [ ] Fusion d'atomes similaires
+### 🧠 Analyse sémantique universelle
+- [ ] **Analyseurs spécialisés par type** :
+  - [ ] Texte : Analyseur morphologique français/anglais
+  - [ ] Code : AST, documentation, relations entre symboles
+  - [ ] Binaires : Structures, sections, imports/exports, signatures
+  - [ ] Médias : Métadonnées EXIF, transcription audio, OCR images
+  - [ ] Documents : Structure logique, styles, références
+- [ ] **Extraction d'entités unifiée** pour tous formats
+- [ ] **Relations cross-format** : Liens entre texte, code et documentation
+- [ ] **Détection de concepts et topics** multi-domaines
+- [ ] **Inférence automatique de relations** basée sur le contenu
+- [ ] **Calcul de force des relations** avec pondération par type
+- [ ] **Détection de contradictions** inter-fichiers
+- [ ] **Fusion d'atomes similaires** avec préservation des spécificités binaires
+- [ ] **Recomposition garantie** : Vérification d'intégrité post-décomposition
 
 ### 🌐 Interface utilisateur
 - [ ] Interface Web moderne (React/Vue selon préférences détectées)
@@ -106,13 +129,26 @@
 - [ ] Extension navigateur
 - [ ] API REST complète
 
-### 📄 Support multi-formats
-- [ ] PDF (extraction et structure)
-- [ ] Images (OCR et métadonnées)
-- [ ] Audio/Vidéo (transcription)
-- [ ] Formats Office (DOCX, etc.)
-- [ ] Code source (AST et documentation)
-- [ ] Système de plugins pour nouveaux formats
+### 📄 Support multi-formats et décomposition binaire
+- [ ] **Analyseurs binaires spécialisés** :
+  - [ ] Exécutables (ELF, PE, Mach-O) : Sections, symboles, dépendances
+  - [ ] Archives (TAR, ZIP, RAR) : Structure hiérarchique, métadonnées
+  - [ ] Bases de données (SQLite, etc.) : Schémas, relations, contenu
+  - [ ] Formats compilés (bytecode Java, .NET, WASM) : Instructions, métadonnées
+- [ ] **Médias avec préservation binaire** :
+  - [ ] Images (JPEG, PNG, SVG) : Métadonnées, OCR, analyse visuelle
+  - [ ] Audio/Vidéo (MP3, MP4, AVI) : Transcription, métadonnées, structure
+  - [ ] PDF : Extraction texte + préservation mise en page binaire
+- [ ] **Formats bureautiques complexes** :
+  - [ ] Office (DOCX, XLSX, PPTX) : Contenu + styles + relations
+  - [ ] CAD/3D : Géométrie, matériaux, animations
+  - [ ] Formats scientifiques (HDF5, NetCDF) : Données + métadonnées
+- [ ] **Code source et dérivés** :
+  - [ ] AST (Abstract Syntax Trees) pour tous langages majeurs
+  - [ ] Documentation intégrée (docstrings, comments, README)
+  - [ ] Bytecode et fichiers compilés avec liens source
+- [ ] **Système de plugins pour nouveaux formats**
+- [ ] **Garantie de recomposition parfaite** avec checksums et validation
 
 ## 🛡️ Évaluation des risques
 
@@ -186,24 +222,31 @@ python3 display_recommendations.py high
 ### Choix d'architecture validés
 - **Rust** : Performance et sécurité (expertise confirmée)
 - **Sled** : Base de données pure Rust (migration réussie depuis RocksDB)
-- **Git** : Robustesse du versioning
-- **FUSE** : Intégration système native
+- **Git** : Robustesse du versioning pour tous types de fichiers
+- **FUSE** : Intégration système native avec support binaire transparent
 - **Tokio** : Patterns asynchrones (usage confirmé dans vos projets)
-- **Architecture modulaire** : Extensibilité future
+- **Architecture modulaire** : Support de plugins pour nouveaux formats
+- **Décomposition/Recomposition** : Garantie d'intégrité pour fichiers binaires
+- **Analyseurs spécialisés** : Architecture pluggable par type de contenu
 
 ### Défis identifiés et actualisés
 - ✅ **Compilation multi-plateforme** : Résolu avec Sled
 - ✅ **Gestion des dépendances C++** : Évité avec solutions pure Rust
 - 🔄 **Cohérence multi-repository** : En cours
 - 🔄 **Performance avec millions d'atomes** : À valider
+- 🔄 **Recomposition binaire parfaite** : Architecture critique à finaliser
+- 🔄 **Gestion mémoire pour gros fichiers binaires** : Optimisations streaming nécessaires
 - 🔄 **Interface utilisateur intuitive** : Phase 4
 - 🔄 **Migration de schémas** : Architecture modulaire aidera
+- 🔄 **Sécurité des données binaires** : Validation d'intégrité essentielle
 
 ### Prochaines étapes immédiates (selon IA)
 1. **Finaliser GitStorage** avec Sled (priorité absolue)
 2. **Tests unitaires complets** pour tous les modules core
-3. **Interface FUSE basique** fonctionnelle
-4. **Optimisations Rust** pour performance optimale
+3. **Architecture de décomposition binaire** : Définir les interfaces pour tous types de fichiers
+4. **Interface FUSE basique** fonctionnelle avec support binaire transparent
+5. **Optimisations Rust** pour performance optimale sur gros volumes
+6. **Système de validation d'intégrité** pour garantir la recomposition parfaite
 
 ---
 
