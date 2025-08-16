@@ -42,10 +42,10 @@
       "shared_keywords": [
         [
           "anglais",
-          "artificielle",
-          "intelligence",
           "apprentissage",
-          "learning"
+          "artificielle",
+          "learning",
+          "intelligence"
         ]
       ]
     },
@@ -60,10 +60,10 @@
       "shared_keywords": [
         [
           "anglais",
-          "artificielle",
-          "intelligence",
           "apprentissage",
-          "learning"
+          "artificielle",
+          "learning",
+          "intelligence"
         ]
       ]
     }
@@ -113,17 +113,17 @@
     ],
     "cross_concept_terms": {
       "permettant": [
-        "algorithme",
-        "intelligence artificielle"
+        "intelligence artificielle",
+        "algorithme"
       ],
       "tâches": [
-        "apprentissage profond",
-        "intelligence artificielle"
+        "intelligence artificielle",
+        "apprentissage profond"
       ],
       "apprentissage": [
+        "intelligence artificielle",
         "machine learning",
-        "apprentissage profond",
-        "intelligence artificielle"
+        "apprentissage profond"
       ],
       "anglais": [
         "machine learning",
@@ -161,12 +161,12 @@
   },
   "provenance_analysis": {
     "source_distribution": [
-      "https://fr.wikipedia.org/wiki/Apprentissage_profond",
-      "https://fr.wikipedia.org/wiki/R%C3%A9seau_de_neurones_artificiels",
-      "https://fr.wikipedia.org/wiki/Apprentissage_automatique",
-      "https://fr.wikipedia.org/wiki/Intelligence_artificielle",
+      "https://fr.wikipedia.org/wiki/Transformers",
       "https://fr.wikipedia.org/wiki/Algorithme",
-      "https://fr.wikipedia.org/wiki/Transformers"
+      "https://fr.wikipedia.org/wiki/Intelligence_artificielle",
+      "https://fr.wikipedia.org/wiki/R%C3%A9seau_de_neurones_artificiels",
+      "https://fr.wikipedia.org/wiki/Apprentissage_profond",
+      "https://fr.wikipedia.org/wiki/Apprentissage_automatique"
     ],
     "agent_distribution": [
       "autonomous_copilot_v1"
