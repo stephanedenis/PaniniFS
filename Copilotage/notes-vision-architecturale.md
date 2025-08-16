@@ -2,9 +2,82 @@
 ## Session du 15 août 2025 - Vision Architecturale Fondamentale
 
 ### Contexte personnel et académique
-**Formation du lead développeur** : Linguistique, Université de Montréal
+**Formation du lead développeur** : Linguistique, Université de Montréal + Informatique
 **Mentor académique** : Professeur Igor Mel'čuk (sémantique et morphologie)
 **Référence théorique** : École de Montréal, théorie Sens-Texte
+**Profil professionnel** : linkedin.com/in/neuronspikes
+
+#### Parcours professionnel et enseignement
+**Cégep de Saint-Hyacinthe** : 9 ans d'enseignement
+- Génie logiciel
+- Programmation Android et Elixir
+- Expérience pédagogique avancée
+
+#### Genèse historique des concepts
+
+**1994-1995 - CRDP : Premier déclic fondateur**
+- **Assemblée Nationale du Québec** : Premier site web (≠ gouvernement)
+- **Arrêts Cour Suprême Canada** : Documents critiques (impact tous Canadiens)
+- **Technologie** : Perl + Web naissant
+- **Défi technique** : Word/RTF → décomposition → synthèse → web
+- **Révélation** : Préservation du sens à travers transformations de format
+
+**Influences théoriques parallèles (1994-1995)** :
+- **Linguistique** : Études académiques simultanées
+- **Lojban** : Fascination pour les langues construites
+- **Hypothèse Sapir-Whorf** : Validation par construction linguistique + conviction personnelle
+- **Non-ambiguïté** : Langue sans ambiguïté à l'oreille
+- **Système complet** : Preuve qu'un langage peut être entièrement construit
+
+**Vision pré-numérique (début années 90)** :
+- **Système de numérotation graphique** : Symboles évoquant idées primitives
+- **Base linguistique** : Fondation pour langage parlable
+- **Tatouage 2011** : 6 symboles dans cercle rouge ouvert (0=soi + 5 enfants)
+- **Permanence corporelle** : Gravure près du cœur, symboles transmis aux enfants
+
+**Validation culturelle moderne** :
+- **"Arrival" (film)** : Plaisir jubilatoire de reconnaissance thématique
+- **Nouvelle de Chiang** : Confirmation littéraire des intuitions
+- **Rêve persistant** : Langage parlable qui infuse le savoir
+
+**Méthodologie fondamentale** :
+- **Découverte vs Construction** : PaniniFS comme découverte empirique
+- **Limitation humaine** : Construction hors portée d'une vie
+- **Assistance IA** : Nécessité technologique pour aboutissement
+- **Patterns naturels** : Recherche des structures sémantiques existantes
+
+**Convergence révélatrice et obsession** :
+- **Parsing juridique** révèle : structures sémantiques stables
+- **Lojban** démontre : langage non-ambigu constructible
+- **Obsession personnelle** : "Ça m'obsédait"
+- **Conflit professionnel** : Ne pouvait pas l'inclure dans le travail (hors mandat)
+- **Déficit d'attention** : L'idée accaparait l'esprit pendant le travail officiel
+
+**Innovation conceptuelle découverte** :
+- Décomposition de documents complexes sans perte sémantique
+- Restitution dans nouveau format en préservant l'essence
+- **Convergence** : Parsing juridique + langue non-ambiguë = première intuition des "invariants sémantiques"
+- **Principe lojban** : Démonstration qu'un système sémantique complet peut être construit
+- **Moteur psychologique** : Obsession comme force de recherche sur 30 ans
+
+**2002 - S2i/Tink : Maturation pratique**
+
+**Entreprise S2i (maintenant Tink)** - Premier prototype d'hypernoeuds
+- **Système EGC** : Environnement de Gestion de Contenu
+- **Problème identifié** : Documents web arborescents limités
+- **Innovation** : Superposition d'arbres → hypernoeuds
+- **Résultat** : Treillis de données avec vues hiérarchiques réutilisables
+
+#### Architecture révolutionnaire (2002)
+**Concept d'hypernoeuds** :
+- Noeuds → hypernoeuds par superposition d'arbres
+- Gestion unifiée : contenu client + sécurité + métadonnées
+- **AOP (Aspect-Oriented Programming)** : chaque aspect = arbre annexé par alias
+- Vues multiples sur même structure de données
+
+#### Évolution conceptuelle
+**2002** : Hypernoeuds dans EGC (pratique)
+**2025** : PaniniFS + sèmes fondamentaux (théorique + empirique)
 
 ### Fondations théoriques - École de Montréal
 
