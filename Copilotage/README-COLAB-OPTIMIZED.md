@@ -4,14 +4,14 @@
 
 ## 🎯 Quick Start Colab
 
-### 🚀 Option 1: Cloud Autonome (Recommandé)
+### 🚀 Option 1: Primitives Sémantiques Universelles (Recommandé)
 ```bash
-# Dans une cellule Colab - 100% cloud native
-!curl -sSL https://raw.githubusercontent.com/stephanedenis/PaniniFS/master/Copilotage/scripts/launch_colab_autonomous.sh | bash
-# Puis ouvrir: PaniniFS-1/Copilotage/colab_cloud_autonomous.ipynb
+# Dans une cellule Colab - Concepts publics réutilisables
+!git clone https://github.com/stephanedenis/PaniniFS.git PaniniFS-1
+# Puis ouvrir: PaniniFS-1/Copilotage/colab_notebooks/semantic_processing_accelerated.ipynb
 ```
 
-### Option 2: Script optimisé classique
+### Option 2: Script optimisé classique  
 ```bash
 # Dans une cellule Colab
 !wget https://raw.githubusercontent.com/stephanedenis/PaniniFS/master/Copilotage/scripts/launch_optimized_colab.sh
@@ -19,7 +19,7 @@
 !./launch_optimized_colab.sh
 ```
 
-### Option 3: Notebook direct
+### Option 3: Notebook classique
 ```bash
 # Dans une cellule Colab
 !git clone https://github.com/stephanedenis/PaniniFS.git PaniniFS-1
