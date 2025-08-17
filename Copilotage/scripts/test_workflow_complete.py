@@ -157,17 +157,17 @@ class WorkflowTester:
         print(f"\n🌐 TEST GÉNÉRATION URL COLAB...")
         print("=" * 30)
         
-        # Template URL Colab
+        # Template URL Colab avec bon nom d'utilisateur
         base_url = "https://colab.research.google.com/github/stephanedenis/PaniniFS/blob/master"
         notebook_path = "Copilotage/colab_notebooks/semantic_processing_accelerated.ipynb"
         colab_url = f"{base_url}/{notebook_path}"
         
         print(f"   🔗 URL générée: {colab_url}")
         
-        # Vérifier format URL
+        # Vérifier format URL (corrigé)
         url_valid = (
-            colab_url.startswith("https://colab.research.google.com") and
-            "github.com" in colab_url and
+            colab_url.startswith("https://colab.research.google.com/github") and
+            "stephanedenis" in colab_url and
             ".ipynb" in colab_url
         )
         
