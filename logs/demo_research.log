@@ -1,0 +1,63 @@
+🔬 DÉMARRAGE AGENT RECHERCHE THÉORIQUE AUTONOME
+==================================================
+🔬 DÉMARRAGE RECHERCHE THÉORIQUE AUTONOME - Session research_20250818_172023
+
+📚 Recherche domaine: panini_grammar (Priorité: HIGH)
+
+📚 Recherche domaine: melcuk_theory (Priorité: HIGH)
+⚠️ Erreur parsing work: 'NoneType' object has no attribute 'lower'
+⚠️ Erreur parsing work: 'NoneType' object has no attribute 'lower'
+
+📚 Recherche domaine: semantic_compression (Priorité: HIGH)
+
+📚 Recherche domaine: computational_linguistics (Priorité: MEDIUM)
+⚠️ Erreur parsing work: 'NoneType' object has no attribute 'lower'
+⚠️ Erreur parsing work: 'NoneType' object has no attribute 'lower'
+
+📚 Recherche domaine: autonomous_agents (Priorité: LOW)
+⚠️ Erreur parsing work: 'NoneType' object has no attribute 'lower'
+
+🔄 Analyse croisée des références...
+
+🎯 Évaluation originalité PaniniFS...
+
+📊 Génération rapport théorique...
+Traceback (most recent call last):
+  File "/home/stephane/GitHub/PaniniFS-1/Copilotage/agents/theoretical_research_agent.py", line 824, in <module>
+    asyncio.run(main())
+    ~~~~~~~~~~~^^^^^^^^
+  File "/usr/lib64/python3.13/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.13/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/stephane/GitHub/PaniniFS-1/Copilotage/agents/theoretical_research_agent.py", line 819, in main
+    await agent.autonomous_research_cycle()
+  File "/home/stephane/GitHub/PaniniFS-1/Copilotage/agents/theoretical_research_agent.py", line 115, in autonomous_research_cycle
+    await self._generate_theoretical_report()
+  File "/home/stephane/GitHub/PaniniFS-1/Copilotage/agents/theoretical_research_agent.py", line 519, in _generate_theoretical_report
+    json.dump(report, f, indent=2, ensure_ascii=False)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.13/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "/usr/lib64/python3.13/json/encoder.py", line 433, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib64/python3.13/json/encoder.py", line 407, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib64/python3.13/json/encoder.py", line 407, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib64/python3.13/json/encoder.py", line 407, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib64/python3.13/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/usr/lib64/python3.13/json/encoder.py", line 440, in _iterencode
+    o = _default(o)
+  File "/usr/lib64/python3.13/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type TheoreticalPaper is not JSON serializable
