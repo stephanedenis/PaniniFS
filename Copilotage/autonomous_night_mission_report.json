@@ -1,82 +1,82 @@
 {
   "mission_metadata": {
-    "start_time": "2025-08-15T22:07:41.460609",
-    "end_time": "2025-08-15T22:07:50.462255",
-    "total_duration_minutes": 0.15002743333333332,
+    "start_time": "2025-08-17T20:04:52.184765",
+    "end_time": "2025-08-17T20:05:01.189875",
+    "total_duration_minutes": 0.15008516666666666,
     "mode": "AUTONOMOUS_NIGHT_SHIFT",
     "user_status": "SLEEPING_8H"
   },
   "phases_completed": 0,
   "mission_log": [
     {
-      "timestamp": "2025-08-15T22:07:41.460790",
+      "timestamp": "2025-08-17T20:04:52.185070",
       "action": "PHASE_1_START",
       "status": "INITIATED",
       "details": "Collecteurs avancés",
-      "elapsed_minutes": 3.316666666666667e-06
+      "elapsed_minutes": 5.583333333333334e-06
     },
     {
-      "timestamp": "2025-08-15T22:07:43.460988",
+      "timestamp": "2025-08-17T20:04:54.187533",
       "action": "PHASE_1_COMPLETE",
       "status": "SUCCESS",
       "details": "5 nouveaux collecteurs planifiés",
-      "elapsed_minutes": 0.03334028333333334
+      "elapsed_minutes": 0.03338045
     },
     {
-      "timestamp": "2025-08-15T22:07:43.461151",
+      "timestamp": "2025-08-17T20:04:54.187783",
       "action": "PHASE_2_START",
       "status": "INITIATED",
       "details": "Algorithmes consensus avancés",
-      "elapsed_minutes": 0.03334256666666667
+      "elapsed_minutes": 0.033384033333333334
     },
     {
-      "timestamp": "2025-08-15T22:07:46.461310",
+      "timestamp": "2025-08-17T20:04:57.188021",
       "action": "PHASE_2_COMPLETE",
       "status": "SUCCESS",
       "details": "Algorithmes consensus next-gen conçus",
-      "elapsed_minutes": 0.08334548333333333
+      "elapsed_minutes": 0.08338865000000001
     },
     {
-      "timestamp": "2025-08-15T22:07:46.461454",
+      "timestamp": "2025-08-17T20:04:57.188316",
       "action": "PHASE_3_START",
       "status": "INITIATED",
       "details": "Tests performance Rust",
-      "elapsed_minutes": 0.08334753333333333
+      "elapsed_minutes": 0.0833935
     },
     {
-      "timestamp": "2025-08-15T22:07:48.461582",
+      "timestamp": "2025-08-17T20:04:59.188601",
       "action": "PHASE_3_COMPLETE",
       "status": "SUCCESS",
       "details": "Prototype Rust optimisé",
-      "elapsed_minutes": 0.11668333333333333
+      "elapsed_minutes": 0.11673173333333334
     },
     {
-      "timestamp": "2025-08-15T22:07:48.461705",
+      "timestamp": "2025-08-17T20:04:59.188858",
       "action": "PHASE_4_START",
       "status": "INITIATED",
       "details": "Documentation complète",
-      "elapsed_minutes": 0.1166851
+      "elapsed_minutes": 0.1167352
     },
     {
-      "timestamp": "2025-08-15T22:07:49.461876",
+      "timestamp": "2025-08-17T20:05:00.189071",
       "action": "PHASE_4_COMPLETE",
       "status": "SUCCESS",
       "details": "Documentation publication-ready",
-      "elapsed_minutes": 0.1333549
+      "elapsed_minutes": 0.13340611666666666
     },
     {
-      "timestamp": "2025-08-15T22:07:49.461985",
+      "timestamp": "2025-08-17T20:05:00.189349",
       "action": "PHASE_5_START",
       "status": "INITIATED",
       "details": "Préparation surprises réveil",
-      "elapsed_minutes": 0.13335638333333336
+      "elapsed_minutes": 0.1334108
     },
     {
-      "timestamp": "2025-08-15T22:07:50.462126",
+      "timestamp": "2025-08-17T20:05:01.189667",
       "action": "PHASE_5_COMPLETE",
       "status": "SUCCESS",
       "details": "Surprises réveil préparées",
-      "elapsed_minutes": 0.1500258
+      "elapsed_minutes": 0.15008253333333332
     }
   ],
   "achievements": [
