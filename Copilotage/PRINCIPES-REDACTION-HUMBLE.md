@@ -16,23 +16,23 @@
 
 ## ✅ **APPROCHES AUTORISÉES**
 
-### 🤝 **STYLE COLLECTIF**
-- ✅ "L'équipe a découvert..."
-- ✅ "Les recherches montrent..."
-- ✅ "Cette approche révèle..."
-- ✅ "La communauté observe..."
-
-### 🔬 **STYLE SCIENTIFIQUE**
-- ✅ "Les tests indiquent..."
+### 🔬 **STYLE FACTUEL SIMPLE**
+- ✅ "Cette recherche révèle..."
 - ✅ "L'analyse démontre..."
-- ✅ "Les données suggèrent..."
-- ✅ "L'expérimentation confirme..."
+- ✅ "Les tests confirment..."
+- ✅ "Cette approche permet..."
 
-### 🌍 **STYLE UNIVERSEL**
-- ✅ "Il s'avère que..."
-- ✅ "On peut constater..."
-- ✅ "Cette technique permet..."
-- ✅ "L'observation révèle..."
+### 🏗️ **STYLE CRÉATEUR DISCRET**
+- ✅ "Stéphane Denis, créateur de PaniniFS, observe que..."
+- ✅ "Selon l'auteur de cette approche..."
+- ✅ "Le développeur note dans ses échanges..."
+- ✅ "Dans ses recherches, l'inventeur souligne..."
+
+### 🤝 **STYLE COLLABORATION IA-HUMAIN**
+- ✅ "Dans ses échanges avec Mon-noM..."
+- ✅ "Cette collaboration révèle..."
+- ✅ "Les sessions de travail montrent..."
+- ✅ "Cette expérience collaborative démontre..."
 
 ## 📝 **TEMPLATES APPROUVÉS**
 
@@ -40,14 +40,14 @@
 ```
 "Une découverte inattendue dans l'optimisation UX..."
 "Cette technique simple change tout..."
-"Voici ce que la communauté développeur a appris..."
+"Stéphane Denis, dans ses recherches PaniniFS, observe..."
 ```
 
 ### Pour Leanpub :
 ```
-"Ce guide rassemble les meilleures pratiques..."
-"L'écosystème opensource révèle des patterns..."
-"Ces méthodes émergent de l'expérience collective..."
+"Ce guide présente les découvertes de PaniniFS..."
+"L'écosystème développé révèle des patterns..."
+"Ces méthodes émergent des échanges avec Mon-noM..."
 ```
 
 ## 🎯 **FOCUS SUR**
@@ -60,16 +60,16 @@
 ## 🔄 **REFORMULATIONS**
 
 **❌ ÉVITER :**
-> "Stéphane, expert de 30 ans, a développé..."
+> "L'équipe brillante de PaniniFS..."
 
 **✅ PRÉFÉRER :**
-> "30 années d'expérience collective ont révélé..."
+> "PaniniFS, créé par Stéphane Denis, révèle..."
 
 **❌ ÉVITER :**
-> "Grâce à son intuition brillante..."
+> "Grâce à la communauté exceptionnelle..."
 
 **✅ PRÉFÉRER :**
-> "L'analyse approfondie démontre..."
+> "Dans ses échanges avec Mon-noM, l'auteur observe..."
 
 ## 🎭 **TON GÉNÉRAL**
 
@@ -78,11 +78,14 @@
 - **Factuel** : S'en tenir aux faits techniques
 - **Généreux** : Partager sans revendiquer
 
-## 💡 **PRINCIPE DIRECTEUR**
+## 💡 **PRINCIPE DIRECTEUR RÉVISÉ**
 
-> **"Laisser parler le travail, pas la personne"**
+> **"Reconnaître la paternité sans spotlight, citer les échanges naturellement"**
 
-Les innovations se défendent d'elles-mêmes. L'humilité renforce la crédibilité plus que l'autopromotion.
+- **Créateur discret** : Stéphane Denis, sans mise en valeur excessive
+- **Collaboration transparente** : Échanges avec Mon-noM documentés
+- **Focus sur le travail** : Les innovations parlent d'elles-mêmes
+- **Pas de fausse équipe** : Honnêteté sur la structure actuelle
 
 ---
 
