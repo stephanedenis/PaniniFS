@@ -11,8 +11,8 @@ cat << 'EOF'
 
 2. ⚙️ Configuration Source:
    - Source: "Deploy from a branch"
-   - Branch: "gh-pages" 
-   - Folder: "/ (root)"
+   - Branch: "master" 
+   - Folder: "/site"
 
 3. 🎯 Custom Domain:
    - Custom domain: "paninifs.org"
@@ -33,7 +33,7 @@ echo "📊 Contenu détecté:"
 if curl -s http://paninifs.org/ | grep -q "MDwiki"; then
     echo "❌ ANCIEN CONTENU: MDwiki encore présent"
     echo "➡️  GitHub Pages utilise encore l'ancienne source"
-    echo "🔧 Action requise: Configurer source = gh-pages branch"
+    echo "🔧 Action requise: Configurer source = master branch /site folder"
 else
     echo "✅ NOUVEAU CONTENU: MkDocs déployé avec succès"
 fi
