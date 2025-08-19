@@ -14,6 +14,16 @@ from datetime import datetime
 import os
 import requests
 
+# Import headless environment loader
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'scripts'))
+try:
+    from headless_env_loader import HeadlessEnvLoader
+    HEADLESS_LOADER = HeadlessEnvLoader()
+except ImportError:
+    HEADLESS_LOADER = None
+
+
 class SimpleAutonomousOrchestrator:
     """Orchestrateur simplifié pour autonomie post-Totoro"""
     
