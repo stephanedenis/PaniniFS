@@ -639,7 +639,7 @@ class AdversarialCriticAgent:
             ],
             impact='Adoption commerciale improbable',
             counter_argument='Innovation crée nouveaux marchés',
-            improvement_suggestion='Étude marché et cas d\\'usage concrets',
+            improvement_suggestion='Étude marché et cas d\'usage concrets',
             confidence=0.7
         )
         

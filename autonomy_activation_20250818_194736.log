@@ -19,3 +19,6 @@
 [0;36m[INFO][0m Démarrage monitoring permanent...
 [0;32m[SUCCESS][0m Monitoring permanent démarré (PID: 3049289)
 [0;36m[INFO][0m Commit final état autonome...
+[0;32m[SUCCESS][0m 📋 Guide: /home/stephane/GitHub/PaniniFS-1/AUTONOMY_ACTIVATED_README.md
+[0;32m[SUCCESS][0m 📊 Log activation: /home/stephane/GitHub/PaniniFS-1/autonomy_activation_20250818_194736.log
+[0;32m[SUCCESS][0m 🔄 Monitoring PID: 3049289

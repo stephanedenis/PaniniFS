@@ -137,7 +137,7 @@ class SimpleAutonomousOrchestrator:
         try:
             print("🔥 Lancement Agent Critique...")
             
-            agent_script = os.path.join(self.base_path, "Copilotage/agents/adversarial_critic_agent.py")
+            agent_script = os.path.join(self.base_path, "Copilotage/agents/adversarial_critic_simple.py")
             
             if os.path.exists(agent_script):
                 # Exécution avec timeout

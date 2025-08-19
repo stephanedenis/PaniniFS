@@ -1,0 +1,38 @@
+🔍 SURVEILLANCE GITHUB AUTONOME - TEST
+==================================================
+🔍 Surveillance GitHub - Tous repos Panini...
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🧪 Tests Automatiques
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🚀 PaniniFS CI/CD Pipeline
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🧪 Tests Automatiques
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🦀 Rust Multi-Platform Build
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🚀 PaniniFS CI/CD Pipeline
+⚠️ Attention workflow_failure: stephanedenis/PaniniFS - Workflow failed: 🧪 Tests Automatiques
+⚠️ Repo stephanedenis/Panini-DevOps non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-AutonomousMissions non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-CloudOrchestrator non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-CoLabController non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-PublicationEngine non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-SemanticCore non trouvé ou privé
+⚠️ Repo stephanedenis/PaniniFS-UltraReactive non trouvé ou privé
+
+============================================================
+🔍 RÉSUMÉ SURVEILLANCE GITHUB
+============================================================
+
+📊 STATUT GLOBAL:
+   🟢 Repos sains: 7/8
+   🟡 Attention requise: 1
+   ❌ Workflow failures: 6
+   📋 Issues ouvertes: 1
+
+🚨 ALERTES (6 total):
+   🔴 Critiques: 0
+   🟡 Moyennes: 6
+   🟢 Faibles: 0
+
+💡 RECOMMANDATIONS:
+   • Corriger 6 workflow failures détectés
+   • Attention prioritaire requise: stephanedenis/PaniniFS
+
+============================================================
+📊 Rapport surveillance GitHub: /home/stephane/GitHub/PaniniFS-1/github_monitoring_report_github_monitor_20250818_200000.json
