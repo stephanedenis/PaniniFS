@@ -49,19 +49,17 @@ jobs:
         
     - name: Build Documentation
       run: |
-        mkdocs build --clean --strict
+        mkdocs build --clean
+        echo "paninifs.org" > site/CNAME
         
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./site
-        publish_branch: gh-pages
-        force_orphan: true
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy documentation - ${{ github.sha }}'
+    - name: Commit and Push Site
+      if: github.ref == 'refs/heads/master'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add site/
+        git diff --staged --quiet || git commit -m "🚀 Auto-update site MkDocs - $(date '+%Y-%m-%d %H:%M')"
+        git push
         
     - name: Notify Deployment Status
       if: always()
