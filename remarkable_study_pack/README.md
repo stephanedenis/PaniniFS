@@ -18,7 +18,16 @@
 
 ## 📁 STRUCTURE PACKAGE
 
-### 📝 publications_review/
+### � scientific_articles/
+**Articles de référence pour rattrapage théorique complet**:
+- `fondements_theoriques.md` - Pāṇini, systèmes distribués, NLP moderne
+- `etat_art_avance.md` - Multi-agents, métalinguistique, architectures cognitives  
+- `bibliographie_complete.md` - Citations, références, grilles d'évaluation
+- `etudes_cas_exercices.md` - Cas pratiques et exercices d'application
+
+**Usage**: Lecture critique approfondie, annotations détaillées, validation théorique
+
+### �📝 publications_review/
 **Publications actuelles pour révision critique**:
 - `publications_revision_complete.md` - Compilation générale
 - `README_revision_complete.md` - README principal enrichi
@@ -48,6 +57,16 @@
 ---
 
 ## 🚀 WORKFLOW RECOMMANDÉ
+
+### Phase 1: Étude Théorique (5-7 jours)
+1. **Lecture articles scientifiques** (scientific_articles/)
+   - Fondements: Pāṇini + systèmes distribués + NLP
+   - État de l'art: Multi-agents + architectures cognitives
+   - Exercices pratiques et études de cas
+2. **Annotations systématiques** avec templates
+3. **Synthèse critique** des concepts
+
+### Phase 2: Révision Publications (3-4 jours)
 
 ### Démarrage (1ère session):
 1. **Lire**: `reading_guides/roadmap_lecture_personnalise.md`

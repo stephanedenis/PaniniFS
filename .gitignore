@@ -25,3 +25,10 @@ logs/
 
 # Archive (keep in repo for reference)
 # Copilotage/archive/
+
+# Credentials and secrets
+credentials.json
+**/credentials.json
+gdrive_credentials/
+firebase_config.json
+.env.local
