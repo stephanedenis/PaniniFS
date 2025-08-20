@@ -499,7 +499,7 @@ The **7 universal dhātu** we identified open the way to:
 
 - **Open Source Code**: [github.com/stephanedenis/PaniniFS](https://github.com/stephanedenis/PaniniFS)
 - **Complete Documentation**: [paninifs.dev](https://paninifs.dev)  
-- **Complete Book**: "The Odyssey of Semantic Compression" (Leanpub)
+- **Complete Book**: "[The Odyssey of Semantic Compression](LEANPUB_BOOK_LINK)" (Leanpub)
 - **Academic Research**: Papers and publications in progress
 
 ### **Acknowledgments**
