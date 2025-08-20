@@ -2,16 +2,16 @@ name: Deploy Documentation to paninifs.org
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master ]
     paths:
       - 'docs_new/**'
       - 'mkdocs.yml'
       - '.github/workflows/deploy-docs.yml'
-  pull_request:
-    branches: [ master, main ]
-    paths:
-      - 'docs_new/**'
-      - 'mkdocs.yml'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   deploy:
@@ -21,6 +21,7 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
     
     - name: Setup Python
@@ -53,13 +54,17 @@ jobs:
         echo "paninifs.org" > site/CNAME
         
     - name: Commit and Push Site
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
         git add site/
-        git diff --staged --quiet || git commit -m "🚀 Auto-update site MkDocs - $(date '+%Y-%m-%d %H:%M')"
-        git push
+        if ! git diff --staged --quiet; then
+          git commit -m "🚀 Auto-update site MkDocs - $(date '+%Y-%m-%d %H:%M')"
+          git push
+        else
+          echo "No changes to commit"
+        fi
         
     - name: Notify Deployment Status
       if: always()

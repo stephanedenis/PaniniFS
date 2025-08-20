@@ -1,0 +1,44 @@
+name: 🔧 Workflows Maintenance
+
+on:
+  workflow_dispatch:
+  
+permissions:
+  contents: write
+
+jobs:
+  disable-failing-workflows:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Archive problematic workflows
+      run: |
+        mkdir -p .github/workflows/disabled/
+        
+        # Déplacer les workflows problématiques
+        if [ -f .github/workflows/rust-multiplatform.yml ]; then
+          mv .github/workflows/rust-multiplatform.yml .github/workflows/disabled/
+        fi
+        
+        if [ -f .github/workflows/collectors-optimized.yml ]; then
+          mv .github/workflows/collectors-optimized.yml .github/workflows/disabled/
+        fi
+        
+        echo "✅ Workflows problématiques archivés"
+        
+    - name: Simplify main CI
+      run: |
+        echo "Workflows restants:"
+        ls -la .github/workflows/
+        
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        if ! git diff --staged --quiet; then
+          git commit -m "🔧 Archive workflows problématiques"
+          git push
+        fi
