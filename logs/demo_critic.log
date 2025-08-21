@@ -1,4 +1,0 @@
-  File "/home/stephane/GitHub/PaniniFS-1/Copilotage/agents/adversarial_critic_agent.py", line 521
-    impact='Impossible d\\'évaluer solidité théorique',
-                                                     ^
-SyntaxError: unterminated string literal (detected at line 521)

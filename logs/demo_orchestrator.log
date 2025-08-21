@@ -1,4 +1,0 @@
-  File "<string>", line 2
-    from /home/stephane/GitHub/PaniniFS-1/Copilotage/agents.continuous_improvement_orchestrator import ContinuousImprovementOrchestrator
-         ^
-SyntaxError: invalid syntax

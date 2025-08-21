@@ -2,16 +2,16 @@ name: Deploy Documentation to paninifs.org
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main ]
     paths:
       - 'docs_new/**'
       - 'mkdocs.yml'
       - '.github/workflows/deploy-docs.yml'
-
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+  pull_request:
+    branches: [ master, main ]
+    paths:
+      - 'docs_new/**'
+      - 'mkdocs.yml'
 
 jobs:
   deploy:
@@ -21,7 +21,6 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v4
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
     
     - name: Setup Python
@@ -50,21 +49,19 @@ jobs:
         
     - name: Build Documentation
       run: |
-        mkdocs build --clean
-        echo "paninifs.org" > site/CNAME
+        mkdocs build --clean --strict
         
-    - name: Commit and Push Site
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add site/
-        if ! git diff --staged --quiet; then
-          git commit -m "🚀 Auto-update site MkDocs - $(date '+%Y-%m-%d %H:%M')"
-          git push
-        else
-          echo "No changes to commit"
-        fi
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./site
+        publish_branch: gh-pages
+        force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy documentation - ${{ github.sha }}'
         
     - name: Notify Deployment Status
       if: always()
