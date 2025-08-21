@@ -1,8 +1,22 @@
 # 🤖 PaniniFS Colab Controller
 
-## 🎯 Mission: Automation Totale Google Colab
+## 🎯 Mission: Colab Integration avec Respect Règles Copilotage
 
-Contrôle Playwright de Google Colab pour exécution autonome 100% hands-free.
+**Principe fondamental**: JAMAIS plus de 10 secondes sans feedback utilisateur.
+
+## 🚨 **PROBLÈME RÉSOLU**
+
+### **Avant**: Violation Règles Copilotage
+- ❌ Sessions Colab 24H+ sans intervention
+- ❌ Traitement silencieux non-conforme  
+- ❌ Violation timeboxing 10 secondes
+- ❌ Pas de checkpoints obligatoires
+
+### **Après**: Conformité Garantie
+- ✅ Controller avec checkpoints 30s/2min/5min/10min
+- ✅ Feedback < 8s (buffer vs règle 10s)
+- ✅ Intervention utilisateur obligatoire
+- ✅ Playwright pour interactions web sophistiquées
 
 ## 🚀 Fonctionnalités
 
