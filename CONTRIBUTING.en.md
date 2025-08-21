@@ -15,6 +15,15 @@ Thank you for your interest in PaniniFS! This guide explains how to contribute e
 
 *Copiloting is our preferred contribution method - we strongly encourage this approach!*
 
+#### **🤖 AI in Agent Mode**
+**The AI used in this project operates in autonomous agent mode**, which means:
+- **Extended capabilities**: AI can execute commands, read/write files, and interact with systems
+- **Direct actions**: No need for copy-paste, AI directly modifies code
+- **Integrated workflow**: AI handles Git, tests, builds, and deployments
+- **Supervised autonomy**: Human guides, AI executes technical tasks
+
+*This agent approach enables much more fluid and productive collaboration than a simple code assistant.*
+
 ### **🔬 Research & Theory**
 - Validation of the 7 informational dhātu
 - New semantic compression approaches

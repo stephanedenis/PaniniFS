@@ -13,6 +13,15 @@ Merci de votre intérêt pour PaniniFS ! Ce guide vous explique comment contribu
 
 *Le Copilotage est notre méthode de contribution privilégiée - nous encourageons fortement cette approche !*
 
+#### **🤖 IA en Mode Agent**
+**L'IA utilisée dans ce projet fonctionne en mode agent autonome**, ce qui signifie :
+- **Capacités étendues** : L'IA peut exécuter des commandes, lire/écrire des fichiers, et interagir avec les systèmes
+- **Actions directes** : Pas besoin de copier-coller, l'IA modifie directement le code
+- **Workflow intégré** : L'IA gère Git, les tests, les builds, et les déploiements
+- **Autonomie supervisée** : L'humain guide, l'IA exécute les tâches techniques
+
+*Cette approche agent permet une collaboration beaucoup plus fluide et productive qu'un simple assistant de code.*
+
 ### **🔬 Recherche & Théorie**
 - Validation des 7 dhātu informationnels
 - Nouvelles approches compression sémantique

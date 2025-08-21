@@ -126,6 +126,16 @@ We welcome community translations for:
 
 ## 🤖 **AI Assistant Multilingual Usage**
 
+### **🤖 AI in Agent Mode (Important)**
+**The AI assistant used in PaniniFS operates in autonomous agent mode:**
+- **Direct file manipulation**: AI can read, write, and modify files directly
+- **Command execution**: AI executes terminal commands and Git operations
+- **Integrated workflow**: No copy-paste needed, AI handles technical tasks
+- **Multilingual capability**: AI adapts to contributor's language preference
+- **Supervised autonomy**: Human provides direction, AI handles implementation
+
+*This agent mode enables much smoother multilingual collaboration than traditional code assistants.*
+
 ### **Copiloting in Multiple Languages**
 ```bash
 # French-speaking developer with AI
