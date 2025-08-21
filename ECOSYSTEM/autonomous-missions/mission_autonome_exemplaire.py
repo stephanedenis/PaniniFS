@@ -24,7 +24,9 @@ class NightMissionAutonomous:
         
     def setup_logging(self):
         """Logging pour traçabilité complète"""
-        log_path = Path('/home/stephane/GitHub/PaniniFS-1/scripts/night_mission_detailed.log')
+        log_path = Path('/home/stephane/GitHub/PaniniFS-1/OPERATIONS/monitoring/night_mission_detailed.log')
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
         logging.basicConfig(
             level=logging.INFO,
             format='%(asctime)s - NIGHT-MISSION - %(levelname)s - %(message)s',
