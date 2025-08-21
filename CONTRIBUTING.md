@@ -4,6 +4,15 @@ Merci de votre intérêt pour PaniniFS ! Ce guide vous explique comment contribu
 
 ## 🎯 **Types de Contributions**
 
+### **🤖 Copilotage avec IA (Fortement Recommandé)**
+**PaniniFS a été développé principalement via Copilotage humain-IA collaboratif.**
+- **GitHub Copilot**: Développement code assisté en temps réel
+- **Collaboration continue**: Dialogue constant développeur ↔ IA
+- **Itération rapide**: Cycles feedback courts et amélioration continue
+- **Documentation vivante**: Code et docs évoluent ensemble
+
+*Le Copilotage est notre méthode de contribution privilégiée - nous encourageons fortement cette approche !*
+
 ### **🔬 Recherche & Théorie**
 - Validation des 7 dhātu informationnels
 - Nouvelles approches compression sémantique
@@ -114,7 +123,32 @@ git commit -m "docs(research): publication résultats validation dhātu"
 
 ## 🔄 **Workflow Contribution**
 
-### **1. Issues & Planning**
+### **🤖 Workflow Copilotage** (Méthode Privilégiée)
+```bash
+# Développement assisté IA recommandé
+# GitHub Copilot, Claude, ChatGPT, etc.
+
+# 1. Session collaborative humain-IA
+AI_ASSISTANT="github-copilot"  # ou autre
+git checkout -b feature/copilot-assisted-compression
+
+# 2. Développement itératif avec feedback continu
+# - Dialogue constant avec l'IA
+# - Validation en temps réel
+# - Documentation générée collaborativement
+
+# 3. Commits réguliers documentés
+git commit -m "feat(core): copilot-assisted dhātu optimization
+
+Co-authored-by: GitHub Copilot
+Collaborative session: Human + AI iterative development
+Validation: AI-suggested tests + human review"
+
+# 4. PR avec contexte collaboration
+# Documenter le processus de Copilotage utilisé
+```
+
+### **👥 Workflow Traditionnel**
 - Consultez les [issues ouvertes](https://github.com/stephanedenis/PaniniFS/issues)
 - Commentez pour signaler votre intérêt
 - Créez une issue pour nouvelle fonctionnalité

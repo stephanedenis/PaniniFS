@@ -1,9 +1,17 @@
 # 🔄 Pull Request - PaniniFS
 
+*[English Version](#english-version) | **Version Française***
+
 ## 📋 **Description**
 
 ### 🎯 **Résumé des changements**
 <!-- Décrivez brièvement ce que cette PR accomplit -->
+
+### 🤖 **Méthode de Développement**
+<!-- Cochez la méthode utilisée -->
+- [ ] **Copilotage IA** (Recommandé) - Collaboration humain-IA
+- [ ] **Développement traditionnel** - Approche classique
+- [ ] **Développement hybride** - Combinaison des approches
 
 ### 🔗 **Issues liées**
 <!-- Utilisez "Closes #123" ou "Fixes #456" pour lier automatiquement -->
@@ -117,3 +125,85 @@ pytest
 - [ ] Planifier release si breaking change
 
 **Merci de contribuer à PaniniFS ! 🚀**
+
+---
+
+# 🔄 Pull Request - PaniniFS
+
+## **English Version**
+
+### 📋 **Description**
+
+#### 🎯 **Summary of Changes**
+<!-- Briefly describe what this PR accomplishes -->
+
+#### 🤖 **Development Method**
+<!-- Check the method used -->
+- [ ] **AI Copiloting** (Recommended) - Human-AI collaboration
+- [ ] **Traditional Development** - Classic approach
+- [ ] **Hybrid Development** - Combination of approaches
+
+#### 🔗 **Related Issues**
+<!-- Use "Closes #123" or "Fixes #456" to automatically link -->
+- Closes #
+- Related to #
+
+#### 🧩 **Type of Change**
+<!-- Check the appropriate box -->
+- [ ] 🐛 **Bug fix** (non-breaking change that fixes an issue)
+- [ ] ✨ **New feature** (non-breaking change that adds functionality)
+- [ ] 💥 **Breaking change** (fix or feature that breaks compatibility)
+- [ ] 📚 **Documentation** (documentation changes only)
+- [ ] 🔧 **Refactoring** (code change with no functional impact)
+- [ ] ⚡ **Performance** (change that improves performance)
+- [ ] 🧪 **Tests** (adding or fixing tests)
+- [ ] 🔨 **Build/CI** (build system or CI changes)
+
+### 🔬 **Technical Details**
+
+#### 📂 **Modified Components**
+<!-- Check impacted domains -->
+- [ ] **CORE/** - Main Rust engine
+- [ ] **ECOSYSTEM/** - Python tools and integrations
+- [ ] **DOCUMENTATION/** - Guides and documentation
+- [ ] **RESEARCH/** - Experiments and datasets
+- [ ] **OPERATIONS/** - DevOps and monitoring
+- [ ] **GOVERNANCE/** - Processes and governance
+- [ ] **SANDBOX/** - Prototypes and experiments
+
+#### 🧪 **Testing Method**
+<!-- Describe how you tested your changes -->
+```bash
+# Commands used for testing
+cargo test
+# or
+pytest
+# or
+./run_integration_tests.sh
+```
+
+### ✅ **Checklist**
+
+#### 🔧 **Code Quality**
+- [ ] My code follows the project's style standards
+- [ ] I have performed a self-review of my code
+- [ ] I have commented my code in complex areas
+- [ ] My changes don't generate new warnings
+
+#### 🧪 **Tests**
+- [ ] I have added tests that prove my fix works
+- [ ] I have added tests that prove my feature works
+- [ ] New and existing tests pass locally
+
+#### 📚 **Documentation**
+- [ ] I have updated corresponding documentation
+- [ ] I have added docstrings/rustdoc to new functions
+- [ ] I have updated CHANGELOG.md if necessary
+
+#### 🤖 **AI Copiloting Details** (if applicable)
+- [ ] AI assistant used: <!-- GitHub Copilot, Claude, ChatGPT, etc. -->
+- [ ] Collaboration methodology documented
+- [ ] Human validation performed for all AI suggestions
+- [ ] Iterative refinement process followed
+
+**Thank you for contributing to PaniniFS! 🚀**
