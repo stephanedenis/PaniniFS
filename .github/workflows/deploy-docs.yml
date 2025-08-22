@@ -1,73 +1,45 @@
-name: Deploy Documentation to paninifs.org
+name: 🏕️ Deploy MkDocs Site (Camping Strategy)
 
 on:
   push:
-    branches: [ master, main ]
+    branches: [ master ]
     paths:
       - 'docs_new/**'
       - 'mkdocs.yml'
       - '.github/workflows/deploy-docs.yml'
-  pull_request:
-    branches: [ master, main ]
-    paths:
-      - 'docs_new/**'
-      - 'mkdocs.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Checkout Repository
+    - name: 📥 Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    
-    - name: Setup Python
+        
+    - name: 🐍 Setup Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
-    - name: Cache Dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-    
-    - name: Install Dependencies
+        
+    - name: 📦 Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install mkdocs-material
         pip install mkdocs-git-revision-date-localized-plugin
-        pip install plantuml-markdown
         
-    - name: Validate Configuration
-      run: |
-        mkdocs config
-        
-    - name: Build Documentation
-      run: |
-        mkdocs build --clean --strict
-        
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+    - name: 🏗️ Build site
+      run: mkdocs build --config-file mkdocs.yml
+      
+    - name: 🚀 Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./site
-        publish_branch: gh-pages
-        force_orphan: true
-        user_name: 'github-actions[bot]'
-        user_email: 'github-actions[bot]@users.noreply.github.com'
-        commit_message: 'Deploy documentation - ${{ github.sha }}'
+        cname: paninifs.org
         
-    - name: Notify Deployment Status
-      if: always()
+    - name: ✅ Success notification
       run: |
-        if [ "${{ job.status }}" == "success" ]; then
-          echo "✅ Documentation deployed successfully to paninifs.org"
-        else
-          echo "❌ Documentation deployment failed"
-        fi
+        echo "🎉 Site MkDocs déployé avec succès!"
+        echo "🌐 Disponible sur: https://paninifs.org"
