@@ -5,6 +5,7 @@ Tableau de bord principal pour le suivi de l'écosystème PaniniFS en mode campi
 ## 📊 Accès Direct
 
 - **[🏕️ Dashboard Temps Réel](dashboard.html)** - Interface de monitoring camping strategy
+- **[🤖 Inventaire Agents](agents-inventory.html)** - 13+ Agents autonomes détaillés
 - **[☁️ Colab Master Orchestrator](https://colab.research.google.com/github/stephanedenis/PaniniFS/blob/master/ECOSYSTEM/colab-notebooks/PaniniFS-Master-Orchestrator.ipynb)** - Orchestrateur central
 - **[🔧 GitHub Actions](https://github.com/stephanedenis/PaniniFS/actions)** - CI/CD et workflows  
 - **[📱 Repository GitHub](https://github.com/stephanedenis/PaniniFS)** - Code source
@@ -14,6 +15,7 @@ Tableau de bord principal pour le suivi de l'écosystème PaniniFS en mode campi
 ✅ **Totoro Mode Minimal** - Terminal + VS Code + GitHub Copilot  
 ✅ **Cloud Externalization** - Colab + GitHub Actions + Vercel  
 ✅ **Workflows Réparés** - Doctor a corrigé tous les problèmes  
+✅ **13+ Agents Autonomes** - Écosystème complet opérationnel  
 🟡 **DNS Configuration** - En cours pour paninifs.org  
 
 ---

@@ -1,51 +1,51 @@
 {
-  "timestamp": "2025-08-22T10:56:47.493106",
+  "timestamp": "2025-08-22T11:14:22.545948",
   "github_pages": {
     "error": "API error: 404"
   },
   "domains": [
     {
       "domain": "paninifs.com",
-      "timestamp": "2025-08-22T10:56:46.324598",
+      "timestamp": "2025-08-22T11:14:21.973829",
       "status": "ssl_error",
       "http_code": 404,
-      "response_time": 0.07528,
+      "response_time": 0.035719,
       "ssl_valid": false,
       "redirect_url": null
     },
     {
       "domain": "o-tomate.com",
-      "timestamp": "2025-08-22T10:56:46.578819",
+      "timestamp": "2025-08-22T11:14:22.097001",
       "status": "ssl_error",
       "http_code": 404,
-      "response_time": 0.089719,
+      "response_time": 0.030582,
       "ssl_valid": false,
       "redirect_url": null
     },
     {
       "domain": "stephanedenis.cc",
-      "timestamp": "2025-08-22T10:56:46.819606",
+      "timestamp": "2025-08-22T11:14:22.205370",
       "status": "ssl_error",
       "http_code": 404,
-      "response_time": 0.071553,
+      "response_time": 0.037199,
       "ssl_valid": false,
       "redirect_url": null
     },
     {
       "domain": "sdenis.net",
-      "timestamp": "2025-08-22T10:56:47.047407",
+      "timestamp": "2025-08-22T11:14:22.308149",
       "status": "ssl_error",
       "http_code": 404,
-      "response_time": 0.073343,
+      "response_time": 0.037,
       "ssl_valid": false,
       "redirect_url": null
     },
     {
       "domain": "paninifs.org",
-      "timestamp": "2025-08-22T10:56:47.272082",
+      "timestamp": "2025-08-22T11:14:22.439572",
       "status": "ssl_error",
       "http_code": 404,
-      "response_time": 0.062215,
+      "response_time": 0.036039,
       "ssl_valid": false,
       "redirect_url": null
     }
