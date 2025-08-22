@@ -2,12 +2,93 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=https://paninifs.org/">
-    <title>PaniniFS - Moved</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏕️ PaniniFS - Vacation Mode</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+        }
+        h1 { font-size: 3em; text-align: center; margin-bottom: 0; }
+        .status { text-align: center; font-size: 1.2em; margin: 20px 0; }
+        .emoji { font-size: 2em; }
+        .vacation { background: rgba(255,193,7,0.2); padding: 20px; border-radius: 10px; margin: 20px 0; }
+        .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0; }
+        .link-card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 20px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            color: white;
+            transition: transform 0.2s;
+        }
+        .link-card:hover { transform: scale(1.05); }
+        .timestamp { text-align: center; opacity: 0.7; font-size: 0.9em; margin-top: 30px; }
+    </style>
 </head>
 <body>
-    <h1>🏕️ PaniniFS</h1>
-    <p>This site has moved to <a href="https://paninifs.org/">paninifs.org</a></p>
-    <script>window.location.href = 'https://paninifs.org/';</script>
+    <div class="container">
+        <h1>🏕️ PaniniFS</h1>
+        
+        <div class="status">
+            <span class="emoji">🤖</span> <strong>Auto-Pilot Mode Active</strong>
+        </div>
+        
+        <div class="vacation">
+            <h2>🏖️ Vacation Mode (Aug 22-30, 2025)</h2>
+            <p>Le système est en mode auto-pilote pendant les vacances. Tous les services essentiels sont surveillés automatiquement.</p>
+        </div>
+        
+        <h3>📊 System Status</h3>
+        <ul>
+            <li>✅ GitHub Pages: Operational</li>
+            <li>✅ Doctor Autonome: Active</li>
+            <li>✅ Auto-backup: Daily 2AM</li>
+            <li>✅ Emergency monitoring: Hourly</li>
+            <li>✅ Workflow surveillance: 5min intervals</li>
+        </ul>
+        
+        <div class="links">
+            <a href="https://github.com/stephanedenis/PaniniFS" class="link-card">
+                <h4>📂 GitHub Repository</h4>
+                <p>Source code and issues</p>
+            </a>
+            
+            <a href="https://github.com/stephanedenis/PaniniFS/issues/9" class="link-card">
+                <h4>🏕️ Camping Strategy Epic</h4>
+                <p>Master roadmap</p>
+            </a>
+            
+            <a href="agents-inventory.html" class="link-card">
+                <h4>🤖 Agents Inventory</h4>
+                <p>Autonomous agents status</p>
+            </a>
+        </div>
+        
+        <h3>🔧 Emergency Contact</h3>
+        <p>Si problème critique pendant les vacances:</p>
+        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px;">
+cd /home/stephane/GitHub/PaniniFS-1
+python3 doctor_control.py status
+./vacation_emergency_monitor.sh
+        </pre>
+        
+        <div class="timestamp">
+            Last updated: August 22, 2025 - Vacation Mode Activated ✅
+        </div>
+    </div>
 </body>
 </html>
