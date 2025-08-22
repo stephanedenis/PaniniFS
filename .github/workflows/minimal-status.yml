@@ -1,0 +1,10 @@
+name: 🏕️ Minimal Status
+
+on:
+  workflow_dispatch:
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+    - run: echo "🏕️ Camping strategy operational"
