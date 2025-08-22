@@ -25,3 +25,9 @@ logs/
 
 # Archive (keep in repo for reference)
 # Copilotage/archive/
+
+# Tests et artéfacts temporaires
+TEST_WORKFLOW_OUTPUT/
+*.log
+*.tmp
+
