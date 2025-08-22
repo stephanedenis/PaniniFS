@@ -1,0 +1,59 @@
+{
+  "timestamp": "2025-08-22T10:56:47.493106",
+  "github_pages": {
+    "error": "API error: 404"
+  },
+  "domains": [
+    {
+      "domain": "paninifs.com",
+      "timestamp": "2025-08-22T10:56:46.324598",
+      "status": "ssl_error",
+      "http_code": 404,
+      "response_time": 0.07528,
+      "ssl_valid": false,
+      "redirect_url": null
+    },
+    {
+      "domain": "o-tomate.com",
+      "timestamp": "2025-08-22T10:56:46.578819",
+      "status": "ssl_error",
+      "http_code": 404,
+      "response_time": 0.089719,
+      "ssl_valid": false,
+      "redirect_url": null
+    },
+    {
+      "domain": "stephanedenis.cc",
+      "timestamp": "2025-08-22T10:56:46.819606",
+      "status": "ssl_error",
+      "http_code": 404,
+      "response_time": 0.071553,
+      "ssl_valid": false,
+      "redirect_url": null
+    },
+    {
+      "domain": "sdenis.net",
+      "timestamp": "2025-08-22T10:56:47.047407",
+      "status": "ssl_error",
+      "http_code": 404,
+      "response_time": 0.073343,
+      "ssl_valid": false,
+      "redirect_url": null
+    },
+    {
+      "domain": "paninifs.org",
+      "timestamp": "2025-08-22T10:56:47.272082",
+      "status": "ssl_error",
+      "http_code": 404,
+      "response_time": 0.062215,
+      "ssl_valid": false,
+      "redirect_url": null
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "online": 0,
+    "ssl_errors": 5,
+    "offline": 0
+  }
+}
