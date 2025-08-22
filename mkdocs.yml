@@ -104,6 +104,7 @@ markdown_extensions:
 # Navigation
 nav:
   - Accueil: index.md
+  - 🏕️ Dashboard: dashboard.md
   - Infrastructure: infrastructure.md
   - Surveillance: monitoring.md
   - English:
