@@ -1,8 +1,2 @@
-# Gemfile minimal pour GitHub Pages
 source "https://rubygems.org"
-
 gem "github-pages", group: :jekyll_plugins
-gem "jekyll-feed", "~> 0.12"
-gem "jekyll-sitemap"
-
-# 🏕️ Camping Strategy: Dépendances minimales Jekyll

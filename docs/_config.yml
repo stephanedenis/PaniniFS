@@ -1,36 +1,17 @@
-# Configuration Jekyll minimale pour GitHub Pages
-# ==============================================
-# 
-# Configuration de base pour éviter les échecs de build
-# et rediriger vers le site MkDocs principal.
-
-title: "PaniniFS - Site migré"
-description: "Infrastructure externalisée - Redirection vers paninifs.org"
-
-# Configuration Jekyll
-markdown: kramdown
-highlighter: rouge
-plugins:
-  - jekyll-feed
-  - jekyll-sitemap
-
-# Paramètres de base
+# Configuration Jekyll ultra-minimale pour GitHub Pages
+title: "PaniniFS"
+description: "Site migré vers paninifs.org"
 baseurl: ""
 url: "https://stephanedenis.github.io"
 
-# Redirection globale vers nouveau site
-# collections_dir: false
+# Plugins minimaux
+plugins:
+  - jekyll-feed
 
 # Exclusions
 exclude:
-  - docs_new/
-  - TEST_WORKFLOW_OUTPUT/
-  - "*.log"
-  - "*.tmp"
   - README.md
   - Gemfile*
-  - node_modules/
-  - vendor/
+  - "*.backup"
 
-# 🏕️ Camping Strategy: Site Jekyll minimal avec redirection
-# Site principal maintenant hébergé sur paninifs.org via MkDocs
+# 🏕️ Configuration minimale pour éviter tout échec Jekyll
