@@ -4,7 +4,6 @@
 
 ### 🎯 **CORE MEMORY** (`core_memory/`)
 - `README_MEMOIRE_INTERNE.md` - Mémoire principale consolidée
-- `EXPERIENCE_CONSOLIDATION_AUG2025.md` - Problèmes & solutions session autonomie cloud
 - Mission, règles, contexte architectural, statut recherche
 
 ### 🔧 **WORKFLOWS** (`workflows/`)
