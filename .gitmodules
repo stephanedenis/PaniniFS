@@ -1,0 +1,12 @@
+[submodule "modules/autonomous-missions"]
+	path = modules/autonomous-missions
+	url = git@github.com:stephanedenis/PaniniFS-AutonomousMissions.git
+[submodule "modules/semantic-core"]
+	path = modules/semantic-core
+	url = git@github.com:stephanedenis/PaniniFS-SemanticCore.git
+[submodule "modules/publication-engine"]
+	path = modules/publication-engine
+	url = git@github.com:stephanedenis/PaniniFS-PublicationEngine.git
+[submodule "modules/cloud-orchestrator"]
+	path = modules/cloud-orchestrator
+	url = git@github.com:stephanedenis/PaniniFS-CloudOrchestrator.git

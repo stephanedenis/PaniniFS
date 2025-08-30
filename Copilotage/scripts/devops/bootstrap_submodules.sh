@@ -15,15 +15,24 @@ mkdir -p modules
 
 for path in "${!MODULES[@]}"; do
   url="${MODULES[$path]}"
-  if [ ! -d "$path" ]; then
-    echo "Ajout submodule: $path -> $url"
-    git submodule add "$url" "$path" || true
+  # Vérifie l'accès au dépôt distant (évite d'écrire si inexistant)
+  if git ls-remote -h "$url" >/dev/null 2>&1; then
+    if [ ! -d "$path/.git" ]; then
+      echo "Ajout submodule: $path -> $url"
+      git submodule add "$url" "$path" || true
+    else
+      echo "Submodule déjà initialisé: $path"
+    fi
   else
-    echo "Dossier déjà présent: $path"
+    echo "SKIP: $path (repo inaccessible ou inexistant: $url)"
   fi
 done
 
-echo "Sync et init submodules (best-effort)"
-git submodule sync --recursive || true
-git submodule update --init --recursive || true
-git submodule status --recursive || true
+if [ -f .gitmodules ]; then
+  echo "Sync et init submodules (best-effort)"
+  git submodule sync --recursive || true
+  git submodule update --init --recursive || true
+  git submodule status --recursive || true
+else
+  echo "Aucun submodule configuré (.gitmodules absent)"
+fi
