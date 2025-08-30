@@ -25,9 +25,11 @@ fi
 to_ssh() {
 	# https://github.com/owner/repo(.git) -> git@github.com:owner/repo.git
 	local url="$1"
-	if [[ "$url" =~ ^https://github.com/([^/]+)/([^/]+)(\.git)?$ ]]; then
+	if [[ "$url" =~ ^https://github.com/([^/]+)/([^/]+?)(\.git)?$ ]]; then
 		local owner="${BASH_REMATCH[1]}"
 		local name="${BASH_REMATCH[2]}"
+		# Retire un éventuel suffixe .git puis le rajoute proprement
+		name="${name%.git}"
 		echo "git@github.com:${owner}/${name}.git"
 	else
 		echo "$url"
@@ -37,9 +39,10 @@ to_ssh() {
 to_https() {
 	# git@github.com:owner/repo(.git) -> https://github.com/owner/repo.git
 	local url="$1"
-	if [[ "$url" =~ ^git@github.com:([^/]+)/([^/]+)(\.git)?$ ]]; then
+	if [[ "$url" =~ ^git@github.com:([^/]+)/([^/]+?)(\.git)?$ ]]; then
 		local owner="${BASH_REMATCH[1]}"
 		local name="${BASH_REMATCH[2]}"
+		name="${name%.git}"
 		echo "https://github.com/${owner}/${name}.git"
 	else
 		echo "$url"
