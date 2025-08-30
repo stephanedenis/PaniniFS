@@ -12,3 +12,6 @@ Exécution tests:
 
 Automatisation tâches/branches:
 - devops/gh_task_init.sh — crée une issue et une branche associée
+
+Journalisation:
+- devops/journal_session.sh — génère un squelette de journal dans Copilotage/journal
