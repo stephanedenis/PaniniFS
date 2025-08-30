@@ -3,12 +3,12 @@ set -euo pipefail
 
 # bootstrap_submodules.sh — Ajoute/initialise les submodules cibles s'ils n'existent pas.
 declare -A MODULES=(
-  [modules/ultra-reactive]="https://github.com/stephanedenis/PaniniFS-UltraReactive"
-  [modules/colab-controller]="https://github.com/stephanedenis/PaniniFS-CoLabController"
-  [modules/autonomous-missions]="https://github.com/stephanedenis/PaniniFS-AutonomousMissions"
-  [modules/semantic-core]="https://github.com/stephanedenis/PaniniFS-SemanticCore"
-  [modules/publication-engine]="https://github.com/stephanedenis/PaniniFS-PublicationEngine"
-  [modules/cloud-orchestrator]="https://github.com/stephanedenis/PaniniFS-CloudOrchestrator"
+  [modules/ultra-reactive]="git@github.com:stephanedenis/PaniniFS-UltraReactive.git"
+  [modules/colab-controller]="git@github.com:stephanedenis/PaniniFS-CoLabController.git"
+  [modules/autonomous-missions]="git@github.com:stephanedenis/PaniniFS-AutonomousMissions.git"
+  [modules/semantic-core]="git@github.com:stephanedenis/PaniniFS-SemanticCore.git"
+  [modules/publication-engine]="git@github.com:stephanedenis/PaniniFS-PublicationEngine.git"
+  [modules/cloud-orchestrator]="git@github.com:stephanedenis/PaniniFS-CloudOrchestrator.git"
 )
 
 mkdir -p modules
