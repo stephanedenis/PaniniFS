@@ -14,7 +14,7 @@ Le système de monitoring dynamique PaniniFS offre une surveillance en temps ré
 
 ### URL principales
 - **Production**: https://paninifs.org/dashboard/
-- **GitHub Pages**: https://stephanedenis.github.io/PaniniFS/dashboard/
+- **GitHub Pages**: https://paninifs.org/dashboard/
 - **Données JSON**: https://paninifs.org/data/system_status.json
 
 ### Fonctionnalités

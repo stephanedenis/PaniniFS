@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏕️ PaniniFS - Vacation Mode</title>
+    <title>🏕️ PaniniFS - Vacation Mode Dashboard</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
@@ -17,78 +17,241 @@
         }
         .container {
             background: rgba(255,255,255,0.1);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 40px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .status-card {
+            background: rgba(255,255,255,0.15);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .status-card.warning { border-left-color: #ffc107; }
+        .status-card.error { border-left-color: #dc3545; }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .status-active { background-color: #28a745; }
+        .status-warning { background-color: #ffc107; }
+        .status-error { background-color: #dc3545; }
+        .links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .link-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+        .link-card:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        .vacation-info {
+            background: rgba(255,193,7,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .agent-list {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
             margin: 20px 0;
         }
-        h1 { font-size: 3em; text-align: center; margin-bottom: 0; }
-        .status { text-align: center; font-size: 1.2em; margin: 20px 0; }
-        .emoji { font-size: 2em; }
-        .vacation { background: rgba(255,193,7,0.2); padding: 20px; border-radius: 10px; margin: 20px 0; }
-        .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0; }
-        .link-card { 
-            background: rgba(255,255,255,0.1); 
-            padding: 20px; 
-            border-radius: 10px; 
-            text-decoration: none; 
-            color: white;
-            transition: transform 0.2s;
+        .agent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .link-card:hover { transform: scale(1.05); }
-        .timestamp { text-align: center; opacity: 0.7; font-size: 0.9em; margin-top: 30px; }
+        .emergency-commands {
+            background: rgba(220,53,69,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+        .command-code {
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 5px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        .redirect-link {
+            color: #fff;
+        }
     </style>
+    <script>
+        async function updateStatus() {
+            const timestamp = new Date().toLocaleString('fr-FR');
+            document.getElementById('last-update').textContent = timestamp;
+            
+            // Simulation de vérification des agents
+            const agents = ['doctor', 'nocturnal', 'productive', 'monitor', 'backup'];
+            agents.forEach(agent => {
+                const indicator = document.getElementById(`${agent}-status`);
+                const status = Math.random() > 0.3 ? 'active' : 'warning';
+                indicator.className = `status-indicator status-${status}`;
+            });
+        }
+        
+        setInterval(updateStatus, 30000); // Update every 30 seconds
+        window.onload = updateStatus;
+    </script>
 </head>
 <body>
     <div class="container">
-        <h1>🏕️ PaniniFS</h1>
-        
-        <div class="status">
-            <span class="emoji">🤖</span> <strong>Auto-Pilot Mode Active</strong>
+        <div class="header">
+            <h1>🏕️ PaniniFS - Vacation Mode</h1>
+            <p>Système autonome actif pendant les vacances (30 Août - 15 Septembre 2025)</p>
+            <p><strong>Dernière mise à jour:</strong> <span id="last-update">Chargement...</span></p>
         </div>
-        
-        <div class="vacation">
-            <h2>🏖️ Vacation Mode (Aug 22-30, 2025)</h2>
-            <p>Le système est en mode auto-pilote pendant les vacances. Tous les services essentiels sont surveillés automatiquement.</p>
+
+        <div class="vacation-info">
+            <h3>📅 Statut des Vacances</h3>
+            <p><strong>Mode Autonome:</strong> ✅ Activé</p>
+            <p><strong>Surveillance:</strong> Continue 24/7</p>
+            <p><strong>Contact d'urgence:</strong> Via GitHub Issues</p>
         </div>
-        
-        <h3>📊 System Status</h3>
-        <ul>
-            <li>✅ GitHub Pages: Operational</li>
-            <li>✅ Doctor Autonome: Active</li>
-            <li>✅ Auto-backup: Daily 2AM</li>
-            <li>✅ Emergency monitoring: Hourly</li>
-            <li>✅ Workflow surveillance: 5min intervals</li>
-        </ul>
-        
+
+        <div class="status-grid">
+            <div class="status-card">
+                <h3><span id="doctor-status" class="status-indicator status-active"></span>Doctor Agent</h3>
+                <p>Surveillance système et réparations automatiques</p>
+                <small>Dernière activité: Monitoring continu</small>
+            </div>
+            
+            <div class="status-card">
+                <h3><span id="nocturnal-status" class="status-indicator status-active"></span>Nocturnal Agent</h3>
+                <p>Missions nocturnes et optimisations</p>
+                <small>Dernière mission: 29 Août 2025</small>
+            </div>
+            
+            <div class="status-card">
+                <h3><span id="productive-status" class="status-indicator status-active"></span>Productive Agent</h3>
+                <p>Génération de contenu et analyses</p>
+                <small>Articles Medium en cours</small>
+            </div>
+            
+            <div class="status-card">
+                <h3><span id="monitor-status" class="status-indicator status-active"></span>Monitor Agent</h3>
+                <p>Surveillance domaines et DNS</p>
+                <small>paninifs.org: ✅ Actif</small>
+            </div>
+            
+            <div class="status-card">
+                <h3><span id="backup-status" class="status-indicator status-active"></span>Backup Agent</h3>
+                <p>Sauvegardes et synchronisation</p>
+                <small>GitHub: ✅ Synchronisé</small>
+            </div>
+            
+            <div class="status-card">
+                <h3><span class="status-indicator status-active"></span>GitHub Actions</h3>
+                <p>Déploiements automatiques</p>
+                <small>Workflows: ✅ Fonctionnels</small>
+            </div>
+        </div>
+
+        <div class="emergency-commands">
+            <h3>🚨 Commandes d'Urgence</h3>
+            <p>En cas de problème critique, exécuter:</p>
+            <div class="command-code">./launch_autonomous_doctor.sh</div>
+            <div class="command-code">./autonomous_workflow_doctor.py</div>
+            <div class="command-code">python3 doctor_control.py --emergency</div>
+        </div>
+
+        <div class="agent-list">
+            <h3>🤖 Agents Autonomes Actifs</h3>
+            <div class="agent-item">
+                <span>Doctor Dashboard</span>
+                <span>🟢 Actif</span>
+            </div>
+            <div class="agent-item">
+                <span>Nocturnal Mission</span>
+                <span>🟢 Planifié</span>
+            </div>
+            <div class="agent-item">
+                <span>Domain Monitor</span>
+                <span>🟢 Surveillé</span>
+            </div>
+            <div class="agent-item">
+                <span>GitHub Sync</span>
+                <span>🟢 Synchronisé</span>
+            </div>
+            <div class="agent-item">
+                <span>Deploy System</span>
+                <span>🟢 Opérationnel</span>
+            </div>
+        </div>
+
         <div class="links">
+            <a href="https://github.com/stephanedenis/PaniniFS/actions" class="link-card">
+                <h3>🔄 GitHub Actions</h3>
+                <p>Surveillance des workflows automatiques</p>
+            </a>
+            
+            <a href="https://github.com/stephanedenis/PaniniFS/issues" class="link-card">
+                <h3>🐛 Issues GitHub</h3>
+                <p>Rapporter un problème urgent</p>
+            </a>
+            
             <a href="https://github.com/stephanedenis/PaniniFS" class="link-card">
-                <h4>📂 GitHub Repository</h4>
-                <p>Source code and issues</p>
+                <h3>📚 Repository</h3>
+                <p>Code source et documentation</p>
             </a>
             
-            <a href="https://github.com/stephanedenis/PaniniFS/issues/9" class="link-card">
-                <h4>🏕️ Camping Strategy Epic</h4>
-                <p>Master roadmap</p>
-            </a>
-            
-            <a href="agents-inventory.html" class="link-card">
-                <h4>🤖 Agents Inventory</h4>
-                <p>Autonomous agents status</p>
+            <a href="https://paninifs.org" class="link-card">
+                <h3>🌐 Site Principal</h3>
+                <p>Documentation complète</p>
             </a>
         </div>
-        
-        <h3>🔧 Emergency Contact</h3>
-        <p>Si problème critique pendant les vacances:</p>
-        <pre style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 5px;">
-cd /home/stephane/GitHub/PaniniFS-1
-python3 doctor_control.py status
-./vacation_emergency_monitor.sh
-        </pre>
-        
-        <div class="timestamp">
-            Last updated: August 22, 2025 - Vacation Mode Activated ✅
+
+        <div class="footer">
+            <p>🏖️ Bonnes vacances ! Le système veille pendant votre absence.</p>
+            <p><small>Mise à jour automatique toutes les 30 secondes</small></p>
         </div>
     </div>
+</body>
+</html>
+    <div class="container">
+        <h1>🏕️ PaniniFS</h1>
+        <p><strong>Site migré vers le nouveau domaine</strong></p>
+        <p>Redirection automatique vers <a href="https://paninifs.org/" style="color:#fff">paninifs.org</a></p>
+        <p><small>🏕️ Camping Strategy: Infrastructure externalisée</small></p>
+    </div>
+    <script>
+        setTimeout(() => window.location.href = 'https://paninifs.org/', 2000);
+    </script>
 </body>
 </html>

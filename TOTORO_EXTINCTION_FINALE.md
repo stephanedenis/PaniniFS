@@ -78,7 +78,7 @@ Services Cloud:
 - 🔔 Notifications
 
 ### 📚 GitHub Pages
-**URL**: https://stephanedenis.github.io/PaniniFS/
+**URL**: https://paninifs.org/
 
 **Fonctions**:
 - ✅ Documentation auto-générée
@@ -166,7 +166,7 @@ https://colab.research.google.com/github/stephanedenis/PaniniFS/blob/master/ECOS
 https://github.com/stephanedenis/PaniniFS/actions
 
 📚 GitHub Pages:  
-https://stephanedenis.github.io/PaniniFS/
+https://paninifs.org/
 
 🚀 Vercel Dashboard:
 https://vercel.com/dashboard
