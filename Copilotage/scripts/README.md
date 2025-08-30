@@ -9,3 +9,6 @@ Installation rapide:
 
 Exécution tests:
 - pytest Copilotage/scripts/tests -q
+
+Automatisation tâches/branches:
+- devops/gh_task_init.sh — crée une issue et une branche associée
