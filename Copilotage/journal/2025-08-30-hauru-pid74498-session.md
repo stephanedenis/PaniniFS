@@ -10,10 +10,12 @@ Décisions & actions clés:
 - Ouverture des PRs associées aux règles:
 	- PR process (fermera #16): #17
 	- PR journalisation (Refs #18): #19
+	 - Lancement assimilation archives/documents (Issue #20) et création de la note `Copilotage/knowledge/ESSENCE_PANINIFS.md`.
 
 Liens:
 - Issue process: #16 — PR #17
 - Issue journalisation: #18 — PR #19
+ - Issue assimilation: #20 — PR à ouvrir
 
 Tests/quality gates:
 - Pytest scripts: 5/5 PASS.
