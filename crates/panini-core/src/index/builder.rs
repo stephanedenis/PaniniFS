@@ -1,6 +1,6 @@
 //! Index builder - builds index from Git repository
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::git::repo::PaniniRepo;
 use crate::index::rocks::RocksIndex;
 use crate::schema::crud::{list_concepts, read_concept};

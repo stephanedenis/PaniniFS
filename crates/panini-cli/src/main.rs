@@ -9,7 +9,6 @@ use panini_core::schema::crud::*;
 use panini_core::schema::dhatu::Dhatu;
 use panini_core::schema::relation::RelationType;
 use panini_core::schema::relations::*;
-use panini_core::git::sync::ConflictStrategy;
 use std::path::PathBuf;
 
 #[derive(Parser)]

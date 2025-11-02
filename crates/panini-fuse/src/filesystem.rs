@@ -4,10 +4,8 @@ use anyhow::Result;
 use fuser::{
     Filesystem, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry, Request,
 };
-use std::time::Duration;
 
-use crate::inode::{InodeTable, ROOT_INODE};
-use crate::operations::*;
+use crate::inode::InodeTable;
 use crate::storage_bridge::StorageBridge;
 use crate::MountConfig;
 

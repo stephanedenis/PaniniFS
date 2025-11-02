@@ -132,11 +132,11 @@ fn populate_time_travel(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    
     
     #[test]
     fn test_populate_tree() {
-        use crate::inode::ROOT_INODE;
+        
         
         // Create test storage
         let temp_dir = tempfile::tempdir().unwrap();

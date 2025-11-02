@@ -7,15 +7,13 @@
 //! - Reconstruction bit-perfect (vérification SHA-256)
 //! - Performance (temps de traitement)
 
-use bytes::Bytes;
 use panini_core::storage::{
-    atom::{Atom, AtomType},
     backends::localfs::LocalFsBackend,
     cas::ContentAddressedStorage,
     decomposer::FileFormat,
 };
 use std::collections::HashMap;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::fs;

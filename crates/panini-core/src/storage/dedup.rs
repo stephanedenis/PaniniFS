@@ -1,7 +1,7 @@
 //! Content deduplication using content-addressable storage
 
 use crate::error::{Error, Result};
-use crate::storage::backend::{StorageBackend, UploadResult};
+use crate::storage::backend::StorageBackend;
 use bytes::Bytes;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

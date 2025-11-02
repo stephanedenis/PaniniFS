@@ -6,7 +6,7 @@ use panini_core::schema::crud::{create_concept, delete_concept, list_concepts, r
 use panini_core::schema::dhatu::Dhatu;
 use panini_core::schema::graph::KnowledgeGraph;
 use panini_core::schema::relation::RelationType;
-use panini_core::schema::relations::{add_relation, get_relations, get_relation_stats, remove_relation};
+use panini_core::schema::relations::{add_relation, get_relation_stats, remove_relation};
 use panini_core::schema::taxonomy::Taxonomy;
 use chrono::Utc;
 use tempfile::TempDir;

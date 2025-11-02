@@ -3,7 +3,6 @@
 use panini_core::git::repo::PaniniRepo;
 use panini_core::index::builder::IndexBuilder;
 use panini_core::index::query::QueryEngine;
-use panini_core::index::rocks::RocksIndex;
 use panini_core::index::tantivy_search::TantivyIndex;
 use panini_core::schema::concept::{Concept, ConceptType};
 use panini_core::schema::crud::{create_concept, update_concept};

@@ -2,7 +2,6 @@
 
 use crate::error::{Error, Result};
 use crate::git::repo::PaniniRepo;
-use crate::index::builder::IndexBuilder;
 use crate::index::rocks::RocksIndex;
 use crate::index::tantivy_search::{SearchResult, TantivyIndex};
 use crate::schema::concept::Concept;

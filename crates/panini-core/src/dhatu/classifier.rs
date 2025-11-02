@@ -4,7 +4,6 @@
 
 use super::emotion::{EmotionalIntensity, PankseppEmotion};
 use super::root::{DhatuCatalog, DhatuRoot};
-use anyhow::Result;
 use std::path::Path;
 
 /// Emotional classifier for files and content

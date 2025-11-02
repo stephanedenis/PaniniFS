@@ -1,10 +1,9 @@
 //! Repository initialization
-use std::sync::Arc;
 
 use crate::error::{Error, Result};
 use git2::{Repository, Signature};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Gitignore template for Panini repositories
 const GITIGNORE_TEMPLATE: &str = r#"# Panini-FS

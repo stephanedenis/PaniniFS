@@ -1,7 +1,7 @@
 //! Git history traversal and commit information
 
-use crate::error::{Error, Result};
-use git2::{Commit, Oid, Repository, Revwalk, Sort};
+use crate::error::Result;
+use git2::{Commit, Oid, Repository, Sort};
 use std::collections::HashMap;
 
 /// Commit information

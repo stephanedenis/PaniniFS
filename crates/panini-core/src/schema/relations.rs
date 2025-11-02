@@ -2,7 +2,6 @@
 
 use crate::error::{Error, Result};
 use crate::git::repo::PaniniRepo;
-use crate::schema::concept::Concept;
 use crate::schema::crud::{read_concept, update_concept};
 use crate::schema::relation::{Relation, RelationType};
 use chrono::Utc;

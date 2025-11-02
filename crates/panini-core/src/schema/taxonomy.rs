@@ -1,9 +1,8 @@
 //! Taxonomy system for concept classification
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::git::repo::PaniniRepo;
 use crate::schema::crud::{list_concepts, read_concept};
-use crate::schema::graph::KnowledgeGraph;
 use crate::schema::relation::RelationType;
 use std::collections::{HashMap, HashSet};
 

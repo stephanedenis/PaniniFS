@@ -120,7 +120,7 @@ impl ConceptVersion {
     
     /// Check if this version is descendant of another
     pub fn is_descendant_of(&self, ancestor_id: &VersionId) -> bool {
-        let mut current = self.parent.as_ref();
+        let current = self.parent.as_ref();
         
         while let Some(parent_id) = current {
             if parent_id == ancestor_id {

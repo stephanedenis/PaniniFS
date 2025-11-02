@@ -3,7 +3,7 @@
 use fuser::{FileAttr, FileType, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry};
 use libc::{ENOENT, ENOTDIR};
 use std::ffi::OsStr;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, UNIX_EPOCH};
 
 use crate::filesystem::PaniniFS;
 use crate::inode::{Inode, InodeType};

@@ -1,11 +1,10 @@
 //! Repository opening and validation
-use std::sync::Arc;
 
 use crate::error::{Error, Result};
 use git2::Repository;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 /// Panini configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
