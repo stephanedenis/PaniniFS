@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: '12 * * * *'
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths:
       - 'e2e/**'
       - '.github/workflows/e2e-playwright.yml'
@@ -34,21 +34,21 @@ jobs:
         env:
           BASE_URL: https://paninifs.org
         run: |
-          npx playwright test e2e/tests/smoke.spec.js --reporter=dot
+          npx playwright test tests/smoke.spec.js --reporter=dot
 
       - name: Run research tests (tolerate current 404s)
         working-directory: e2e
         env:
           BASE_URL: https://paninifs.org
         run: |
-          npx playwright test e2e/tests/research.spec.js --reporter=dot
+          npx playwright test tests/research.spec.js --reporter=dot
 
       - name: Run modules aggregation tests
         working-directory: e2e
         env:
           BASE_URL: https://paninifs.org
         run: |
-          npx playwright test e2e/tests/modules.spec.js --reporter=dot
+          npx playwright test tests/modules.spec.js --reporter=dot
 
       - name: Upload Playwright report
         if: always()
