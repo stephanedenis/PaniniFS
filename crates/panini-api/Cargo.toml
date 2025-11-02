@@ -1,6 +1,6 @@
 [package]
 name = "panini-api"
-version = "2.0.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["Panini-FS Contributors"]
 description = "REST API server for Panini-FS temporal filesystem"
