@@ -12,27 +12,27 @@ pub enum PankseppEmotion {
     /// SEEKING: Exploration, curiosity, desire, dopamine-driven
     /// Sanskrit: icchā (इच्छा), kāṅkṣā (काङ्क्षा)
     Seeking,
-    
+
     /// FEAR: Anxiety, vigilance, freezing, flight
     /// Sanskrit: bhaya (भय), bhīti (भीति)
     Fear,
-    
+
     /// RAGE: Anger, frustration, irritation, assertion
     /// Sanskrit: krodha (क्रोध), manyū (मन्यू)
     Rage,
-    
+
     /// LUST: Sexual desire, erotic arousal, reproduction
     /// Sanskrit: kāma (काम), rati (रति)
     Lust,
-    
+
     /// CARE: Nurturing, compassion, maternal instinct, bonding
     /// Sanskrit: karuṇā (करुणा), sneha (स्नेह)
     Care,
-    
+
     /// PANIC/GRIEF: Separation distress, loneliness, sadness
     /// Sanskrit: śoka (शोक), viṣāda (विषाद)
     PanicGrief,
-    
+
     /// PLAY: Joyful engagement, roughhousing, social bonding
     /// Sanskrit: krīḍā (क्रीडा), līlā (लीला)
     Play,
@@ -51,7 +51,7 @@ impl PankseppEmotion {
             Self::Play,
         ]
     }
-    
+
     /// Get Sanskrit name (primary)
     pub fn sanskrit_name(&self) -> &'static str {
         match self {
@@ -64,7 +64,7 @@ impl PankseppEmotion {
             Self::Play => "krīḍā",
         }
     }
-    
+
     /// Get Devanagari script
     pub fn devanagari(&self) -> &'static str {
         match self {
@@ -77,7 +77,7 @@ impl PankseppEmotion {
             Self::Play => "क्रीडा",
         }
     }
-    
+
     /// Get description
     pub fn description(&self) -> &'static str {
         match self {
@@ -90,7 +90,7 @@ impl PankseppEmotion {
             Self::Play => "Joyful engagement, social bonding",
         }
     }
-    
+
     /// Get associated neurotransmitter
     pub fn neurotransmitter(&self) -> &'static str {
         match self {
@@ -103,17 +103,17 @@ impl PankseppEmotion {
             Self::Play => "Endorphins",
         }
     }
-    
+
     /// Get color for visualization (hex)
     pub fn color(&self) -> &'static str {
         match self {
-            Self::Seeking => "#FFD700", // Gold
-            Self::Fear => "#4B0082",    // Indigo
-            Self::Rage => "#DC143C",    // Crimson
-            Self::Lust => "#FF1493",    // Deep pink
-            Self::Care => "#32CD32",    // Lime green
+            Self::Seeking => "#FFD700",    // Gold
+            Self::Fear => "#4B0082",       // Indigo
+            Self::Rage => "#DC143C",       // Crimson
+            Self::Lust => "#FF1493",       // Deep pink
+            Self::Care => "#32CD32",       // Lime green
             Self::PanicGrief => "#4169E1", // Royal blue
-            Self::Play => "#FF8C00",    // Dark orange
+            Self::Play => "#FF8C00",       // Dark orange
         }
     }
 }
@@ -148,7 +148,7 @@ impl EmotionalIntensity {
             play: 0.0,
         }
     }
-    
+
     pub fn get(&self, emotion: PankseppEmotion) -> f64 {
         match emotion {
             PankseppEmotion::Seeking => self.seeking,
@@ -160,7 +160,7 @@ impl EmotionalIntensity {
             PankseppEmotion::Play => self.play,
         }
     }
-    
+
     pub fn set(&mut self, emotion: PankseppEmotion, value: f64) {
         let value = value.clamp(0.0, 1.0);
         match emotion {
@@ -173,7 +173,7 @@ impl EmotionalIntensity {
             PankseppEmotion::Play => self.play = value,
         }
     }
-    
+
     /// Get dominant emotion (highest intensity)
     pub fn dominant(&self) -> Option<PankseppEmotion> {
         let emotions = vec![
@@ -185,17 +185,17 @@ impl EmotionalIntensity {
             (PankseppEmotion::PanicGrief, self.panic_grief),
             (PankseppEmotion::Play, self.play),
         ];
-        
-        emotions.into_iter()
+
+        emotions
+            .into_iter()
             .max_by(|a, b| a.1.partial_cmp(&b.1).unwrap())
             .filter(|(_, intensity)| *intensity > 0.0)
             .map(|(emotion, _)| emotion)
     }
-    
+
     /// Overall emotional arousal (sum of all intensities)
     pub fn arousal(&self) -> f64 {
-        self.seeking + self.fear + self.rage + self.lust 
-            + self.care + self.panic_grief + self.play
+        self.seeking + self.fear + self.rage + self.lust + self.care + self.panic_grief + self.play
     }
 }
 
@@ -219,7 +219,7 @@ mod tests {
         let mut intensity = EmotionalIntensity::new();
         intensity.set(PankseppEmotion::Seeking, 0.8);
         intensity.set(PankseppEmotion::Fear, 0.3);
-        
+
         assert_eq!(intensity.dominant(), Some(PankseppEmotion::Seeking));
         assert_eq!(intensity.arousal(), 1.1);
     }

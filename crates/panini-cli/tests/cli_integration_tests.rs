@@ -5,8 +5,9 @@ use tempfile::TempDir;
 #[test]
 fn test_cli_init() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
@@ -18,16 +19,18 @@ fn test_cli_init() {
 #[test]
 fn test_cli_create_read() {
     let tmp = TempDir::new().unwrap();
-    
+
     // Init repo
-    Command::cargo_bin("panini-cli").unwrap()
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
+
     // Create concept
-    Command::cargo_bin("panini-cli").unwrap()
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("test_concept")
@@ -37,9 +40,10 @@ fn test_cli_create_read() {
         .success()
         .stdout(predicate::str::contains("✅"))
         .stdout(predicate::str::contains("test_concept"));
-    
+
     // Read concept
-    Command::cargo_bin("panini-cli").unwrap()
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("read")
         .arg("test_concept")
@@ -52,14 +56,16 @@ fn test_cli_create_read() {
 #[test]
 fn test_cli_create_with_tags() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("tagged_concept")
@@ -69,8 +75,9 @@ fn test_cli_create_with_tags() {
         .arg("tag1,tag2,tag3")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("read")
         .arg("tagged_concept")
@@ -84,14 +91,16 @@ fn test_cli_create_with_tags() {
 #[test]
 fn test_cli_update() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("update_test")
@@ -99,8 +108,9 @@ fn test_cli_update() {
         .arg("Original")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("update")
         .arg("update_test")
@@ -110,8 +120,9 @@ fn test_cli_update() {
         .success()
         .stdout(predicate::str::contains("✅"))
         .stdout(predicate::str::contains("Updated"));
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("read")
         .arg("update_test")
@@ -122,14 +133,16 @@ fn test_cli_update() {
 #[test]
 fn test_cli_delete() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("delete_test")
@@ -137,8 +150,9 @@ fn test_cli_delete() {
         .arg("To Delete")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("delete")
         .arg("delete_test")
@@ -146,8 +160,9 @@ fn test_cli_delete() {
         .success()
         .stdout(predicate::str::contains("✅"))
         .stdout(predicate::str::contains("Deleted"));
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("read")
         .arg("delete_test")
@@ -158,16 +173,18 @@ fn test_cli_delete() {
 #[test]
 fn test_cli_list() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
+
     // Create multiple concepts
     for i in 1..=3 {
-        Command::cargo_bin("panini-cli").unwrap()
+        Command::cargo_bin("panini-cli")
+            .unwrap()
             .current_dir(tmp.path())
             .arg("create")
             .arg(format!("concept_{}", i))
@@ -176,8 +193,9 @@ fn test_cli_list() {
             .assert()
             .success();
     }
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("list")
         .assert()
@@ -190,14 +208,16 @@ fn test_cli_list() {
 #[test]
 fn test_cli_list_json() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("json_test")
@@ -205,8 +225,9 @@ fn test_cli_list_json() {
         .arg("JSON Test")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("list")
         .arg("--json")
@@ -220,15 +241,17 @@ fn test_cli_list_json() {
 #[test]
 fn test_cli_add_relation() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
+
     // Create two concepts
-    Command::cargo_bin("panini-cli").unwrap()
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("parent")
@@ -236,8 +259,9 @@ fn test_cli_add_relation() {
         .arg("Parent")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("child")
@@ -245,9 +269,10 @@ fn test_cli_add_relation() {
         .arg("Child")
         .assert()
         .success();
-    
+
     // Add relation
-    Command::cargo_bin("panini-cli").unwrap()
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("add-relation")
         .arg("child")
@@ -263,14 +288,16 @@ fn test_cli_add_relation() {
 #[test]
 fn test_cli_add_relation_with_confidence() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("a")
@@ -278,8 +305,9 @@ fn test_cli_add_relation_with_confidence() {
         .arg("A")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("b")
@@ -287,8 +315,9 @@ fn test_cli_add_relation_with_confidence() {
         .arg("B")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("add-relation")
         .arg("a")
@@ -304,14 +333,16 @@ fn test_cli_add_relation_with_confidence() {
 #[test]
 fn test_cli_relations() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("source")
@@ -319,8 +350,9 @@ fn test_cli_relations() {
         .arg("Source")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("target")
@@ -328,8 +360,9 @@ fn test_cli_relations() {
         .arg("Target")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("add-relation")
         .arg("source")
@@ -338,8 +371,9 @@ fn test_cli_relations() {
         .arg("target")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("relations")
         .arg("source")
@@ -353,14 +387,16 @@ fn test_cli_relations() {
 #[ignore] // FIXME: Status command not implemented (todo!)
 fn test_cli_status() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("status")
         .assert()
@@ -371,14 +407,16 @@ fn test_cli_status() {
 #[test]
 fn test_cli_invalid_relation_type() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("a")
@@ -386,8 +424,9 @@ fn test_cli_invalid_relation_type() {
         .arg("A")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("b")
@@ -395,8 +434,9 @@ fn test_cli_invalid_relation_type() {
         .arg("B")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("add-relation")
         .arg("a")
@@ -411,14 +451,16 @@ fn test_cli_invalid_relation_type() {
 #[test]
 fn test_cli_read_json() {
     let tmp = TempDir::new().unwrap();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .arg("init")
         .arg(tmp.path())
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("create")
         .arg("json_read")
@@ -428,8 +470,9 @@ fn test_cli_read_json() {
         .arg("test,json")
         .assert()
         .success();
-    
-    Command::cargo_bin("panini-cli").unwrap()
+
+    Command::cargo_bin("panini-cli")
+        .unwrap()
         .current_dir(tmp.path())
         .arg("read")
         .arg("json_read")

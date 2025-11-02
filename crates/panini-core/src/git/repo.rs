@@ -24,7 +24,7 @@ impl PaniniRepo {
         let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
         let config = load_config(&path)?;
         let schema = load_schema(&path)?;
-        
+
         Ok(Self {
             repo: Arc::new(repo),
             path,
@@ -40,7 +40,7 @@ impl PaniniRepo {
         let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
         let config = load_config(&path)?;
         let schema = load_schema(&path)?;
-        
+
         Ok(Self {
             repo: Arc::new(repo),
             path,
@@ -48,74 +48,74 @@ impl PaniniRepo {
             schema,
         })
     }
-    
+
     /// Get repository path
     pub fn path(&self) -> &Path {
         &self.path
     }
-    
+
     /// Get Git repository
     pub fn git(&self) -> &Repository {
         &self.repo
     }
-    
+
     /// Get configuration
     pub fn config(&self) -> &PaniniConfig {
         &self.config
     }
-    
+
     /// Get schema version
     pub fn schema(&self) -> &SchemaVersion {
         &self.schema
     }
-    
+
     /// Commit a single file
     pub fn commit_file(&self, file_path: &Path, message: &str) -> Result<git2::Oid> {
         crate::git::commit::commit_file(&self.repo, file_path, message)
     }
-    
+
     /// Commit multiple files
     pub fn commit_batch(&self, file_paths: &[&Path], message: &str) -> Result<git2::Oid> {
         crate::git::commit::commit_batch(&self.repo, file_paths, message)
     }
-    
+
     /// Stage all changes
     pub fn stage_all(&self) -> Result<()> {
         crate::git::commit::stage_all(&self.repo)
     }
-    
+
     /// Commit staged changes (use after stage_all() or manual staging)
     pub fn commit(&self, message: &str) -> Result<git2::Oid> {
         crate::git::commit::create_commit(&self.repo, message)
     }
-    
+
     /// Add a submodule
     pub fn add_submodule(&self, url: &str, path: &Path) -> Result<()> {
         crate::git::submodule::add_submodule(&self.repo, url, path)
     }
-    
+
     /// Remove a submodule
     pub fn remove_submodule(&self, path: &Path) -> Result<()> {
         crate::git::submodule::remove_submodule(&self.repo, path)
     }
-    
+
     /// Update all submodules
     pub fn update_submodules(&self) -> Result<Vec<String>> {
         crate::git::submodule::update_submodules(&self.repo)
     }
-    
+
     /// List all submodules
     pub fn list_submodules(&self) -> Result<Vec<crate::git::submodule::SubmoduleInfo>> {
         crate::git::submodule::list_submodules(&self.repo)
     }
-    
+
     /// Clone a repository
     pub fn clone(url: &str, path: &Path, options: crate::git::clone::CloneOptions) -> Result<Self> {
         let repo = crate::git::clone::clone_repo(url, path, options)?;
         let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
         let config = load_config(&path)?;
         let schema = load_schema(&path)?;
-        
+
         Ok(Self {
             repo: Arc::new(repo),
             path,
@@ -123,22 +123,22 @@ impl PaniniRepo {
             schema,
         })
     }
-    
+
     /// Fetch from remote
     pub fn fetch(&self, remote_name: &str, refspecs: &[&str]) -> Result<()> {
         crate::git::sync::fetch(&self.repo, remote_name, refspecs)
     }
-    
+
     /// Fetch all remotes
     pub fn fetch_all(&self) -> Result<Vec<String>> {
         crate::git::sync::fetch_all(&self.repo)
     }
-    
+
     /// Pull (fetch + merge)
     pub fn pull(&self, remote_name: &str, branch: &str) -> Result<()> {
         crate::git::sync::pull(&self.repo, remote_name, branch)
     }
-    
+
     /// Pull with conflict strategy
     pub fn pull_with_strategy(
         &self,
@@ -148,32 +148,32 @@ impl PaniniRepo {
     ) -> Result<crate::git::sync::PullResult> {
         crate::git::sync::pull_with_strategy(&self.repo, remote_name, branch, strategy)
     }
-    
+
     /// Push to remote
     pub fn push(&self, remote_name: &str, refspecs: &[&str]) -> Result<()> {
         crate::git::sync::push(&self.repo, remote_name, refspecs)
     }
-    
+
     /// Push current branch
     pub fn push_current_branch(&self, remote_name: &str) -> Result<()> {
         crate::git::sync::push_current_branch(&self.repo, remote_name)
     }
-    
+
     /// Push all branches
     pub fn push_all_branches(&self, remote_name: &str) -> Result<Vec<String>> {
         crate::git::sync::push_all_branches(&self.repo, remote_name)
     }
-    
+
     /// Push with tags
     pub fn push_with_tags(&self, remote_name: &str) -> Result<()> {
         crate::git::sync::push_with_tags(&self.repo, remote_name)
     }
-    
+
     /// Force push
     pub fn force_push(&self, remote_name: &str, branch: &str) -> Result<()> {
         crate::git::sync::force_push(&self.repo, remote_name, branch)
     }
-    
+
     /// Push with status check
     pub fn push_with_status(
         &self,
@@ -182,42 +182,42 @@ impl PaniniRepo {
     ) -> Result<crate::git::sync::PushResult> {
         crate::git::sync::push_with_status(&self.repo, remote_name, branch)
     }
-    
+
     /// Get repository status
     pub fn status(&self) -> Result<crate::git::status::RepoStatus> {
         crate::git::status::status(&self.repo)
     }
-    
+
     /// Check if repository is clean
     pub fn is_clean(&self) -> Result<bool> {
         crate::git::status::is_clean(&self.repo)
     }
-    
+
     /// Get commits ahead/behind remote
     pub fn divergence(&self, local_branch: &str, remote_branch: &str) -> Result<(usize, usize)> {
         crate::git::status::divergence(&self.repo, local_branch, remote_branch)
     }
-    
+
     /// Get diff statistics
     pub fn diff_stats(&self) -> Result<crate::git::status::DiffStats> {
         crate::git::status::diff_stats(&self.repo)
     }
-    
+
     /// Get diff between commits
     pub fn diff_commits(&self, old: &str, new: &str) -> Result<crate::git::status::DiffStats> {
         crate::git::status::diff_commits(&self.repo, old, new)
     }
-    
+
     /// Get all conflicts
     pub fn get_conflicts(&self) -> Result<Vec<crate::git::conflict::Conflict>> {
         crate::git::conflict::get_conflicts(&self.repo)
     }
-    
+
     /// Check if file has conflict
     pub fn has_conflict(&self, path: &Path) -> Result<bool> {
         crate::git::conflict::has_conflict(&self.repo, path)
     }
-    
+
     /// Resolve conflict
     pub fn resolve_conflict(
         &self,
@@ -226,7 +226,7 @@ impl PaniniRepo {
     ) -> Result<()> {
         crate::git::conflict::resolve_conflict(&self.repo, path, resolution)
     }
-    
+
     /// Auto-resolve all conflicts
     pub fn auto_resolve_conflicts(
         &self,
@@ -234,37 +234,48 @@ impl PaniniRepo {
     ) -> Result<Vec<PathBuf>> {
         crate::git::conflict::auto_resolve_conflicts(&self.repo, strategy)
     }
-    
+
     /// Get commit history
-    pub fn history(&self, max_count: Option<usize>) -> Result<Vec<crate::git::history::CommitInfo>> {
+    pub fn history(
+        &self,
+        max_count: Option<usize>,
+    ) -> Result<Vec<crate::git::history::CommitInfo>> {
         crate::git::history::history(&self.repo, max_count)
     }
-    
+
     /// Get commit by ID
     pub fn get_commit(&self, oid: &str) -> Result<crate::git::history::CommitInfo> {
         crate::git::history::get_commit(&self.repo, oid)
     }
-    
+
     /// Get file history
-    pub fn file_history(&self, path: &str, max_count: Option<usize>) -> Result<Vec<crate::git::history::CommitInfo>> {
+    pub fn file_history(
+        &self,
+        path: &str,
+        max_count: Option<usize>,
+    ) -> Result<Vec<crate::git::history::CommitInfo>> {
         crate::git::history::file_history(&self.repo, path, max_count)
     }
-    
+
     /// Get commits between refs
-    pub fn commits_between(&self, from: &str, to: &str) -> Result<Vec<crate::git::history::CommitInfo>> {
+    pub fn commits_between(
+        &self,
+        from: &str,
+        to: &str,
+    ) -> Result<Vec<crate::git::history::CommitInfo>> {
         crate::git::history::commits_between(&self.repo, from, to)
     }
-    
+
     /// Get branches containing commit
     pub fn branches_containing(&self, oid: &str) -> Result<Vec<String>> {
         crate::git::history::branches_containing(&self.repo, oid)
     }
-    
+
     /// Get merge base
     pub fn merge_base(&self, one: &str, two: &str) -> Result<String> {
         crate::git::history::merge_base(&self.repo, one, two)
     }
-    
+
     /// Get graph statistics
     pub fn graph_stats(&self) -> Result<crate::git::history::GraphStats> {
         crate::git::history::graph_stats(&self.repo)
@@ -275,22 +286,22 @@ impl PaniniRepo {
 mod tests {
     use super::*;
     use tempfile::TempDir;
-    
+
     #[test]
     fn test_panini_repo_init() {
         let tmp = TempDir::new().unwrap();
         let panini_repo = PaniniRepo::init(tmp.path()).unwrap();
-        
+
         assert!(panini_repo.path().exists());
         assert_eq!(panini_repo.config().version, "1.0");
         assert_eq!(panini_repo.schema().version, "1.0.0");
     }
-    
+
     #[test]
     fn test_panini_repo_open() {
         let tmp = TempDir::new().unwrap();
         PaniniRepo::init(tmp.path()).unwrap();
-        
+
         let panini_repo = PaniniRepo::open(tmp.path()).unwrap();
         assert!(panini_repo.path().exists());
     }

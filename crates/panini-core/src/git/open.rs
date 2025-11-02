@@ -63,68 +63,68 @@ pub struct SchemaVersion {
 /// Open an existing Panini repository
 pub fn open_repo(path: &Path) -> Result<Repository> {
     let path = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
-    
+
     // Check if .panini exists
     if !path.join(".panini").exists() {
         return Err(Error::RepoNotInitialized(path.clone()));
     }
-    
+
     // Check if .git exists
     if !path.join(".git").exists() {
         return Err(Error::RepoNotInitialized(path.clone()));
     }
-    
+
     // Open Git repository
     let repo = Repository::open(&path)?;
-    
+
     // Validate configuration
     validate_config(&path)?;
-    
+
     // Validate schema
     validate_schema(&path)?;
-    
+
     Ok(repo)
 }
 
 /// Load configuration from file
 pub fn load_config(path: &Path) -> Result<PaniniConfig> {
     let config_path = path.join(".panini/config.yaml");
-    
+
     if !config_path.exists() {
         return Err(Error::Config("config.yaml not found".to_string()));
     }
-    
+
     let config_content = fs::read_to_string(&config_path)?;
     let config: PaniniConfig = serde_yaml::from_str(&config_content)
         .map_err(|e| Error::Config(format!("Failed to parse config.yaml: {}", e)))?;
-    
+
     Ok(config)
 }
 
 /// Load schema from file
 pub fn load_schema(path: &Path) -> Result<SchemaVersion> {
     let schema_path = path.join(".panini/schema.yaml");
-    
+
     if !schema_path.exists() {
         return Err(Error::Config("schema.yaml not found".to_string()));
     }
-    
+
     let schema_content = fs::read_to_string(&schema_path)?;
     let schema: SchemaVersion = serde_yaml::from_str(&schema_content)
         .map_err(|e| Error::Config(format!("Failed to parse schema.yaml: {}", e)))?;
-    
+
     Ok(schema)
 }
 
 /// Validate configuration
 fn validate_config(path: &Path) -> Result<()> {
     let config = load_config(path)?;
-    
+
     // Check version format
     if config.version.is_empty() {
         return Err(Error::Config("Invalid version in config.yaml".to_string()));
     }
-    
+
     // Validate sync strategy
     let valid_strategies = ["prompt", "auto", "manual"];
     if !valid_strategies.contains(&config.sync.conflict_strategy.as_str()) {
@@ -133,14 +133,14 @@ fn validate_config(path: &Path) -> Result<()> {
             config.sync.conflict_strategy, valid_strategies
         )));
     }
-    
+
     Ok(())
 }
 
 /// Validate schema
 fn validate_schema(path: &Path) -> Result<()> {
     let schema = load_schema(path)?;
-    
+
     // Check version format (semver)
     if !schema.version.contains('.') {
         return Err(Error::SchemaVersionMismatch {
@@ -148,13 +148,19 @@ fn validate_schema(path: &Path) -> Result<()> {
             actual: schema.version.clone(),
         });
     }
-    
+
     // Validate relation types
     let expected_relations = vec![
-        "is_a", "part_of", "causes", "contradicts", 
-        "supports", "derives_from", "used_by", "related_to"
+        "is_a",
+        "part_of",
+        "causes",
+        "contradicts",
+        "supports",
+        "derives_from",
+        "used_by",
+        "related_to",
     ];
-    
+
     for rel_type in &expected_relations {
         if !schema.relation_types.contains(&rel_type.to_string()) {
             return Err(Error::Config(format!(
@@ -163,13 +169,12 @@ fn validate_schema(path: &Path) -> Result<()> {
             )));
         }
     }
-    
+
     // Validate dhatu types
     let expected_dhatus = vec![
-        "TEXT", "IMAGE", "VIDEO", "AUDIO", 
-        "CODE", "BINARY", "ARCHIVE"
+        "TEXT", "IMAGE", "VIDEO", "AUDIO", "CODE", "BINARY", "ARCHIVE",
     ];
-    
+
     for dhatu in &expected_dhatus {
         if !schema.dhatu_types.contains(&dhatu.to_string()) {
             return Err(Error::Config(format!(
@@ -178,7 +183,7 @@ fn validate_schema(path: &Path) -> Result<()> {
             )));
         }
     }
-    
+
     Ok(())
 }
 
@@ -187,40 +192,46 @@ mod tests {
     use super::*;
     use crate::git::init::init_repo;
     use tempfile::TempDir;
-    
+
     #[test]
     fn test_open_repo_success() {
         let tmp = TempDir::new().unwrap();
         init_repo(tmp.path()).unwrap();
-        
+
         let repo = open_repo(tmp.path()).unwrap();
         assert!(repo.path().exists());
     }
-    
+
     #[test]
     fn test_open_repo_not_initialized() {
         let tmp = TempDir::new().unwrap();
-        
+
         let result = open_repo(tmp.path());
         assert!(result.is_err());
-        assert!(result.is_err() && result.err().map(|e| e.to_string().to_string().contains("not initialized")).unwrap_or(false));
+        assert!(
+            result.is_err()
+                && result
+                    .err()
+                    .map(|e| e.to_string().to_string().contains("not initialized"))
+                    .unwrap_or(false)
+        );
     }
-    
+
     #[test]
     fn test_load_config() {
         let tmp = TempDir::new().unwrap();
         init_repo(tmp.path()).unwrap();
-        
+
         let config = load_config(tmp.path()).unwrap();
         assert_eq!(config.version, "1.0");
         assert_eq!(config.storage.default, "local");
     }
-    
+
     #[test]
     fn test_load_schema() {
         let tmp = TempDir::new().unwrap();
         init_repo(tmp.path()).unwrap();
-        
+
         let schema = load_schema(tmp.path()).unwrap();
         assert_eq!(schema.version, "1.0.0");
         assert_eq!(schema.relation_types.len(), 8);

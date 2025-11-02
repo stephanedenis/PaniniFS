@@ -14,19 +14,19 @@ use serde::{Deserialize, Serialize};
 pub trait StorageBackend: Send + Sync {
     /// Upload data with given key (hash)
     async fn upload(&self, key: &str, data: Bytes) -> Result<UploadResult>;
-    
+
     /// Download data by key (hash)
     async fn download(&self, key: &str) -> Result<Bytes>;
-    
+
     /// Delete data by key (hash)
     async fn delete(&self, key: &str) -> Result<()>;
-    
+
     /// Check if key exists
     async fn exists(&self, key: &str) -> Result<bool>;
-    
+
     /// List all keys (hashes)
     async fn list_keys(&self) -> Result<Vec<String>>;
-    
+
     /// Get backend statistics
     async fn stats(&self) -> Result<BackendStats>;
 }

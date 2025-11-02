@@ -21,9 +21,9 @@ impl ApiServer {
     /// Run the server
     pub async fn run(self) -> Result<()> {
         info!("Starting Panini-FS API server on {}", self.addr);
-        
+
         let router = create_router(self.state);
-        
+
         info!("API endpoints available:");
         info!("  GET  /api/health");
         info!("  GET  /api/concepts");
@@ -35,15 +35,15 @@ impl ApiServer {
         info!("  GET  /api/snapshots/:id");
         info!("  GET  /api/time-travel?timestamp=...");
         info!("  GET  /api/stats");
-        
+
         let listener = tokio::net::TcpListener::bind(self.addr).await?;
-        
+
         axum::serve(listener, router)
             .await
             .map_err(|e| anyhow::anyhow!("Server error: {}", e))?;
-        
+
         warn!("API server stopped");
-        
+
         Ok(())
     }
 }

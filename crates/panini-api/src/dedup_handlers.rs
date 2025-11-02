@@ -102,30 +102,30 @@ pub async fn get_dedup_stats(
     // Récupérer les vraies statistiques du CAS
     let storage_stats = state.cas.get_stats().await;
     let all_atoms = state.cas.list_atoms();
-    
+
     // Calculer les statistiques de déduplication
     let total_refs: usize = all_atoms.iter().map(|a| a.ref_count as usize).sum();
     let unique_atoms = all_atoms.len();
     let total_size: u64 = all_atoms.iter().map(|a| a.size).sum();
-    
+
     let dedup_ratio = if total_refs > 0 {
         1.0 - (unique_atoms as f64 / total_refs as f64)
     } else {
         0.0
     };
-    
+
     let avg_reuse = if unique_atoms > 0 {
         total_refs as f64 / unique_atoms as f64
     } else {
         0.0
     };
-    
+
     let storage_saved = if dedup_ratio > 0.0 {
         (total_size as f64 * dedup_ratio) as u64
     } else {
         0
     };
-    
+
     // Identifier les top atomes par usage
     let mut sorted_atoms = all_atoms.clone();
     sorted_atoms.sort_by(|a, b| b.ref_count.cmp(&a.ref_count));
@@ -139,7 +139,7 @@ pub async fn get_dedup_stats(
             size: a.size,
         })
         .collect();
-    
+
     let stats = DedupStats {
         total_files: total_refs,
         total_size: total_size * total_refs as u64 / unique_atoms.max(1) as u64,
@@ -161,7 +161,7 @@ pub async fn search_atoms(
     State(state): State<AppState>,
 ) -> Result<Json<AtomSearchResult>, StatusCode> {
     let query = params.q.to_lowercase();
-    
+
     if query.len() < 3 {
         return Ok(Json(AtomSearchResult {
             atoms: vec![],
@@ -171,7 +171,7 @@ pub async fn search_atoms(
 
     // Recherche réelle dans le CAS
     let all_atoms = state.cas.list_atoms();
-    
+
     let filtered: Vec<AtomSummary> = all_atoms
         .iter()
         .filter(|atom| atom.hash.to_lowercase().contains(&query))
@@ -236,7 +236,7 @@ pub async fn analyze_file(
     mut multipart: Multipart,
 ) -> Result<Json<AnalysisResult>, StatusCode> {
     let start = std::time::Instant::now();
-    
+
     let mut filename = String::new();
     let mut file_data = Vec::new();
 
@@ -247,13 +247,10 @@ pub async fn analyze_file(
         .map_err(|_| StatusCode::BAD_REQUEST)?
     {
         let field_name = field.name().unwrap_or("").to_string();
-        
+
         if field_name == "file" {
-            filename = field
-                .file_name()
-                .unwrap_or("unknown")
-                .to_string();
-            
+            filename = field.file_name().unwrap_or("unknown").to_string();
+
             file_data = field
                 .bytes()
                 .await
@@ -267,14 +264,18 @@ pub async fn analyze_file(
     }
 
     let file_size = file_data.len() as u64;
-    
+
     // Hash du fichier complet
     let mut hasher = Sha256::new();
     hasher.update(&file_data);
     let file_hash = format!("{:x}", hasher.finalize());
-    
+
     // Store in CAS as a container atom
-    match state.cas.add_atom(&file_data, panini_core::storage::atom::AtomType::Container).await {
+    match state
+        .cas
+        .add_atom(&file_data, panini_core::storage::atom::AtomType::Container)
+        .await
+    {
         Ok(atom) => {
             // Check if it was deduplicated
             match state.cas.get_atom_metadata(&atom.hash) {
@@ -282,8 +283,12 @@ pub async fn analyze_file(
                     let atoms_created = 1;
                     let atoms_reused = if metadata.ref_count > 1 { 1 } else { 0 };
                     let dedup_ratio = atoms_reused as f64 / atoms_created as f64;
-                    let storage_saved = if metadata.ref_count > 1 { metadata.size } else { 0 };
-                    
+                    let storage_saved = if metadata.ref_count > 1 {
+                        metadata.size
+                    } else {
+                        0
+                    };
+
                     let processing_time = start.elapsed().as_millis();
 
                     Ok(Json(AnalysisResult {

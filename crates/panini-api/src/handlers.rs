@@ -205,7 +205,7 @@ pub async fn list_concepts(
 ) -> Result<Json<ApiResponse<ConceptListResponse>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
     let concepts = index.get_all_concepts();
-    
+
     let summaries: Vec<ConceptSummary> = concepts
         .iter()
         .map(|c| ConceptSummary {
@@ -217,12 +217,12 @@ pub async fn list_concepts(
             updated_at: c.updated_at,
         })
         .collect();
-    
+
     let response = ConceptListResponse {
         total: summaries.len(),
         concepts: summaries,
     };
-    
+
     Ok(Json(ApiResponse::success(response)))
 }
 
@@ -232,7 +232,7 @@ pub async fn get_concept(
     Path(id): Path<String>,
 ) -> Result<Json<ApiResponse<ConceptDetail>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
-    
+
     match index.get_concept(&id) {
         Some(concept) => {
             let versions: Vec<VersionSummary> = concept
@@ -248,7 +248,7 @@ pub async fn get_concept(
                     atom_count: v.atoms.len(),
                 })
                 .collect();
-            
+
             let detail = ConceptDetail {
                 id: concept.id.clone(),
                 name: concept.name.clone(),
@@ -258,7 +258,7 @@ pub async fn get_concept(
                 updated_at: concept.updated_at,
                 metadata: concept.metadata.clone(),
             };
-            
+
             Ok(Json(ApiResponse::success(detail)))
         }
         None => Err(StatusCode::NOT_FOUND),
@@ -271,7 +271,7 @@ pub async fn get_version(
     Path((id, version_id)): Path<(String, String)>,
 ) -> Result<Json<ApiResponse<VersionDetail>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
-    
+
     match index.get_concept(&id) {
         Some(concept) => match concept.get_version(&version_id) {
             Some(version) => {
@@ -286,7 +286,7 @@ pub async fn get_version(
                     message: version.message.clone(),
                     metadata: version.metadata.clone(),
                 };
-                
+
                 Ok(Json(ApiResponse::success(detail)))
             }
             None => Err(StatusCode::NOT_FOUND),
@@ -301,16 +301,21 @@ pub async fn get_timeline(
     Query(params): Query<TimelineQuery>,
 ) -> Result<Json<ApiResponse<TimelineResponse>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
-    
-    let start = params.start.unwrap_or_else(|| Utc::now() - chrono::Duration::days(30));
+
+    let start = params
+        .start
+        .unwrap_or_else(|| Utc::now() - chrono::Duration::days(30));
     let end = params.end.unwrap_or_else(|| Utc::now());
-    
+
     let timeline = index.get_timeline_range(start, end);
-    
+
     let mut events = Vec::new();
     for (timestamp, event) in timeline {
         match event {
-            TimelineEvent::ConceptCreated { concept_id, version_id } => {
+            TimelineEvent::ConceptCreated {
+                concept_id,
+                version_id,
+            } => {
                 if let Some(concept) = index.get_concept(concept_id) {
                     events.push(TimelineEventResponse::ConceptCreated {
                         timestamp: *timestamp,
@@ -344,12 +349,12 @@ pub async fn get_timeline(
             }
         }
     }
-    
+
     let response = TimelineResponse {
         total: events.len(),
         events,
     };
-    
+
     Ok(Json(ApiResponse::success(response)))
 }
 
@@ -359,7 +364,7 @@ pub async fn list_snapshots(
 ) -> Result<Json<ApiResponse<SnapshotListResponse>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
     let snapshots = index.get_snapshots();
-    
+
     let summaries: Vec<SnapshotSummary> = snapshots
         .iter()
         .map(|s| SnapshotSummary {
@@ -369,12 +374,12 @@ pub async fn list_snapshots(
             concept_count: s.concepts.len(),
         })
         .collect();
-    
+
     let response = SnapshotListResponse {
         total: summaries.len(),
         snapshots: summaries,
     };
-    
+
     Ok(Json(ApiResponse::success(response)))
 }
 
@@ -395,12 +400,12 @@ pub async fn time_travel(
 ) -> Result<Json<ApiResponse<TimeTravelResponse>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
     let state_at_time = index.get_state_at(params.timestamp);
-    
+
     let response = TimeTravelResponse {
         timestamp: params.timestamp,
         concepts: state_at_time,
     };
-    
+
     Ok(Json(ApiResponse::success(response)))
 }
 
@@ -411,7 +416,7 @@ pub async fn get_diff(
     Query(params): Query<DiffQuery>,
 ) -> Result<Json<ApiResponse<DiffResponse>>, StatusCode> {
     let index = state.temporal_index.read().unwrap();
-    
+
     match index.get_concept(&id) {
         Some(concept) => match concept.diff(&params.from, &params.to) {
             Some(diff) => {
@@ -422,7 +427,7 @@ pub async fn get_diff(
                     removed_atoms: diff.removed_atoms,
                     size_change: diff.size_change,
                 };
-                
+
                 Ok(Json(ApiResponse::success(response)))
             }
             None => Err(StatusCode::NOT_FOUND),
@@ -443,10 +448,10 @@ pub async fn get_stats(
         let snapshots = index.get_snapshots();
         (concepts.len(), total_versions, snapshots.len())
     }; // Lock dropped here
-    
+
     // Now safe to await
     let cas_stats = state.cas.get_stats().await;
-    
+
     let response = StatsResponse {
         total_concepts,
         total_versions,
@@ -455,6 +460,6 @@ pub async fn get_stats(
         total_size: cas_stats.total_size,
         dedup_savings: cas_stats.dedup_savings,
     };
-    
+
     Ok(Json(ApiResponse::success(response)))
 }

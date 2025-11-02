@@ -19,7 +19,7 @@ struct Cli {
     /// Repository path
     #[arg(short, long, default_value = ".")]
     repo: PathBuf,
-    
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -27,10 +27,8 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     /// Initialize a new repository
-    Init {
-        path: Option<PathBuf>,
-    },
-    
+    Init { path: Option<PathBuf> },
+
     /// Create a new concept
     Create {
         id: String,
@@ -41,14 +39,14 @@ enum Commands {
         #[arg(short, long, default_value = "TEXT")]
         dhatu: String,
     },
-    
+
     /// Read a concept
     Read {
         id: String,
         #[arg(short, long)]
         json: bool,
     },
-    
+
     /// Update a concept
     Update {
         id: String,
@@ -57,18 +55,16 @@ enum Commands {
         #[arg(short = 'T', long)]
         tags: Option<String>,
     },
-    
+
     /// Delete a concept
-    Delete {
-        id: String,
-    },
-    
+    Delete { id: String },
+
     /// List all concepts
     List {
         #[arg(short, long)]
         json: bool,
     },
-    
+
     /// Add a relation
     AddRelation {
         source: String,
@@ -78,22 +74,20 @@ enum Commands {
         #[arg(short, long)]
         confidence: Option<f32>,
     },
-    
+
     /// Get relations
-    Relations {
-        id: String,
-    },
-    
+    Relations { id: String },
+
     /// Sync with remote
     Sync,
-    
+
     /// Show status
     Status,
 }
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    
+
     match cli.command {
         Commands::Init { path } => {
             let repo_path = path.unwrap_or_else(|| PathBuf::from("."));
@@ -101,8 +95,13 @@ fn main() -> Result<()> {
             println!("{} Initialized at {}", "✅".green(), repo_path.display());
             Ok(())
         }
-        
-        Commands::Create { id, title, tags, dhatu } => {
+
+        Commands::Create {
+            id,
+            title,
+            tags,
+            dhatu,
+        } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let dhatu_type = match dhatu.to_uppercase().as_str() {
                 "TEXT" => Dhatu::TEXT,
@@ -112,9 +111,11 @@ fn main() -> Result<()> {
                 "CODE" => Dhatu::CODE,
                 _ => Dhatu::TEXT,
             };
-            
-            let tag_list = tags.map(|t| t.split(',').map(|s| s.trim().to_string()).collect()).unwrap_or_default();
-            
+
+            let tag_list = tags
+                .map(|t| t.split(',').map(|s| s.trim().to_string()).collect())
+                .unwrap_or_default();
+
             let concept = Concept {
                 id: id.clone(),
                 r#type: ConceptType::Concept,
@@ -129,16 +130,16 @@ fn main() -> Result<()> {
                 metadata: serde_json::Value::Null,
                 markdown_body: format!("# {}\n\n", title),
             };
-            
+
             create_concept(&repo, &concept)?;
             println!("{} Created: {}", "✅".green(), id);
             Ok(())
         }
-        
+
         Commands::Read { id, json } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let concept = read_concept(&repo, &id)?;
-            
+
             if json {
                 println!("{}", serde_json::to_string_pretty(&concept)?);
             } else {
@@ -149,52 +150,63 @@ fn main() -> Result<()> {
             }
             Ok(())
         }
-        
+
         Commands::Update { id, title, tags } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let mut concept = read_concept(&repo, &id)?;
-            
-            if let Some(t) = title { concept.title = t; }
+
+            if let Some(t) = title {
+                concept.title = t;
+            }
             if let Some(t) = tags {
-                concept.tags.extend(t.split(',').map(|s| s.trim().to_string()));
+                concept
+                    .tags
+                    .extend(t.split(',').map(|s| s.trim().to_string()));
                 concept.tags.sort();
                 concept.tags.dedup();
             }
-            
+
             concept.updated = chrono::Utc::now();
             update_concept(&repo, &concept)?;
             println!("{} Updated: {}", "✅".green(), id);
             Ok(())
         }
-        
+
         Commands::Delete { id } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             delete_concept(&repo, &id)?;
             println!("{} Deleted: {}", "✅".green(), id);
             Ok(())
         }
-        
+
         Commands::List { json } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let ids = list_concepts(&repo)?;
-            
+
             if json {
                 println!("{}", serde_json::to_string_pretty(&ids)?);
             } else {
                 println!("{} Concepts ({}):", "📚".cyan(), ids.len());
-                for id in ids { println!("  - {}", id); }
+                for id in ids {
+                    println!("  - {}", id);
+                }
             }
             Ok(())
         }
-        
-        Commands::AddRelation { source, rel_type, target, confidence } => {
+
+        Commands::AddRelation {
+            source,
+            rel_type,
+            target,
+            confidence,
+        } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let rt = parse_relation_type(&rel_type)?;
             add_relation(&repo, &source, rt, &target, confidence)?;
             println!("{} {} --{:?}--> {}", "✅".green(), source, rt, target);
             Ok(())
         }
-        
+
         Commands::Relations { id } => {
             let repo = PaniniRepo::open(&cli.repo)?;
             let relations = get_relations(&repo, &id)?;
@@ -204,11 +216,11 @@ fn main() -> Result<()> {
             }
             Ok(())
         }
-        
+
         Commands::Sync => {
             todo!("Sync not yet implemented");
         }
-        
+
         Commands::Status => {
             todo!("Status not yet implemented");
         }
@@ -225,6 +237,9 @@ fn parse_relation_type(s: &str) -> Result<RelationType> {
         "derives_from" => Ok(RelationType::DerivesFrom),
         "used_by" => Ok(RelationType::UsedBy),
         "related_to" => Ok(RelationType::RelatedTo),
-        _ => Err(panini_core::error::Error::Validation(format!("Invalid relation: {}", s))),
+        _ => Err(panini_core::error::Error::Validation(format!(
+            "Invalid relation: {}",
+            s
+        ))),
     }
 }

@@ -1,5 +1,5 @@
 //! Panini-FS API Server
-//! 
+//!
 //! REST API server for temporal filesystem with time-travel capabilities
 
 use anyhow::Result;
@@ -9,7 +9,10 @@ use panini_core::storage::{
     cas::{ContentAddressedStorage, StorageConfig},
     immutable::TemporalIndex,
 };
-use std::{net::SocketAddr, sync::{Arc, RwLock}};
+use std::{
+    net::SocketAddr,
+    sync::{Arc, RwLock},
+};
 use tracing::{info, Level};
 use tracing_subscriber::FmtSubscriber;
 
@@ -24,9 +27,9 @@ async fn main() -> Result<()> {
     info!("🚀 Panini-FS API Server Starting...");
 
     // Create storage directories
-    let storage_dir = std::env::var("PANINI_STORAGE")
-        .unwrap_or_else(|_| "/tmp/panini-storage".to_string());
-    
+    let storage_dir =
+        std::env::var("PANINI_STORAGE").unwrap_or_else(|_| "/tmp/panini-storage".to_string());
+
     info!("Storage directory: {}", storage_dir);
     std::fs::create_dir_all(&storage_dir)?;
 
@@ -63,7 +66,7 @@ async fn main() -> Result<()> {
     // Create and run server
     let server = ApiServer::new(addr, state);
     info!("✓ API server configured");
-    
+
     info!("🎯 Starting HTTP server...");
     server.run().await?;
 

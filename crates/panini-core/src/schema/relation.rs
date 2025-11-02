@@ -1,7 +1,7 @@
 //! Relation types and evidence
 
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 /// Relation between two concepts
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

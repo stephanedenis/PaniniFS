@@ -13,16 +13,16 @@ use std::sync::{Arc, RwLock};
 pub struct ContentAddressedStorage<B: StorageBackend> {
     /// Storage backend (S3, LocalFS, etc.)
     backend: Arc<B>,
-    
+
     /// Atom index for fast lookups
     atom_index: Arc<RwLock<HashMap<String, AtomMetadata>>>,
-    
+
     /// Atom composition graph (parent-child relationships)
     atom_graph: Arc<RwLock<DiGraph<String, String>>>,
-    
+
     /// Hash to graph node mapping
     node_map: Arc<RwLock<HashMap<String, NodeIndex>>>,
-    
+
     /// Configuration
     config: StorageConfig,
 }
@@ -31,10 +31,10 @@ pub struct ContentAddressedStorage<B: StorageBackend> {
 pub struct StorageConfig {
     /// Maximum atom size before splitting (bytes)
     pub max_atom_size: u64,
-    
+
     /// Enable automatic deduplication
     pub enable_dedup: bool,
-    
+
     /// Compression algorithm
     pub compression: Option<String>,
 }
@@ -64,7 +64,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     /// Add atom to storage
     pub async fn add_atom(&self, data: &[u8], atom_type: AtomType) -> Result<Atom> {
         let atom = Atom::new(data, atom_type);
-        
+
         // Check if atom already exists (deduplication)
         if self.config.enable_dedup {
             let index = self.atom_index.read().unwrap();
@@ -75,12 +75,12 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
                 return Ok(atom);
             }
         }
-        
+
         // Store atom data in backend
         self.backend
             .upload(&atom.hash, Bytes::copy_from_slice(data))
             .await?;
-        
+
         // Add to index
         let mut metadata = AtomMetadata::from(&atom);
         metadata.ref_count = 1;
@@ -88,10 +88,10 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             .write()
             .unwrap()
             .insert(atom.hash.clone(), metadata);
-        
+
         // Add to graph
         self.add_to_graph(&atom)?;
-        
+
         Ok(atom)
     }
 
@@ -104,7 +104,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
                 return Err(Error::generic(format!("Atom not found: {}", hash)));
             }
         }
-        
+
         // Fetch from backend
         self.backend.download(hash).await
     }
@@ -137,7 +137,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     /// Get storage statistics
     pub async fn get_stats(&self) -> StorageStats {
         let index = self.atom_index.read().unwrap();
-        
+
         let total_atoms = index.len() as u64;
         let total_size: u64 = index.values().map(|m| m.size).sum();
         let dedup_atoms = index.values().filter(|m| m.ref_count > 1).count() as u64;
@@ -146,7 +146,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             .filter(|m| m.ref_count > 1)
             .map(|m| m.size * (m.ref_count as u64 - 1))
             .sum();
-        
+
         StorageStats {
             total_atoms,
             total_size,
@@ -193,23 +193,23 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
         let orphaned = self.find_orphaned_atoms();
         let mut deleted = 0;
         let mut freed_size = 0u64;
-        
+
         for hash in orphaned {
             if let Ok(metadata) = self.get_atom_metadata(&hash) {
                 // Delete from backend
                 self.backend.delete(&hash).await?;
-                
+
                 // Remove from index
                 self.atom_index.write().unwrap().remove(&hash);
-                
+
                 // Remove from graph
                 self.remove_from_graph(&hash)?;
-                
+
                 deleted += 1;
                 freed_size += metadata.size;
             }
         }
-        
+
         Ok(GcStats {
             atoms_deleted: deleted,
             bytes_freed: freed_size,
@@ -220,25 +220,25 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     fn add_to_graph(&self, atom: &Atom) -> Result<()> {
         let mut graph = self.atom_graph.write().unwrap();
         let mut node_map = self.node_map.write().unwrap();
-        
+
         // Add node for this atom
         let node_idx = graph.add_node(atom.hash.clone());
         node_map.insert(atom.hash.clone(), node_idx);
-        
+
         // Add edges to children
         for child_hash in &atom.children {
             if let Some(&child_idx) = node_map.get(child_hash) {
                 graph.add_edge(node_idx, child_idx, "contains".to_string());
             }
         }
-        
+
         // Add edge from parent
         if let Some(parent_hash) = &atom.parent {
             if let Some(&parent_idx) = node_map.get(parent_hash) {
                 graph.add_edge(parent_idx, node_idx, "contains".to_string());
             }
         }
-        
+
         Ok(())
     }
 
@@ -246,11 +246,11 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     fn remove_from_graph(&self, hash: &str) -> Result<()> {
         let mut graph = self.atom_graph.write().unwrap();
         let mut node_map = self.node_map.write().unwrap();
-        
+
         if let Some(node_idx) = node_map.remove(hash) {
             graph.remove_node(node_idx);
         }
-        
+
         Ok(())
     }
 
@@ -258,7 +258,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     pub fn get_atom_children(&self, hash: &str) -> Result<Vec<String>> {
         let graph = self.atom_graph.read().unwrap();
         let node_map = self.node_map.read().unwrap();
-        
+
         if let Some(&node_idx) = node_map.get(hash) {
             let children = graph
                 .neighbors(node_idx)
@@ -280,7 +280,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
         // TODO: Implement proper format-aware decomposition
         let mut hashes = Vec::new();
         const CHUNK_SIZE: usize = 64 * 1024; // 64KB chunks
-        
+
         if data.len() <= CHUNK_SIZE {
             // Small file, store as single atom
             let atom = self.add_atom(data, AtomType::Raw).await?;
@@ -297,12 +297,10 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
                 hashes.push(atom.hash);
             }
         }
-        
+
         Ok(hashes)
     }
-
-
-    }
+}
 
 /// Storage statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -342,10 +340,10 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let backend = Arc::new(LocalFsBackend::new(temp_dir.path()).unwrap());
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
-        
+
         let data = b"test atom data";
         let atom = cas.add_atom(data, AtomType::Container).await.unwrap();
-        
+
         assert_eq!(atom.size, 14);
         assert_eq!(atom.atom_type, AtomType::Container);
     }
@@ -355,16 +353,16 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let backend = Arc::new(LocalFsBackend::new(temp_dir.path()).unwrap());
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
-        
+
         let data = b"duplicate data";
-        
+
         // Add same data twice
         let atom1 = cas.add_atom(data, AtomType::Container).await.unwrap();
         let atom2 = cas.add_atom(data, AtomType::Raw).await.unwrap();
-        
+
         // Should have same hash
         assert_eq!(atom1.hash, atom2.hash);
-        
+
         // Check ref count
         let metadata = cas.get_atom_metadata(&atom1.hash).unwrap();
         assert_eq!(metadata.ref_count, 2);
@@ -375,10 +373,10 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let backend = Arc::new(LocalFsBackend::new(temp_dir.path()).unwrap());
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
-        
+
         let data = b"retrievable data";
         let atom = cas.add_atom(data, AtomType::Container).await.unwrap();
-        
+
         let retrieved = cas.get_atom(&atom.hash).await.unwrap();
         assert_eq!(&retrieved[..], data);
     }
@@ -388,10 +386,10 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let backend = Arc::new(LocalFsBackend::new(temp_dir.path()).unwrap());
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
-        
+
         cas.add_atom(b"atom1", AtomType::Container).await.unwrap();
         cas.add_atom(b"atom2", AtomType::IFrame).await.unwrap();
-        
+
         let stats = cas.get_stats();
         assert_eq!(stats.total_atoms, 2);
         assert!(stats.total_size > 0);

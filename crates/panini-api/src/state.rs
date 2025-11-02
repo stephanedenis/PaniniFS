@@ -2,9 +2,7 @@
 
 use crate::dhatu_handlers::DhatuState;
 use panini_core::storage::{
-    backends::localfs::LocalFsBackend,
-    cas::ContentAddressedStorage,
-    immutable::TemporalIndex,
+    backends::localfs::LocalFsBackend, cas::ContentAddressedStorage, immutable::TemporalIndex,
 };
 use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
@@ -14,10 +12,10 @@ use std::sync::{Arc, RwLock};
 pub struct AppState {
     /// Temporal index for time-travel queries
     pub temporal_index: Arc<RwLock<TemporalIndex>>,
-    
+
     /// Content-addressed storage
     pub cas: Arc<ContentAddressedStorage<LocalFsBackend>>,
-    
+
     /// Dhātu emotional classification system
     pub dhatu: Arc<DhatuState>,
 }

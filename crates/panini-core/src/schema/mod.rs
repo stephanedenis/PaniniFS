@@ -9,5 +9,5 @@ pub mod relations;
 pub mod taxonomy;
 
 pub use concept::{Concept, ConceptBuilder, ConceptType};
-pub use relation::{Relation, RelationType, Evidence, EvidenceType};
 pub use dhatu::Dhatu;
+pub use relation::{Evidence, EvidenceType, Relation, RelationType};

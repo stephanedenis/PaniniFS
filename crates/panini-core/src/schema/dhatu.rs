@@ -12,22 +12,22 @@ use std::fmt;
 pub enum Dhatu {
     /// Textual prose (Markdown)
     TEXT,
-    
+
     /// Visual diagrams, photos (PNG, JPG, SVG)
     IMAGE,
-    
+
     /// Video tutorials, demos (MP4, WebM)
     VIDEO,
-    
+
     /// Audio podcasts, lectures (MP3, OGG)
     AUDIO,
-    
+
     /// Code snippets (syntax-highlighted)
     CODE,
-    
+
     /// Binary executables, PDFs
     BINARY,
-    
+
     /// Datasets, bundles (TAR, ZIP)
     ARCHIVE,
 }
@@ -97,7 +97,7 @@ mod tests {
         let dhatu = Dhatu::TEXT;
         let json = serde_json::to_string(&dhatu).unwrap();
         assert_eq!(json, "\"TEXT\"");
-        
+
         let deserialized: Dhatu = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized, dhatu);
     }

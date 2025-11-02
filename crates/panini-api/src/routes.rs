@@ -14,7 +14,6 @@ pub fn create_router(state: AppState) -> Router {
     let api_routes = Router::new()
         // Health check
         .route("/health", get(handlers::health_check))
-        
         // Concept endpoints
         .route("/concepts", get(handlers::list_concepts))
         .route("/concepts/:id", get(handlers::get_concept))
@@ -23,34 +22,31 @@ pub fn create_router(state: AppState) -> Router {
             get(handlers::get_version),
         )
         .route("/concepts/:id/diff", get(handlers::get_diff))
-        
         // Timeline endpoint
         .route("/timeline", get(handlers::get_timeline))
-        
         // Snapshot endpoints
         .route("/snapshots", get(handlers::list_snapshots))
         .route("/snapshots/:id", get(handlers::get_snapshot))
-        
         // Time-travel endpoint
         .route("/time-travel", get(handlers::time_travel))
-        
         // Stats endpoint
         .route("/stats", get(handlers::get_stats))
-        
         // Deduplication endpoints (Phase 7)
         .route("/dedup/stats", get(dedup_handlers::get_dedup_stats))
         .route("/atoms/search", get(dedup_handlers::search_atoms))
         .route("/atoms/:hash", get(dedup_handlers::get_atom_details))
         .route("/files/analyze", post(dedup_handlers::analyze_file))
         .route("/files/:hash/atoms", get(dedup_handlers::get_file_atoms))
-        
         // Dhātu emotional classification endpoints (Phase 9)
         .route("/dhatu/emotions", get(dhatu_handlers::get_emotions))
         .route("/dhatu/roots/:emotion", get(dhatu_handlers::get_roots))
         .route("/dhatu/classify", post(dhatu_handlers::classify_content))
         .route("/dhatu/search", get(dhatu_handlers::search_profiles))
         .route("/dhatu/stats", get(dhatu_handlers::get_stats))
-        .route("/dhatu/resonance", post(dhatu_handlers::calculate_resonance));
+        .route(
+            "/dhatu/resonance",
+            post(dhatu_handlers::calculate_resonance),
+        );
 
     // Main router with /api prefix
     Router::new()

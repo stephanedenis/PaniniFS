@@ -27,7 +27,6 @@
 ///     .dhatu(Dhatu::TEXT)
 ///     .tag("storage/distributed")
 ///     .build()?;
-
 // Public API exports
 pub mod error;
 pub mod git;
