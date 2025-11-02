@@ -34,24 +34,66 @@ npm run test:ui
 BASE_URL=http://localhost:3000 npm test
 ```
 
+### Run local integration tests (API + FUSE)
+```bash
+./tests/run-all.sh
+```
+
+### Run only FUSE tests
+```bash
+./tests/fuse-integration.sh
+```
+
+### Run only API tests
+```bash
+# Start API server first
+PANINI_STORAGE=/tmp/test cargo run --bin panini-api &
+
+# Run tests
+API_URL=http://localhost:3030 npx playwright test tests/api.spec.js
+```
+
 ## Test Suites
 
-### Smoke Tests (`smoke.spec.js`)
+### Live Site Tests (Playwright)
+
+#### Smoke Tests (`smoke.spec.js`)
 - Homepage loads successfully
 - Navigation links are present
 - Valid HTML response
 - No console errors
 
-### Research Tests (`research.spec.js`)
+#### Research Tests (`research.spec.js`)
 - Research section accessibility
 - Research pages return valid status codes
 - Metadata validation
 
-### Modules Tests (`modules.spec.js`)
+#### Modules Tests (`modules.spec.js`)
 - Modules index accessibility
 - Module listings structure
 - Module navigation
 - Proper metadata
+
+### Local Integration Tests
+
+#### API Tests (`api.spec.js`)
+- Health and status endpoints
+- Deduplication: upload, search, stats
+- Dhātu emotional classification: classify, search, resonance, stats
+- Error handling and validation
+
+#### FUSE Tests (`fuse-integration.sh`)
+- Mount filesystem successfully
+- Directory structure (/concepts, /atoms, /index)
+- Read atom files
+- Unmount cleanly
+- Remount capability
+
+#### Complete Suite (`run-all.sh`)
+- Builds all required binaries
+- Starts API server
+- Runs all API + FUSE tests
+- Automatic cleanup
 
 ## CI Integration
 
