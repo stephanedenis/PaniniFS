@@ -47,9 +47,9 @@ async fn main() -> Result<()> {
     let temporal_index = Arc::new(RwLock::new(TemporalIndex::new()));
     info!("✓ Temporal Index initialized");
 
-    // Create application state
-    let state = AppState::new(temporal_index, cas);
-    info!("✓ Application state created");
+    // Create application state with storage path for Dhātu persistence
+    let state = AppState::new(temporal_index, cas, storage_dir.into());
+    info!("✓ Application state created (Dhātu persistence enabled)");
 
     // Parse server address
     let host = std::env::var("PANINI_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());

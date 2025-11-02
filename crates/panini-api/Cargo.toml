@@ -28,6 +28,9 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Error handling
 anyhow = { workspace = true }
 
+# Storage
+rocksdb = { workspace = true }
+
 # HTTP types
 http = "1.0"
 

@@ -7,27 +7,34 @@ use axum::{
     http::StatusCode,
     Json,
 };
+use crate::dhatu_persistence::DhatuStore;
 use panini_core::dhatu::{
     DhatuClassifier, EmotionalIntensity, EmotionalProfile, 
     EmotionalResonance, PankseppEmotion,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::sync::Arc;
 use crate::state::AppState;
-use tokio::sync::RwLock;
 
 /// Dhātu application state
 pub struct DhatuState {
     classifier: DhatuClassifier,
-    profiles: RwLock<HashMap<String, EmotionalProfile>>,
+    store: Arc<DhatuStore>,
 }
 
 impl DhatuState {
-    pub fn new() -> Arc<Self> {
+    pub fn new(storage_path: PathBuf) -> Arc<Self> {
+        let dhatu_db_path = storage_path.join("dhatu");
+        let store = DhatuStore::open(&dhatu_db_path)
+            .expect("Failed to open Dhātu persistent store");
+        
+        tracing::info!("Initialized Dhātu with persistent storage at {:?}", dhatu_db_path);
+        
         Arc::new(Self {
             classifier: DhatuClassifier::new(),
-            profiles: RwLock::new(HashMap::new()),
+            store: Arc::new(store),
         })
     }
 }
@@ -166,10 +173,11 @@ pub async fn classify_content(
     let arousal = intensity.arousal();
     
     // Store profile if path provided
-    if let Some(path) = req.path {
-        let profile = EmotionalProfile::new(path.clone(), intensity);
-        let mut profiles = state.dhatu.profiles.write().await;
-        profiles.insert(path, profile);
+    if let Some(ref path) = req.path {
+        let profile = EmotionalProfile::new(path.clone(), intensity.clone());
+        if let Err(e) = state.dhatu.store.store_profile(path, &profile) {
+            tracing::error!("Failed to store profile: {}", e);
+        }
     }
     
     Json(ClassifyResponse {
@@ -206,20 +214,25 @@ pub async fn search_profiles(
     State(state): State<AppState>,
     Query(query): Query<SearchQuery>,
 ) -> Json<SearchResponse> {
-    let profiles = state.dhatu.profiles.read().await;
     let limit = query.limit.unwrap_or(50);
-    
     let query_lower = query.q.to_lowercase();
-    let mut results: Vec<SearchResult> = profiles
-        .values()
-        .filter(|p| {
-            p.path.to_lowercase().contains(&query_lower)
+    
+    let all_profiles = state.dhatu.store.list_profiles()
+        .unwrap_or_else(|e| {
+            tracing::error!("Failed to list profiles: {}", e);
+            vec![]
+        });
+    
+    let mut results: Vec<SearchResult> = all_profiles
+        .iter()
+        .filter(|(path, p)| {
+            path.to_lowercase().contains(&query_lower)
                 || p.manual_tags.iter().any(|t| t.to_lowercase().contains(&query_lower))
                 || p.dhatu_roots.iter().any(|r| r.to_lowercase().contains(&query_lower))
         })
         .take(limit)
-        .map(|p| SearchResult {
-            path: p.path.clone(),
+        .map(|(path, p)| SearchResult {
+            path: path.clone(),
             dominant: p.dominant_emotion.map(|e| format!("{:?}", e)),
             confidence: p.confidence,
             intensity: p.intensity.into(),
@@ -248,35 +261,29 @@ pub struct StatsResponse {
 pub async fn get_stats(
     State(state): State<AppState>,
 ) -> Json<StatsResponse> {
-    let profiles = state.dhatu.profiles.read().await;
+    let store_stats = state.dhatu.store.get_stats()
+        .unwrap_or_else(|e| {
+            tracing::error!("Failed to get store stats: {}", e);
+            crate::dhatu_persistence::StoreStats {
+                total_profiles: 0,
+                avg_arousal: 0.0,
+                avg_confidence: 0.0,
+                emotions: vec![],
+            }
+        });
     
-    let mut emotion_counts: HashMap<String, usize> = HashMap::new();
-    let mut total_arousal = 0.0;
-    
-    for profile in profiles.values() {
-        if let Some(emotion) = profile.dominant_emotion {
-            let key = format!("{:?}", emotion);
-            *emotion_counts.entry(key).or_insert(0) += 1;
-        }
-        total_arousal += profile.intensity.arousal();
-    }
-    
-    let total = profiles.len();
-    let average_arousal = if total > 0 {
-        total_arousal / total as f64
-    } else {
-        0.0
-    };
-    
-    let mut top_emotions: Vec<_> = emotion_counts.iter()
-        .map(|(k, v)| (k.clone(), *v))
+    let emotion_counts: HashMap<String, usize> = store_stats.emotions.iter()
+        .map(|e| (e.name.clone(), e.count))
         .collect();
-    top_emotions.sort_by(|a, b| b.1.cmp(&a.1));
+    
+    let top_emotions: Vec<_> = store_stats.emotions.iter()
+        .map(|e| (e.name.clone(), e.count))
+        .collect();
     
     Json(StatsResponse {
-        total_profiles: total,
+        total_profiles: store_stats.total_profiles,
         emotion_distribution: emotion_counts,
-        average_arousal,
+        average_arousal: store_stats.avg_arousal,
         top_emotions,
     })
 }
@@ -303,14 +310,15 @@ pub async fn calculate_resonance(
     State(state): State<AppState>,
     Json(req): Json<ResonanceRequest>,
 ) -> Result<Json<ResonanceResponse>, StatusCode> {
-    let profiles = state.dhatu.profiles.read().await;
-    
-    let profile_a = profiles.get(&req.path_a)
-        .ok_or(StatusCode::NOT_FOUND)?;
-    let profile_b = profiles.get(&req.path_b)
+    let profile_a = state.dhatu.store.get_profile(&req.path_a)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
         .ok_or(StatusCode::NOT_FOUND)?;
     
-    let resonance = EmotionalResonance::calculate(profile_a, profile_b);
+    let profile_b = state.dhatu.store.get_profile(&req.path_b)
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::NOT_FOUND)?;
+    
+    let resonance = EmotionalResonance::calculate(&profile_a, &profile_b);
     
     Ok(Json(ResonanceResponse {
         path_a: resonance.path_a,

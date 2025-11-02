@@ -6,6 +6,7 @@ use panini_core::storage::{
     cas::ContentAddressedStorage,
     immutable::TemporalIndex,
 };
+use std::path::PathBuf;
 use std::sync::{Arc, RwLock};
 
 /// Shared application state
@@ -26,11 +27,12 @@ impl AppState {
     pub fn new(
         temporal_index: Arc<RwLock<TemporalIndex>>,
         cas: Arc<ContentAddressedStorage<LocalFsBackend>>,
+        storage_path: PathBuf,
     ) -> Self {
         Self {
             temporal_index,
             cas,
-            dhatu: DhatuState::new(),
+            dhatu: DhatuState::new(storage_path),
         }
     }
 }
