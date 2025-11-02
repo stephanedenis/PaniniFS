@@ -10,6 +10,7 @@
 pub mod atom;
 pub mod cas;
 pub mod backends;
+pub mod cache;
 pub mod decomposer;
 pub mod reconstructor;
 
@@ -21,6 +22,7 @@ pub use backend::{StorageBackend as LegacyStorageBackend, UploadResult as Legacy
 pub use atom::{Atom, AtomType, AtomMetadata};
 pub use cas::{ContentAddressedStorage, StorageConfig, StorageStats, GcStats};
 pub use backends::{StorageBackend, LocalFsBackend, UploadResult, BackendStats};
+pub use cache::{AtomCache, CacheConfig, CacheStats, CachedAtom};
 pub use decomposer::{Decomposer, FileFormat};
 pub use reconstructor::Reconstructor;
 

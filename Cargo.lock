@@ -1836,6 +1836,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "panini-benchmarks"
+version = "0.1.0"
+dependencies = [
+ "criterion",
+ "panini-core",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "panini-cli"
 version = "2.0.0"
 dependencies = [
@@ -1871,6 +1882,7 @@ dependencies = [
  "git2",
  "glob",
  "lazy_static",
+ "lru",
  "once_cell",
  "petgraph",
  "pretty_assertions",

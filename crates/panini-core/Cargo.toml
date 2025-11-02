@@ -25,6 +25,7 @@ git2 = { workspace = true }
 
 # Storage & indexing
 rocksdb = { workspace = true }
+lru = { workspace = true }
 tantivy = { workspace = true }
 
 # Serialization
