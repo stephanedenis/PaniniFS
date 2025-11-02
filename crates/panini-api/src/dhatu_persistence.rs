@@ -18,7 +18,8 @@ impl DhatuStore {
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         let mut opts = Options::default();
         opts.create_if_missing(true);
-        opts.set_compression_type(rocksdb::DBCompressionType::Zstd);
+        // No compression for maximum compatibility
+        opts.set_compression_type(rocksdb::DBCompressionType::None);
 
         let db = DB::open(&opts, path.as_ref()).context("Failed to open Dhātu RocksDB")?;
 
