@@ -1,0 +1,19 @@
+[package]
+name = "panini-benchmarks"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+panini-core = { path = "../panini-core" }
+criterion = { workspace = true }
+sha2 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+[[bench]]
+name = "cas_benchmark"
+harness = false
+
+[[bench]]
+name = "dhatu_benchmark"
+harness = false
