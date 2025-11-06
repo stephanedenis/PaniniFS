@@ -38,7 +38,7 @@ pulldown-cmark = { workspace = true }
 petgraph.workspace = true
 
 # Async runtime
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["sync", "rt-multi-thread"] }
 
 # Error handling
 thiserror = { workspace = true }

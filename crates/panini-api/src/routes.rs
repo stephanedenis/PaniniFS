@@ -6,7 +6,7 @@ use axum::{
 };
 use tower_http::cors::CorsLayer;
 
-use crate::{dedup_handlers, dhatu_handlers, handlers, state::AppState};
+use crate::{concept_handlers, dedup_handlers, dhatu_handlers, handlers, state::AppState};
 
 /// Create the main API router with all endpoints
 pub fn create_router(state: AppState) -> Router {
@@ -14,7 +14,7 @@ pub fn create_router(state: AppState) -> Router {
     let api_routes = Router::new()
         // Health check
         .route("/health", get(handlers::health_check))
-        // Concept endpoints
+        // Legacy concept endpoints (temporal)
         .route("/concepts", get(handlers::list_concepts))
         .route("/concepts/:id", get(handlers::get_concept))
         .route(
@@ -22,6 +22,15 @@ pub fn create_router(state: AppState) -> Router {
             get(handlers::get_version),
         )
         .route("/concepts/:id/diff", get(handlers::get_diff))
+        // NEW: Concept extraction endpoints
+        .route("/concepts/extract", post(concept_handlers::extract_concepts))
+        .route("/concepts/stats", get(concept_handlers::get_concept_stats))
+        .route("/concepts/list", get(concept_handlers::list_concepts))
+        .route("/concepts/:id/details", get(concept_handlers::get_concept))
+        .route(
+            "/extraction/status/:job_id",
+            get(concept_handlers::get_extraction_status),
+        )
         // Timeline endpoint
         .route("/timeline", get(handlers::get_timeline))
         // Snapshot endpoints

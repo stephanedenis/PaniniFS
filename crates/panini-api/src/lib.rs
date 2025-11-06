@@ -11,6 +11,7 @@
 pub mod dedup_handlers;
 pub mod dhatu_handlers;
 pub mod dhatu_persistence;
+pub mod concept_handlers;
 pub mod handlers;
 pub mod routes;
 pub mod server;

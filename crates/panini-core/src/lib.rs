@@ -34,6 +34,7 @@ pub mod index;
 pub mod query;
 pub mod schema;
 pub mod storage;
+pub mod concept;
 pub mod sync;
 
 // Re-export main types

@@ -6,6 +6,7 @@ authors = ["Panini-FS Contributors"]
 description = "REST API server for Panini-FS temporal filesystem"
 
 [dependencies]
+uuid = { workspace = true }
 panini-core = { path = "../panini-core" }
 
 # Web framework
