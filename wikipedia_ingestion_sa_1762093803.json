@@ -1,0 +1,11 @@
+{
+  "total_articles": 0,
+  "total_bytes": 0,
+  "deduplicated_bytes": 0,
+  "upload_errors": 0,
+  "classification_errors": 0,
+  "start_time": 1762093791.8933613,
+  "elapsed_seconds": 11.906935453414917,
+  "articles_per_second": 0.0,
+  "deduplication_ratio": 0
+}

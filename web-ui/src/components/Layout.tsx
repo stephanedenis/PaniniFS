@@ -5,7 +5,9 @@ import {
   FileText, 
   Clock, 
   Camera,
-  Activity
+  Activity,
+  Heart,
+  Share2
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -25,6 +27,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/timeline', icon: Clock, label: 'Timeline' },
     { path: '/snapshots', icon: Camera, label: 'Snapshots' },
     { path: '/dhatu', icon: Heart, label: 'Dhātu' },
+    { path: '/graph', icon: Share2, label: 'Graph' },
   ];
 
   return (
