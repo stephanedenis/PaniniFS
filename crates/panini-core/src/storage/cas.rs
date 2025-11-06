@@ -176,6 +176,34 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
         } else {
             Err(Error::generic(format!("Chunk not found: {}", hash)))
         }
+
+    }
+    /// Register an existing chunk without re-reading the file
+    /// This is used when loading chunks from an existing index on startup
+    pub fn register_existing_chunk(
+        &self,
+        hash: String,
+        size: u64,
+        chunk_type: ChunkType,
+        created_at: u64,
+    ) -> Result<()> {
+        let mut index = self.atom_index.write().unwrap();
+        
+        // Only add if not already present
+        if index.contains_key(&hash) {
+            return Ok(());
+        }
+        
+        let metadata = ChunkMetadata {
+            hash: hash.clone(),
+            size,
+            chunk_type,
+            ref_count: 1,
+            created_at,
+        };
+        
+        index.insert(hash, metadata);
+        Ok(())
     }
 
     /// Find orphaned atoms (ref_count == 0)
