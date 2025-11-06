@@ -8,7 +8,7 @@ import {
   Activity,
   Heart,
   Share2
-} from 'lucide-react';
+, Brain } from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -26,6 +26,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/concepts', icon: FileText, label: 'Concepts' },
     { path: '/timeline', icon: Clock, label: 'Timeline' },
     { path: '/snapshots', icon: Camera, label: 'Snapshots' },
+    { path: '/concepts', icon: Brain, label: 'Concepts' },
     { path: '/dhatu', icon: Heart, label: 'Dhātu' },
     { path: '/graph', icon: Share2, label: 'Graph' },
   ];

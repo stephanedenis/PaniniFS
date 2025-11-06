@@ -15,7 +15,8 @@ function App() {
         <Route path="/concepts" element={<ConceptsPage />} />
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/snapshots" element={<SnapshotsPage />} />
-        <Route path="/dhatu" element={<DhatuDashboard />} />
+        <Route path=\"/concepts\" element={<ConceptsExplorer />} />
+            <Route path="/dhatu" element={<DhatuDashboard />} />
         <Route path="/graph" element={<GraphExplorer />} />
       </Routes>
     </Layout>
