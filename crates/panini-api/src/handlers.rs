@@ -83,7 +83,7 @@ pub struct VersionSummary {
 pub struct VersionDetail {
     pub version_id: String,
     pub parent: Option<String>,
-    pub atoms: Vec<String>,
+    pub chunks: Vec<String>,
     pub size: u64,
     pub content_hash: String,
     pub timestamp: DateTime<Utc>,
@@ -164,7 +164,7 @@ pub struct StatsResponse {
     pub total_concepts: usize,
     pub total_versions: usize,
     pub total_snapshots: usize,
-    pub total_atoms: u64,
+    pub total_chunks: u64,
     pub total_size: u64,
     pub dedup_savings: u64,
 }
@@ -245,7 +245,7 @@ pub async fn get_concept(
                     author: v.author.clone(),
                     message: v.message.clone(),
                     size: v.size,
-                    atom_count: v.atoms.len(),
+                    atom_count: v.chunks.len(),
                 })
                 .collect();
 
@@ -278,7 +278,7 @@ pub async fn get_version(
                 let detail = VersionDetail {
                     version_id: version.version_id.clone(),
                     parent: version.parent.clone(),
-                    atoms: version.atoms.clone(),
+                    chunks: version.chunks.clone(),
                     size: version.size,
                     content_hash: version.content_hash.clone(),
                     timestamp: version.timestamp,
@@ -423,8 +423,8 @@ pub async fn get_diff(
                 let response = DiffResponse {
                     from: diff.from,
                     to: diff.to,
-                    added_atoms: diff.added_atoms,
-                    removed_atoms: diff.removed_atoms,
+                    added_atoms: diff.added_chunks,
+                    removed_atoms: diff.removed_chunks,
                     size_change: diff.size_change,
                 };
 
@@ -456,7 +456,7 @@ pub async fn get_stats(
         total_concepts,
         total_versions,
         total_snapshots,
-        total_atoms: cas_stats.total_atoms,
+        total_chunks: cas_stats.total_chunks,
         total_size: cas_stats.total_size,
         dedup_savings: cas_stats.dedup_savings,
     };

@@ -1,7 +1,7 @@
-//! Binary format decomposer - extracts atoms from binary files
+//! Binary format decomposer - extracts chunks from binary files
 
 use crate::error::{Error, Result};
-use crate::storage::atom::{Atom, AtomType};
+use crate::storage::chunk::{Chunk, ChunkType};
 use byteorder::{BigEndian, ReadBytesExt};
 use std::io::Cursor;
 
@@ -57,22 +57,22 @@ impl Decomposer {
         Self::new(format)
     }
 
-    /// Decompose binary file into atoms
-    pub fn decompose(&self, data: &[u8]) -> Result<Vec<Atom>> {
+    /// Decompose binary file into chunks
+    pub fn decompose(&self, data: &[u8]) -> Result<Vec<Chunk>> {
         match self.format {
             FileFormat::PNG => self.decompose_png(data),
             FileFormat::JPEG => self.decompose_jpeg(data),
             FileFormat::MP4 => self.decompose_mp4(data),
             FileFormat::Unknown => {
                 // Fallback: treat as single raw atom
-                Ok(vec![Atom::new(data, AtomType::Raw)])
+                Ok(vec![Chunk::new(data, ChunkType::Raw)])
             }
         }
     }
 
-    /// Decompose PNG into atoms
-    fn decompose_png(&self, data: &[u8]) -> Result<Vec<Atom>> {
-        let mut atoms = Vec::new();
+    /// Decompose PNG into chunks
+    fn decompose_png(&self, data: &[u8]) -> Result<Vec<Chunk>> {
+        let mut chunks = Vec::new();
         let mut cursor = Cursor::new(data);
 
         // PNG signature (8 bytes)
@@ -81,8 +81,8 @@ impl Decomposer {
             .map_err(|e| Error::generic(format!("Failed to read PNG signature: {}", e)))?;
 
         let sig_atom =
-            Atom::new(&signature, AtomType::Container).with_metadata("chunk_type", "signature");
-        atoms.push(sig_atom);
+            Chunk::new(&signature, ChunkType::Container).with_metadata("chunk_type", "signature");
+        chunks.push(sig_atom);
 
         // Parse chunks
         let mut offset = 8u64;
@@ -113,19 +113,19 @@ impl Decomposer {
 
             // Determine atom type based on chunk type
             let atom_type = match chunk_type_str.as_str() {
-                "IHDR" => AtomType::Metadata,
-                "IDAT" => AtomType::ImageData,
-                "PLTE" => AtomType::Metadata,
-                "tRNS" => AtomType::Metadata,
-                "IEND" => AtomType::Container,
-                _ => AtomType::Raw,
+                "IHDR" => ChunkType::Metadata,
+                "IDAT" => ChunkType::ImageData,
+                "PLTE" => ChunkType::Metadata,
+                "tRNS" => ChunkType::Metadata,
+                "IEND" => ChunkType::Container,
+                _ => ChunkType::Raw,
             };
 
             // Create atom with full chunk (length + type + data + crc)
             let chunk_end = cursor.position() as usize;
             let full_chunk = &data[chunk_start..chunk_end];
 
-            let mut atom = Atom::new(full_chunk, atom_type);
+            let mut atom = Chunk::new(full_chunk, atom_type);
             atom.metadata
                 .insert("chunk_type".to_string(), chunk_type_str.clone());
             atom.metadata
@@ -134,7 +134,7 @@ impl Decomposer {
                 .insert("crc".to_string(), format!("{:08x}", crc));
             atom.source_offset = offset;
 
-            atoms.push(atom);
+            chunks.push(atom);
             offset = cursor.position();
 
             // Break on IEND chunk
@@ -143,36 +143,36 @@ impl Decomposer {
             }
         }
 
-        Ok(atoms)
+        Ok(chunks)
     }
 
-    /// Decompose JPEG into atoms (placeholder)
-    fn decompose_jpeg(&self, data: &[u8]) -> Result<Vec<Atom>> {
+    /// Decompose JPEG into chunks (placeholder)
+    fn decompose_jpeg(&self, data: &[u8]) -> Result<Vec<Chunk>> {
         // Simplified: treat as single atom for now
         // TODO: Parse JPEG segments (SOI, APP0, DQT, DHT, SOS, etc.)
-        let mut atoms = Vec::new();
+        let mut chunks = Vec::new();
 
         // SOI marker (FF D8)
         if data.len() >= 2 {
-            let soi = Atom::new(&data[0..2], AtomType::Container).with_metadata("marker", "SOI");
-            atoms.push(soi);
+            let soi = Chunk::new(&data[0..2], ChunkType::Container).with_metadata("marker", "SOI");
+            chunks.push(soi);
         }
 
         // Rest of JPEG (simplified)
         if data.len() > 2 {
-            let body = Atom::new(&data[2..], AtomType::ImageData)
+            let body = Chunk::new(&data[2..], ChunkType::ImageData)
                 .with_metadata("format", "jpeg_scan_data");
-            atoms.push(body);
+            chunks.push(body);
         }
 
-        Ok(atoms)
+        Ok(chunks)
     }
 
-    /// Decompose MP4 into atoms (placeholder)
-    fn decompose_mp4(&self, data: &[u8]) -> Result<Vec<Atom>> {
+    /// Decompose MP4 into chunks (placeholder)
+    fn decompose_mp4(&self, data: &[u8]) -> Result<Vec<Chunk>> {
         // Simplified: treat as single atom for now
-        // TODO: Parse MP4 atoms (ftyp, moov, mdat, etc.)
-        let atom = Atom::new(data, AtomType::Container).with_metadata("format", "mp4");
+        // TODO: Parse MP4 chunks (ftyp, moov, mdat, etc.)
+        let atom = Chunk::new(data, ChunkType::Container).with_metadata("format", "mp4");
         Ok(vec![atom])
     }
 }
@@ -197,10 +197,10 @@ mod tests {
     fn test_decompose_unknown_format() {
         let data = b"unknown data";
         let decomposer = Decomposer::auto_detect(data);
-        let atoms = decomposer.decompose(data).unwrap();
+        let chunks = decomposer.decompose(data).unwrap();
 
-        assert_eq!(atoms.len(), 1);
-        assert_eq!(atoms[0].atom_type, AtomType::Raw);
+        assert_eq!(chunks.len(), 1);
+        assert_eq!(chunks[0].atom_type, ChunkType::Raw);
     }
 
     #[test]
@@ -223,13 +223,13 @@ mod tests {
         png_data.extend_from_slice(&[0xAE, 0x42, 0x60, 0x82]); // CRC
 
         let decomposer = Decomposer::auto_detect(&png_data);
-        let atoms = decomposer.decompose(&png_data).unwrap();
+        let chunks = decomposer.decompose(&png_data).unwrap();
 
         // Should have: signature + IHDR + IEND
-        assert!(atoms.len() >= 3);
-        assert_eq!(atoms[0].atom_type, AtomType::Container);
+        assert!(chunks.len() >= 3);
+        assert_eq!(chunks[0].atom_type, ChunkType::Container);
         assert_eq!(
-            atoms[0].metadata.get("chunk_type"),
+            chunks[0].metadata.get("chunk_type"),
             Some(&"signature".to_string())
         );
     }

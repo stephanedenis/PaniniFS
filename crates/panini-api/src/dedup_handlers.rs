@@ -18,12 +18,12 @@ use crate::state::AppState;
 pub struct DedupStats {
     pub total_files: usize,
     pub total_size: u64,
-    pub total_atoms: usize,
-    pub unique_atoms: usize,
+    pub total_chunks: usize,
+    pub unique_chunks: usize,
     pub dedup_ratio: f64,
     pub storage_saved: u64,
     pub avg_reuse: f64,
-    pub top_atoms: Vec<TopAtom>,
+    pub top_chunks: Vec<TopAtom>,
 }
 
 #[derive(Debug, Serialize)]
@@ -105,17 +105,17 @@ pub async fn get_dedup_stats(
 
     // Calculer les statistiques de déduplication
     let total_refs: usize = all_atoms.iter().map(|a| a.ref_count as usize).sum();
-    let unique_atoms = all_atoms.len();
+    let unique_chunks = all_atoms.len();
     let total_size: u64 = all_atoms.iter().map(|a| a.size).sum();
 
     let dedup_ratio = if total_refs > 0 {
-        1.0 - (unique_atoms as f64 / total_refs as f64)
+        1.0 - (unique_chunks as f64 / total_refs as f64)
     } else {
         0.0
     };
 
-    let avg_reuse = if unique_atoms > 0 {
-        total_refs as f64 / unique_atoms as f64
+    let avg_reuse = if unique_chunks > 0 {
+        total_refs as f64 / unique_chunks as f64
     } else {
         0.0
     };
@@ -129,7 +129,7 @@ pub async fn get_dedup_stats(
     // Identifier les top atomes par usage
     let mut sorted_atoms = all_atoms.clone();
     sorted_atoms.sort_by(|a, b| b.ref_count.cmp(&a.ref_count));
-    let top_atoms: Vec<TopAtom> = sorted_atoms
+    let top_chunks: Vec<TopAtom> = sorted_atoms
         .iter()
         .take(10)
         .filter(|a| a.ref_count > 1)
@@ -142,13 +142,13 @@ pub async fn get_dedup_stats(
 
     let stats = DedupStats {
         total_files: total_refs,
-        total_size: total_size * total_refs as u64 / unique_atoms.max(1) as u64,
-        total_atoms: storage_stats.total_atoms as usize,
-        unique_atoms,
+        total_size: total_size * total_refs as u64 / unique_chunks.max(1) as u64,
+        total_chunks: storage_stats.total_chunks as usize,
+        unique_chunks,
         dedup_ratio,
         storage_saved,
         avg_reuse,
-        top_atoms,
+        top_chunks,
     };
 
     Ok(Json(stats))
@@ -181,7 +181,7 @@ pub async fn search_atoms(
             AtomSummary {
                 hash: atom.hash.clone(),
                 size: atom.size,
-                atom_type: format!("{:?}", atom.atom_type),
+                atom_type: format!("{:?}", atom.chunk_type),
                 created_at: dt.to_rfc3339(),
                 usage_count: atom.ref_count as usize,
             }
@@ -215,7 +215,7 @@ pub async fn get_atom_details(
             let details = AtomDetails {
                 hash: metadata.hash.clone(),
                 size: metadata.size,
-                atom_type: format!("{:?}", metadata.atom_type),
+                atom_type: format!("{:?}", metadata.chunk_type),
                 created_at: dt.to_rfc3339(),
                 usage_count: metadata.ref_count as usize,
                 files: vec![
@@ -273,7 +273,7 @@ pub async fn analyze_file(
     // Store in CAS as a container atom
     match state
         .cas
-        .add_atom(&file_data, panini_core::storage::atom::AtomType::Container)
+        .add_chunk(&file_data, panini_core::storage::chunk::ChunkType::Container)
         .await
     {
         Ok(atom) => {

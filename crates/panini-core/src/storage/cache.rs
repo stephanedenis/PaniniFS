@@ -7,12 +7,12 @@ use lru::LruCache;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, Mutex};
 
-/// Cached atom data
+/// Cached chunk data
 #[derive(Clone, Debug)]
-pub struct CachedAtom {
-    /// Atom hash
+pub struct CachedChunk {
+    /// Chunk hash
     pub hash: String,
-    /// Atom content
+    /// Chunk content
     pub content: Vec<u8>,
     /// Content size in bytes
     pub size: usize,
@@ -22,7 +22,7 @@ pub struct CachedAtom {
 #[derive(Clone, Debug)]
 pub struct CacheConfig {
     /// Maximum number of atoms to cache
-    pub max_atoms: usize,
+    pub max_chunks: usize,
     /// Maximum total cache size in bytes (0 = unlimited)
     pub max_bytes: usize,
 }
@@ -30,15 +30,15 @@ pub struct CacheConfig {
 impl Default for CacheConfig {
     fn default() -> Self {
         Self {
-            max_atoms: 1000,
+            max_chunks: 1000,
             max_bytes: 100 * 1024 * 1024, // 100MB
         }
     }
 }
 
 /// LRU cache for atoms
-pub struct AtomCache {
-    cache: Arc<Mutex<LruCache<String, CachedAtom>>>,
+pub struct ChunkCache {
+    cache: Arc<Mutex<LruCache<String, CachedChunk>>>,
     config: CacheConfig,
     current_size: Arc<Mutex<usize>>,
     stats: Arc<Mutex<CacheStats>>,
@@ -64,7 +64,7 @@ impl CacheStats {
     }
 }
 
-impl AtomCache {
+impl ChunkCache {
     /// Create a new cache with default configuration
     pub fn new() -> Self {
         Self::with_config(CacheConfig::default())
@@ -72,7 +72,7 @@ impl AtomCache {
 
     /// Create a new cache with custom configuration
     pub fn with_config(config: CacheConfig) -> Self {
-        let capacity = NonZeroUsize::new(config.max_atoms).unwrap();
+        let capacity = NonZeroUsize::new(config.max_chunks).unwrap();
 
         Self {
             cache: Arc::new(Mutex::new(LruCache::new(capacity))),
@@ -82,30 +82,30 @@ impl AtomCache {
         }
     }
 
-    /// Get an atom from cache
-    pub fn get(&self, hash: &str) -> Option<CachedAtom> {
+    /// Get an chunk from cache
+    pub fn get(&self, hash: &str) -> Option<CachedChunk> {
         let mut cache = self.cache.lock().unwrap();
         let mut stats = self.stats.lock().unwrap();
 
-        if let Some(atom) = cache.get(hash) {
+        if let Some(chunk) = cache.get(hash) {
             stats.hits += 1;
-            Some(atom.clone())
+            Some(chunk.clone())
         } else {
             stats.misses += 1;
             None
         }
     }
 
-    /// Put an atom into cache
+    /// Put an chunk into cache
     pub fn put(&self, hash: String, content: Vec<u8>) -> Result<()> {
         let size = content.len();
-        let atom = CachedAtom {
+        let chunk = CachedChunk {
             hash: hash.clone(),
             content,
             size,
         };
 
-        // Check if adding this atom would exceed max_bytes
+        // Check if adding this chunk would exceed max_bytes
         if self.config.max_bytes > 0 {
             let mut current_size = self.current_size.lock().unwrap();
 
@@ -115,7 +115,7 @@ impl AtomCache {
                 *current_size = self.calculate_size();
             }
 
-            // Don't cache if single atom exceeds max_bytes
+            // Don't cache if single chunk exceeds max_bytes
             if size > self.config.max_bytes {
                 return Ok(());
             }
@@ -124,7 +124,7 @@ impl AtomCache {
         let mut cache = self.cache.lock().unwrap();
 
         // LRU eviction may occur here
-        if let Some((_, evicted)) = cache.push(hash, atom) {
+        if let Some((_, evicted)) = cache.push(hash, chunk) {
             let mut stats = self.stats.lock().unwrap();
             stats.evictions += 1;
 
@@ -184,11 +184,11 @@ impl AtomCache {
 
     fn calculate_size(&self) -> usize {
         let cache = self.cache.lock().unwrap();
-        cache.iter().map(|(_, atom)| atom.size).sum()
+        cache.iter().map(|(_, chunk)| chunk.size).sum()
     }
 }
 
-impl Default for AtomCache {
+impl Default for ChunkCache {
     fn default() -> Self {
         Self::new()
     }
@@ -200,7 +200,7 @@ mod tests {
 
     #[test]
     fn test_cache_basic() {
-        let cache = AtomCache::new();
+        let cache = ChunkCache::new();
 
         // Miss on empty cache
         assert!(cache.get("hash1").is_none());
@@ -209,18 +209,18 @@ mod tests {
         cache.put("hash1".to_string(), vec![1, 2, 3]).unwrap();
         assert!(cache.get("hash1").is_some());
 
-        let atom = cache.get("hash1").unwrap();
-        assert_eq!(atom.content, vec![1, 2, 3]);
-        assert_eq!(atom.size, 3);
+        let chunk = cache.get("hash1").unwrap();
+        assert_eq!(chunk.content, vec![1, 2, 3]);
+        assert_eq!(chunk.size, 3);
     }
 
     #[test]
     fn test_cache_eviction() {
         let config = CacheConfig {
-            max_atoms: 2,
+            max_chunks: 2,
             max_bytes: 0,
         };
-        let cache = AtomCache::with_config(config);
+        let cache = ChunkCache::with_config(config);
 
         cache.put("hash1".to_string(), vec![1]).unwrap();
         cache.put("hash2".to_string(), vec![2]).unwrap();
@@ -235,10 +235,10 @@ mod tests {
     #[test]
     fn test_cache_size_limit() {
         let config = CacheConfig {
-            max_atoms: 100,
+            max_chunks: 100,
             max_bytes: 10,
         };
-        let cache = AtomCache::with_config(config);
+        let cache = ChunkCache::with_config(config);
 
         cache.put("hash1".to_string(), vec![1, 2, 3, 4]).unwrap();
         cache.put("hash2".to_string(), vec![5, 6, 7]).unwrap();
@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_cache_stats() {
-        let cache = AtomCache::new();
+        let cache = ChunkCache::new();
 
         cache.put("hash1".to_string(), vec![1, 2, 3]).unwrap();
 

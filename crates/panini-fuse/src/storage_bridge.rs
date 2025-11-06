@@ -54,7 +54,7 @@ impl StorageBridge {
             .map_err(|e| anyhow::anyhow!("{}", e))
     }
     
-    /// List all atoms (synchronous wrapper)
+    /// List all chunks (synchronous wrapper)
     pub fn list_atoms(&self) -> Vec<panini_core::storage::atom::AtomMetadata> {
         // This method is actually sync in CAS
         self.cas.list_atoms()

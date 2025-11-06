@@ -57,7 +57,7 @@ pub struct ConceptVersion {
     pub parent: Option<VersionId>,
 
     /// List of atom hashes composing this version
-    pub atoms: Vec<String>,
+    pub chunks: Vec<String>,
 
     /// Total size in bytes
     pub size: u64,
@@ -81,20 +81,20 @@ pub struct ConceptVersion {
 impl ConceptVersion {
     /// Create new version from atoms
     pub fn new(
-        atoms: Vec<String>,
+        chunks: Vec<String>,
         size: u64,
         parent: Option<VersionId>,
         author: String,
         message: String,
     ) -> Self {
         let timestamp = Utc::now();
-        let content_hash = Self::compute_content_hash(&atoms);
+        let content_hash = Self::compute_content_hash(&chunks);
         let version_id = Self::generate_version_id(&timestamp, &content_hash);
 
         Self {
             version_id,
             parent,
-            atoms,
+            chunks,
             size,
             content_hash,
             timestamp,
@@ -105,10 +105,10 @@ impl ConceptVersion {
     }
 
     /// Compute content hash from atoms
-    fn compute_content_hash(atoms: &[String]) -> String {
+    fn compute_content_hash(chunks: &[String]) -> String {
         let mut hasher = Sha256::new();
-        for atom in atoms {
-            hasher.update(atom.as_bytes());
+        for chunk in chunks {
+            hasher.update(chunk.as_bytes());
         }
         format!("{:x}", hasher.finalize())
     }
@@ -138,13 +138,13 @@ impl Concept {
     /// Create new concept with initial version
     pub fn new(
         name: String,
-        atoms: Vec<String>,
+        chunks: Vec<String>,
         size: u64,
         author: String,
         message: String,
     ) -> Self {
         let created_at = Utc::now();
-        let initial_version = ConceptVersion::new(atoms, size, None, author, message);
+        let initial_version = ConceptVersion::new(chunks, size, None, author, message);
         let version_id = initial_version.version_id.clone();
         let content_hash = initial_version.content_hash.clone();
 
@@ -170,13 +170,13 @@ impl Concept {
     /// Returns the new version ID
     pub fn add_version(
         &mut self,
-        atoms: Vec<String>,
+        chunks: Vec<String>,
         size: u64,
         author: String,
         message: String,
     ) -> VersionId {
         let parent = Some(self.current_version.clone());
-        let new_version = ConceptVersion::new(atoms, size, parent, author, message);
+        let new_version = ConceptVersion::new(chunks, size, parent, author, message);
         let version_id = new_version.version_id.clone();
 
         self.versions.insert(version_id.clone(), new_version);
@@ -211,7 +211,7 @@ impl Concept {
 
         let message = format!("Revert to version {}", version_id);
         let new_version_id = self.add_version(
-            target_version.atoms.clone(),
+            target_version.chunks.clone(),
             target_version.size,
             author,
             message,
@@ -226,8 +226,8 @@ impl Concept {
         let to_version = self.versions.get(to)?;
 
         // Find added and removed atoms
-        let from_set: std::collections::HashSet<_> = from_version.atoms.iter().collect();
-        let to_set: std::collections::HashSet<_> = to_version.atoms.iter().collect();
+        let from_set: std::collections::HashSet<_> = from_version.chunks.iter().collect();
+        let to_set: std::collections::HashSet<_> = to_version.chunks.iter().collect();
 
         let added: Vec<String> = to_set
             .difference(&from_set)
@@ -241,8 +241,8 @@ impl Concept {
         Some(VersionDiff {
             from: from.clone(),
             to: to.clone(),
-            added_atoms: added,
-            removed_atoms: removed,
+            added_chunks: added,
+            removed_chunks: removed,
             size_change: to_version.size as i64 - from_version.size as i64,
         })
     }
@@ -253,8 +253,8 @@ impl Concept {
 pub struct VersionDiff {
     pub from: VersionId,
     pub to: VersionId,
-    pub added_atoms: Vec<String>,
-    pub removed_atoms: Vec<String>,
+    pub added_chunks: Vec<String>,
+    pub removed_chunks: Vec<String>,
     pub size_change: i64,
 }
 
@@ -523,7 +523,7 @@ mod tests {
         // Check content matches v1
         let current = concept.get_current_version().unwrap();
         let original = concept.get_version(&v1).unwrap();
-        assert_eq!(current.atoms, original.atoms);
+        assert_eq!(current.chunks, original.chunks);
     }
 
     #[test]

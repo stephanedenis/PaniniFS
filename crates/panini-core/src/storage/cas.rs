@@ -1,7 +1,7 @@
 //! Content-Addressed Storage (CAS) with atomic decomposition
 
 use crate::error::{Error, Result};
-use crate::storage::atom::{Atom, AtomMetadata, AtomType};
+use crate::storage::chunk::{Chunk, ChunkMetadata, ChunkType};
 use crate::storage::backends::StorageBackend;
 use bytes::Bytes;
 use petgraph::graph::{DiGraph, NodeIndex};
@@ -14,10 +14,10 @@ pub struct ContentAddressedStorage<B: StorageBackend> {
     /// Storage backend (S3, LocalFS, etc.)
     backend: Arc<B>,
 
-    /// Atom index for fast lookups
-    atom_index: Arc<RwLock<HashMap<String, AtomMetadata>>>,
+    /// Chunk index for fast lookups
+    atom_index: Arc<RwLock<HashMap<String, ChunkMetadata>>>,
 
-    /// Atom composition graph (parent-child relationships)
+    /// Chunk composition graph (parent-child relationships)
     atom_graph: Arc<RwLock<DiGraph<String, String>>>,
 
     /// Hash to graph node mapping
@@ -62,14 +62,14 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     }
 
     /// Add atom to storage
-    pub async fn add_atom(&self, data: &[u8], atom_type: AtomType) -> Result<Atom> {
-        let atom = Atom::new(data, atom_type);
+    pub async fn add_chunk(&self, data: &[u8], chunk_type: ChunkType) -> Result<Chunk> {
+        let atom = Chunk::new(data, chunk_type);
 
         // Check if atom already exists (deduplication)
         if self.config.enable_dedup {
             let index = self.atom_index.read().unwrap();
             if let Some(existing) = index.get(&atom.hash) {
-                // Atom exists, increment ref count
+                // Chunk exists, increment ref count
                 drop(index);
                 self.increment_atom_refs(&atom.hash)?;
                 return Ok(atom);
@@ -82,7 +82,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             .await?;
 
         // Add to index
-        let mut metadata = AtomMetadata::from(&atom);
+        let mut metadata = ChunkMetadata::from(&atom);
         metadata.ref_count = 1;
         self.atom_index
             .write()
@@ -101,7 +101,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
         {
             let index = self.atom_index.read().unwrap();
             if !index.contains_key(hash) {
-                return Err(Error::generic(format!("Atom not found: {}", hash)));
+                return Err(Error::generic(format!("Chunk not found: {}", hash)));
             }
         }
 
@@ -110,26 +110,26 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     }
 
     /// Get atom metadata
-    pub fn get_atom_metadata(&self, hash: &str) -> Result<AtomMetadata> {
+    pub fn get_atom_metadata(&self, hash: &str) -> Result<ChunkMetadata> {
         let index = self.atom_index.read().unwrap();
         index
             .get(hash)
             .cloned()
-            .ok_or_else(|| Error::generic(format!("Atom not found: {}", hash)))
+            .ok_or_else(|| Error::generic(format!("Chunk not found: {}", hash)))
     }
 
     /// List all atoms
-    pub fn list_atoms(&self) -> Vec<AtomMetadata> {
+    pub fn list_atoms(&self) -> Vec<ChunkMetadata> {
         let index = self.atom_index.read().unwrap();
         index.values().cloned().collect()
     }
 
     /// Get atoms by type
-    pub fn get_atoms_by_type(&self, atom_type: AtomType) -> Vec<AtomMetadata> {
+    pub fn get_atoms_by_type(&self, chunk_type: ChunkType) -> Vec<ChunkMetadata> {
         let index = self.atom_index.read().unwrap();
         index
             .values()
-            .filter(|m| m.atom_type == atom_type)
+            .filter(|m| m.chunk_type == chunk_type)
             .cloned()
             .collect()
     }
@@ -138,7 +138,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     pub async fn get_stats(&self) -> StorageStats {
         let index = self.atom_index.read().unwrap();
 
-        let total_atoms = index.len() as u64;
+        let total_chunks = index.len() as u64;
         let total_size: u64 = index.values().map(|m| m.size).sum();
         let dedup_atoms = index.values().filter(|m| m.ref_count > 1).count() as u64;
         let dedup_savings: u64 = index
@@ -148,11 +148,11 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             .sum();
 
         StorageStats {
-            total_atoms,
+            total_chunks,
             total_size,
             dedup_atoms,
             dedup_savings,
-            unique_atoms: total_atoms - dedup_atoms,
+            unique_atoms: total_chunks - dedup_atoms,
         }
     }
 
@@ -163,7 +163,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             metadata.ref_count = metadata.ref_count.saturating_add(1);
             Ok(())
         } else {
-            Err(Error::generic(format!("Atom not found: {}", hash)))
+            Err(Error::generic(format!("Chunk not found: {}", hash)))
         }
     }
 
@@ -174,7 +174,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
             metadata.ref_count = metadata.ref_count.saturating_sub(1);
             Ok(())
         } else {
-            Err(Error::generic(format!("Atom not found: {}", hash)))
+            Err(Error::generic(format!("Chunk not found: {}", hash)))
         }
     }
 
@@ -217,7 +217,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
     }
 
     /// Add atom to composition graph
-    fn add_to_graph(&self, atom: &Atom) -> Result<()> {
+    fn add_to_graph(&self, atom: &Chunk) -> Result<()> {
         let mut graph = self.atom_graph.write().unwrap();
         let mut node_map = self.node_map.write().unwrap();
 
@@ -283,17 +283,17 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
 
         if data.len() <= CHUNK_SIZE {
             // Small file, store as single atom
-            let atom = self.add_atom(data, AtomType::Raw).await?;
+            let atom = self.add_chunk(data, ChunkType::Raw).await?;
             hashes.push(atom.hash);
         } else {
             // Large file, chunk it
             for (i, chunk) in data.chunks(CHUNK_SIZE).enumerate() {
-                let atom_type = if i == 0 {
-                    AtomType::Container // First chunk
+                let chunk_type = if i == 0 {
+                    ChunkType::Container // First chunk
                 } else {
-                    AtomType::Raw
+                    ChunkType::Raw
                 };
-                let atom = self.add_atom(chunk, atom_type).await?;
+                let atom = self.add_chunk(chunk, chunk_type).await?;
                 hashes.push(atom.hash);
             }
         }
@@ -305,7 +305,7 @@ impl<B: StorageBackend> ContentAddressedStorage<B> {
 /// Storage statistics
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StorageStats {
-    pub total_atoms: u64,
+    pub total_chunks: u64,
     pub total_size: u64,
     pub dedup_atoms: u64,
     pub dedup_savings: u64,
@@ -314,10 +314,10 @@ pub struct StorageStats {
 
 impl StorageStats {
     pub fn dedup_ratio(&self) -> f64 {
-        if self.total_atoms == 0 {
+        if self.total_chunks == 0 {
             0.0
         } else {
-            (self.dedup_atoms as f64 / self.total_atoms as f64) * 100.0
+            (self.dedup_atoms as f64 / self.total_chunks as f64) * 100.0
         }
     }
 }
@@ -342,10 +342,10 @@ mod tests {
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
 
         let data = b"test atom data";
-        let atom = cas.add_atom(data, AtomType::Container).await.unwrap();
+        let atom = cas.add_chunk(data, ChunkType::Container).await.unwrap();
 
         assert_eq!(atom.size, 14);
-        assert_eq!(atom.atom_type, AtomType::Container);
+        assert_eq!(atom.chunk_type, ChunkType::Container);
     }
 
     #[tokio::test]
@@ -357,8 +357,8 @@ mod tests {
         let data = b"duplicate data";
 
         // Add same data twice
-        let atom1 = cas.add_atom(data, AtomType::Container).await.unwrap();
-        let atom2 = cas.add_atom(data, AtomType::Raw).await.unwrap();
+        let atom1 = cas.add_chunk(data, ChunkType::Container).await.unwrap();
+        let atom2 = cas.add_chunk(data, ChunkType::Raw).await.unwrap();
 
         // Should have same hash
         assert_eq!(atom1.hash, atom2.hash);
@@ -375,7 +375,7 @@ mod tests {
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
 
         let data = b"retrievable data";
-        let atom = cas.add_atom(data, AtomType::Container).await.unwrap();
+        let atom = cas.add_chunk(data, ChunkType::Container).await.unwrap();
 
         let retrieved = cas.get_atom(&atom.hash).await.unwrap();
         assert_eq!(&retrieved[..], data);
@@ -387,11 +387,11 @@ mod tests {
         let backend = Arc::new(LocalFsBackend::new(temp_dir.path()).unwrap());
         let cas = ContentAddressedStorage::new(backend, StorageConfig::default());
 
-        cas.add_atom(b"atom1", AtomType::Container).await.unwrap();
-        cas.add_atom(b"atom2", AtomType::IFrame).await.unwrap();
+        cas.add_chunk(b"atom1", ChunkType::Container).await.unwrap();
+        cas.add_chunk(b"atom2", ChunkType::IFrame).await.unwrap();
 
         let stats = cas.get_stats();
-        assert_eq!(stats.total_atoms, 2);
+        assert_eq!(stats.total_chunks, 2);
         assert!(stats.total_size > 0);
     }
 }

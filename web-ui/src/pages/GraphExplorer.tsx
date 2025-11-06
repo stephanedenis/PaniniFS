@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, FileText, Share2, Clock, Database, Zap, TrendingUp } from 'lucide-react';
 
-interface AtomNode {
+interface ChunkNode {
   hash: string;
   size: number;
   usageCount: number;
@@ -50,17 +50,17 @@ export default function GraphExplorer() {
       if (data.success) {
         setStats({
           totalFiles: data.total_files || 0,
-          totalAtoms: data.total_atoms || 0,
-          uniqueAtoms: data.unique_atoms || 0,
+          totalAtoms: data.total_chunks || 0,
+          uniqueAtoms: data.unique_chunks || 0,
           dedupRatio: data.dedup_ratio || 0,
           storageSaved: data.storage_saved || 0,
           avgReuse: data.avg_reuse || 0,
         });
 
         // Transform top atoms
-        if (data.top_atoms) {
+        if (data.top_chunks) {
           setTopAtoms(
-            data.top_atoms.map((atom: any) => ({
+            data.top_chunks.map((atom: any) => ({
               hash: atom.hash,
               size: atom.size,
               usageCount: atom.usage_count,
@@ -162,7 +162,7 @@ export default function GraphExplorer() {
             <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Unique Atoms</p>
+                  <p className="text-sm text-gray-600 mb-1">Unique Chunks</p>
                   <p className="text-3xl font-bold text-gray-900">
                     {stats.uniqueAtoms.toLocaleString()}
                   </p>
@@ -203,7 +203,7 @@ export default function GraphExplorer() {
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <Share2 className="text-blue-600" size={24} />
-                  {viewMode === 'atoms' && 'Top Shared Atoms'}
+                  {viewMode === 'atoms' && 'Top Shared Chunks'}
                   {viewMode === 'files' && 'Recent Files'}
                   {viewMode === 'network' && 'Network Graph'}
                 </h2>

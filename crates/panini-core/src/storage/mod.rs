@@ -7,7 +7,7 @@
 //! - Multiple storage backends (LocalFS, S3-compatible)
 //! - Lossless reconstruction
 
-pub mod atom;
+pub mod chunk;
 pub mod backends;
 pub mod cache;
 pub mod cas;
@@ -19,9 +19,9 @@ pub use backend::{StorageBackend as LegacyStorageBackend, UploadResult as Legacy
 pub use dedup::DedupManager;
 
 // Re-export main types
-pub use atom::{Atom, AtomMetadata, AtomType};
+pub use chunk::{Chunk, ChunkMetadata, ChunkType};
 pub use backends::{BackendStats, LocalFsBackend, StorageBackend, UploadResult};
-pub use cache::{AtomCache, CacheConfig, CacheStats, CachedAtom};
+pub use cache::{ChunkCache, CacheConfig, CacheStats, CachedChunk};
 pub use cas::{ContentAddressedStorage, GcStats, StorageConfig, StorageStats};
 pub use decomposer::{Decomposer, FileFormat};
 pub use reconstructor::Reconstructor;
@@ -33,10 +33,10 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ContentRef {
     /// SHA-256 hash of the atom
-    pub atom_hash: String,
+    pub chunk_hash: String,
 
     /// Type of the atom
-    pub atom_type: AtomType,
+    pub chunk_type: ChunkType,
 
     /// Offset in the reconstructed file (bytes)
     pub offset: u64,
@@ -50,10 +50,10 @@ pub struct ContentRef {
 }
 
 impl ContentRef {
-    pub fn new(atom_hash: String, atom_type: AtomType, offset: u64, size: u64) -> Self {
+    pub fn new(chunk_hash: String, chunk_type: ChunkType, offset: u64, size: u64) -> Self {
         Self {
-            atom_hash,
-            atom_type,
+            chunk_hash,
+            chunk_type,
             offset,
             size,
             metadata: HashMap::new(),
@@ -76,9 +76,9 @@ mod tests {
 
     #[test]
     fn test_content_ref_creation() {
-        let cref = ContentRef::new("abc123".to_string(), AtomType::Container, 0, 1024);
+        let cref = ContentRef::new("abc123".to_string(), ChunkType::Container, 0, 1024);
 
-        assert_eq!(cref.atom_hash, "abc123");
+        assert_eq!(cref.chunk_hash, "abc123");
         assert_eq!(cref.offset, 0);
         assert_eq!(cref.size, 1024);
     }

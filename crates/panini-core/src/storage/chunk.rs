@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
-/// Type of content atom
+/// Type of content chunk
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub enum AtomType {
+pub enum ChunkType {
     /// File container metadata (MP4 ftyp, moov, PNG header)
     Container,
 
@@ -44,72 +44,72 @@ pub enum AtomType {
     Raw,
 }
 
-impl AtomType {
-    /// Check if atom type typically has high deduplication potential
+impl ChunkType {
+    /// Check if chunk type typically has high deduplication potential
     pub fn is_dedupable(&self) -> bool {
         matches!(
             self,
-            AtomType::IFrame
-                | AtomType::AudioChunk
-                | AtomType::Subtitle
-                | AtomType::Metadata
-                | AtomType::Container
+            ChunkType::IFrame
+                | ChunkType::AudioChunk
+                | ChunkType::Subtitle
+                | ChunkType::Metadata
+                | ChunkType::Container
         )
     }
 
-    /// Get typical size range for this atom type (min, max in bytes)
+    /// Get typical size range for this chunk type (min, max in bytes)
     pub fn size_range(&self) -> (u64, u64) {
         match self {
-            AtomType::Container => (1024, 10 * 1024),         // 1-10 KB
-            AtomType::Metadata => (512, 100 * 1024),          // 512B-100KB
-            AtomType::IFrame => (50 * 1024, 5 * 1024 * 1024), // 50KB-5MB
-            AtomType::PFrame | AtomType::BFrame => (10 * 1024, 500 * 1024), // 10-500KB
-            AtomType::AudioChunk => (1024, 50 * 1024),        // 1-50KB
-            AtomType::Subtitle => (100, 10 * 1024),           // 100B-10KB
-            AtomType::ImageData => (1024, 10 * 1024 * 1024),  // 1KB-10MB
-            AtomType::VideoStream | AtomType::AudioStream => (100 * 1024, 1024 * 1024 * 1024), // 100KB-1GB
-            AtomType::Compressed => (1024, 100 * 1024 * 1024), // 1KB-100MB
-            AtomType::Raw => (0, u64::MAX),
+            ChunkType::Container => (1024, 10 * 1024),         // 1-10 KB
+            ChunkType::Metadata => (512, 100 * 1024),          // 512B-100KB
+            ChunkType::IFrame => (50 * 1024, 5 * 1024 * 1024), // 50KB-5MB
+            ChunkType::PFrame | ChunkType::BFrame => (10 * 1024, 500 * 1024), // 10-500KB
+            ChunkType::AudioChunk => (1024, 50 * 1024),        // 1-50KB
+            ChunkType::Subtitle => (100, 10 * 1024),           // 100B-10KB
+            ChunkType::ImageData => (1024, 10 * 1024 * 1024),  // 1KB-10MB
+            ChunkType::VideoStream | ChunkType::AudioStream => (100 * 1024, 1024 * 1024 * 1024), // 100KB-1GB
+            ChunkType::Compressed => (1024, 100 * 1024 * 1024), // 1KB-100MB
+            ChunkType::Raw => (0, u64::MAX),
         }
     }
 }
 
-impl std::fmt::Display for AtomType {
+impl std::fmt::Display for ChunkType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AtomType::Container => write!(f, "Container"),
-            AtomType::VideoStream => write!(f, "VideoStream"),
-            AtomType::AudioStream => write!(f, "AudioStream"),
-            AtomType::IFrame => write!(f, "VideoStream/IFrame"),
-            AtomType::PFrame => write!(f, "VideoStream/PFrame"),
-            AtomType::BFrame => write!(f, "VideoStream/BFrame"),
-            AtomType::Subtitle => write!(f, "Subtitle"),
-            AtomType::ImageData => write!(f, "ImageData"),
-            AtomType::Metadata => write!(f, "Metadata"),
-            AtomType::AudioChunk => write!(f, "AudioChunk"),
-            AtomType::Compressed => write!(f, "Compressed"),
-            AtomType::Raw => write!(f, "Raw"),
+            ChunkType::Container => write!(f, "Container"),
+            ChunkType::VideoStream => write!(f, "VideoStream"),
+            ChunkType::AudioStream => write!(f, "AudioStream"),
+            ChunkType::IFrame => write!(f, "VideoStream/IFrame"),
+            ChunkType::PFrame => write!(f, "VideoStream/PFrame"),
+            ChunkType::BFrame => write!(f, "VideoStream/BFrame"),
+            ChunkType::Subtitle => write!(f, "Subtitle"),
+            ChunkType::ImageData => write!(f, "ImageData"),
+            ChunkType::Metadata => write!(f, "Metadata"),
+            ChunkType::AudioChunk => write!(f, "AudioChunk"),
+            ChunkType::Compressed => write!(f, "Compressed"),
+            ChunkType::Raw => write!(f, "Raw"),
         }
     }
 }
 
-/// Content atom - smallest unit of storage
+/// Content chunk - smallest unit of storage
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Atom {
+pub struct Chunk {
     /// SHA-256 content hash
     pub hash: String,
 
-    /// Atom type
-    pub atom_type: AtomType,
+    /// Chunk type
+    pub chunk_type: ChunkType,
 
     /// Size in bytes
     pub size: u64,
 
-    /// Optional parent atom hash (for hierarchical decomposition)
+    /// Optional parent chunk hash (for hierarchical decomposition)
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parent: Option<String>,
 
-    /// Optional child atom hashes
+    /// Optional child chunk hashes
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<String>,
 
@@ -121,18 +121,18 @@ pub struct Atom {
     #[serde(default)]
     pub source_offset: u64,
 
-    /// Reference count (how many concepts use this atom)
+    /// Reference count (how many concepts use this chunk)
     #[serde(default)]
     pub ref_count: u32,
 }
 
-impl Atom {
-    /// Create new atom from data
-    pub fn new(data: &[u8], atom_type: AtomType) -> Self {
+impl Chunk {
+    /// Create new chunk from data
+    pub fn new(data: &[u8], chunk_type: ChunkType) -> Self {
         let hash = Self::compute_hash(data);
         Self {
             hash,
-            atom_type,
+            chunk_type,
             size: data.len() as u64,
             parent: None,
             children: Vec::new(),
@@ -142,19 +142,19 @@ impl Atom {
         }
     }
 
-    /// Create atom with metadata
+    /// Create chunk with metadata
     pub fn with_metadata(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.metadata.insert(key.into(), value.into());
         self
     }
 
-    /// Set parent atom
+    /// Set parent chunk
     pub fn with_parent(mut self, parent_hash: String) -> Self {
         self.parent = Some(parent_hash);
         self
     }
 
-    /// Add child atom
+    /// Add child chunk
     pub fn add_child(&mut self, child_hash: String) {
         if !self.children.contains(&child_hash) {
             self.children.push(child_hash);
@@ -178,30 +178,30 @@ impl Atom {
         self.ref_count = self.ref_count.saturating_sub(1);
     }
 
-    /// Check if atom is orphaned (no references)
+    /// Check if chunk is orphaned (no references)
     pub fn is_orphaned(&self) -> bool {
         self.ref_count == 0
     }
 }
 
-/// Lightweight atom metadata (for indexing)
+/// Lightweight chunk metadata (for indexing)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct AtomMetadata {
+pub struct ChunkMetadata {
     pub hash: String,
-    pub atom_type: AtomType,
+    pub chunk_type: ChunkType,
     pub size: u64,
     pub ref_count: u32,
     #[serde(default)]
     pub created_at: u64,
 }
 
-impl From<&Atom> for AtomMetadata {
-    fn from(atom: &Atom) -> Self {
+impl From<&Chunk> for ChunkMetadata {
+    fn from(chunk: &Chunk) -> Self {
         Self {
-            hash: atom.hash.clone(),
-            atom_type: atom.atom_type,
-            size: atom.size,
-            ref_count: atom.ref_count,
+            hash: chunk.hash.clone(),
+            chunk_type: chunk.chunk_type,
+            size: chunk.size,
+            ref_count: chunk.ref_count,
             created_at: std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
                 .unwrap()
@@ -217,63 +217,63 @@ mod tests {
     #[test]
     fn test_atom_creation() {
         let data = b"test data";
-        let atom = Atom::new(data, AtomType::Container);
+        let chunk = Chunk::new(data, ChunkType::Container);
 
-        assert_eq!(atom.size, 9);
-        assert_eq!(atom.atom_type, AtomType::Container);
-        assert!(!atom.hash.is_empty());
-        assert_eq!(atom.ref_count, 0);
+        assert_eq!(chunk.size, 9);
+        assert_eq!(chunk.chunk_type, ChunkType::Container);
+        assert!(!chunk.hash.is_empty());
+        assert_eq!(chunk.ref_count, 0);
     }
 
     #[test]
     fn test_atom_hash_consistency() {
         let data = b"consistent data";
-        let atom1 = Atom::new(data, AtomType::Container);
-        let atom2 = Atom::new(data, AtomType::Raw);
+        let atom1 = Chunk::new(data, ChunkType::Container);
+        let atom2 = Chunk::new(data, ChunkType::Raw);
 
         assert_eq!(atom1.hash, atom2.hash);
     }
 
     #[test]
     fn test_atom_with_metadata() {
-        let atom = Atom::new(b"data", AtomType::VideoStream)
+        let chunk = Chunk::new(b"data", ChunkType::VideoStream)
             .with_metadata("codec", "h264")
             .with_metadata("fps", "30");
 
-        assert_eq!(atom.metadata.get("codec"), Some(&"h264".to_string()));
-        assert_eq!(atom.metadata.get("fps"), Some(&"30".to_string()));
+        assert_eq!(chunk.metadata.get("codec"), Some(&"h264".to_string()));
+        assert_eq!(chunk.metadata.get("fps"), Some(&"30".to_string()));
     }
 
     #[test]
     fn test_atom_ref_counting() {
-        let mut atom = Atom::new(b"data", AtomType::Container);
+        let mut chunk = Chunk::new(b"data", ChunkType::Container);
 
-        assert_eq!(atom.ref_count, 0);
-        assert!(atom.is_orphaned());
+        assert_eq!(chunk.ref_count, 0);
+        assert!(chunk.is_orphaned());
 
-        atom.increment_refs();
-        assert_eq!(atom.ref_count, 1);
-        assert!(!atom.is_orphaned());
+        chunk.increment_refs();
+        assert_eq!(chunk.ref_count, 1);
+        assert!(!chunk.is_orphaned());
 
-        atom.decrement_refs();
-        assert_eq!(atom.ref_count, 0);
-        assert!(atom.is_orphaned());
+        chunk.decrement_refs();
+        assert_eq!(chunk.ref_count, 0);
+        assert!(chunk.is_orphaned());
     }
 
     #[test]
     fn test_atom_type_dedupable() {
-        assert!(AtomType::IFrame.is_dedupable());
-        assert!(AtomType::AudioChunk.is_dedupable());
-        assert!(AtomType::Metadata.is_dedupable());
-        assert!(!AtomType::PFrame.is_dedupable());
-        assert!(!AtomType::Raw.is_dedupable());
+        assert!(ChunkType::IFrame.is_dedupable());
+        assert!(ChunkType::AudioChunk.is_dedupable());
+        assert!(ChunkType::Metadata.is_dedupable());
+        assert!(!ChunkType::PFrame.is_dedupable());
+        assert!(!ChunkType::Raw.is_dedupable());
     }
 
     #[test]
     fn test_atom_parent_child() {
-        let mut parent = Atom::new(b"parent", AtomType::Container);
-        let child1 = Atom::new(b"child1", AtomType::IFrame);
-        let child2 = Atom::new(b"child2", AtomType::PFrame);
+        let mut parent = Chunk::new(b"parent", ChunkType::Container);
+        let child1 = Chunk::new(b"child1", ChunkType::IFrame);
+        let child2 = Chunk::new(b"child2", ChunkType::PFrame);
 
         parent.add_child(child1.hash.clone());
         parent.add_child(child2.hash.clone());

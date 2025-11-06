@@ -135,7 +135,7 @@ const DhatuDashboard: React.FC = () => {
             <div 
               key={emotion.name}
               className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-              style={{ borderLeft: \`4px solid \${emotion.color}\` }}
+              style={{ borderLeft: `4px solid ${emotion.color}` }}
             >
               <h3 className="font-bold text-lg mb-1">{emotion.name}</h3>
               <p className="text-2xl mb-2">{emotion.devanagari}</p>
@@ -220,7 +220,7 @@ const DhatuDashboard: React.FC = () => {
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className="bg-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: \`\${percentage}%\` }}
+                      style={{ width: `${percentage}%` }}
                     />
                   </div>
                 </div>

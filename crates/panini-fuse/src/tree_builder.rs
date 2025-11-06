@@ -22,7 +22,7 @@ pub fn populate_tree(inodes: &mut InodeTable, storage: &StorageBridge) -> Result
     Ok(())
 }
 
-/// Populate /concepts/ directory with atoms organized by concept
+/// Populate /concepts/ directory with extracted semantic concepts (coming soon)
 fn populate_concepts(
     inodes: &mut InodeTable,
     storage: &StorageBridge,
@@ -30,15 +30,15 @@ fn populate_concepts(
 ) -> Result<()> {
     tracing::debug!("Populating /concepts/ directory...");
     
-    // Get all atoms from storage
-    let atoms = storage.list_atoms();
-    tracing::info!("Found {} atoms in storage", atoms.len());
+    // Get all chunks from storage
+    let chunks = storage.list_atoms();
+    tracing::info!("Found {} chunks in storage", chunks.len());
     
-    // Group atoms by first 4 chars of hash for organization
+    // Group chunks by first 4 chars of hash for organization
     // TODO: Use proper concept metadata when available
     let mut concept_map: HashMap<String, Vec<_>> = HashMap::new();
     
-    for atom in atoms {
+    for atom in chunks {
         // Group by first 4 chars of hash as a simple categorization
         let concept = atom.hash.chars().take(4).collect::<String>();
         concept_map.entry(concept).or_insert_with(Vec::new).push(atom);
@@ -48,7 +48,7 @@ fn populate_concepts(
     let num_concepts = concept_map.len();
     
     // Create directory for each concept
-    for (concept, atoms) in concept_map {
+    for (concept, chunks) in concept_map {
         // Create concept directory
         let concept_ino = inodes.create_directory(concept.clone(), concepts_ino);
         
@@ -57,8 +57,8 @@ fn populate_concepts(
             concepts_parent.children.push(concept_ino);
         }
         
-        // Add atoms as files in this concept
-        for atom in atoms {
+        // Add chunks as files in this concept
+        for atom in chunks {
             // Create file inode for this atom
             let filename = format!("{}.txt", &atom.hash[..8]); // Use first 8 chars as filename
             let file_ino = inodes.create_file(
