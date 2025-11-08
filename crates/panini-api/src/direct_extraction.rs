@@ -156,3 +156,31 @@ pub async fn extract_from_filesystem(
         chunks_per_second,
     })
 }
+
+/// Extract and PERSIST concepts to RocksDB
+pub async fn extract_and_persist(
+    state: Arc<AppState>,
+    storage_path: PathBuf,
+    max_chunks: Option<usize>,
+) -> Result<BulkExtractionStats, String> {
+    // First, extract
+    let stats = extract_from_filesystem(state.clone(), storage_path, max_chunks).await?;
+    
+    // Then, persist
+    println!("💾 Persisting {} concepts to RocksDB...", stats.concepts_extracted);
+    
+    let extraction_state = state.extraction_state.clone();
+    let pipeline = extraction_state.pipeline.read().await;
+    let concepts = pipeline.get_concepts();
+    
+    match state.concept_store.save_batch(&concepts) {
+        Ok(saved) => {
+            println!("✅ Saved {} concepts to RocksDB", saved);
+        }
+        Err(e) => {
+            eprintln!("⚠️  Failed to save concepts: {}", e);
+        }
+    }
+    
+    Ok(stats)
+}

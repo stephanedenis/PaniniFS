@@ -14,6 +14,7 @@ pub mod dhatu_persistence;
 pub mod concept_handlers;
 pub mod bulk_extraction;
 pub mod direct_extraction;
+pub mod concept_persistence;
 pub mod handlers;
 pub mod routes;
 pub mod server;

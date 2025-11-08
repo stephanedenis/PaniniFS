@@ -370,7 +370,7 @@ pub async fn get_concept_graph(
                 name: c.canonical_name.clone(),
                 concept_type: format!("{:?}", c.concept_type),
                 usage_count: c.source_chunks.len(),
-                confidence: c.confidence,
+                confidence: c.confidence as f32,
             })
         })
         .collect();
@@ -392,4 +392,53 @@ pub async fn get_concept_graph(
         nodes,
         edges: filtered_edges,
     })))
+}
+
+/// POST /api/concepts/extract/persist - Extract AND save to RocksDB
+pub async fn persist_extract_concepts(
+    State(state): State<AppState>,
+    Json(params): Json<BulkExtractParams>,
+) -> Result<Json<ApiResponse<BulkExtractResponse>>, (StatusCode, String)> {
+    use crate::direct_extraction;
+    use std::env;
+    
+    let storage_path = env::var("PANINI_STORAGE")
+        .unwrap_or_else(|_| "/tmp/panini-storage".to_string());
+    
+    let state_arc = Arc::new(state);
+    
+    let stats = direct_extraction::extract_and_persist(
+        state_arc,
+        std::path::PathBuf::from(storage_path),
+        params.max_chunks,
+    )
+    .await;
+    
+    match stats {
+        Ok(s) => Ok(Json(ApiResponse::success(BulkExtractResponse {
+            chunks_processed: s.chunks_processed,
+            chunks_skipped: s.chunks_skipped,
+            concepts_extracted: s.concepts_extracted,
+            errors: s.errors,
+            elapsed_seconds: s.elapsed_seconds,
+            chunks_per_second: s.chunks_per_second,
+        }))),
+        Err(e) => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Persistent extraction failed: {}", e),
+        )),
+    }
+}
+
+/// GET /api/concepts/stored/stats - Get persisted concepts stats
+pub async fn get_stored_concepts_stats(
+    State(state): State<AppState>,
+) -> Result<Json<ApiResponse<crate::concept_persistence::ConceptStoreStats>>, (StatusCode, String)> {
+    match state.concept_store.get_stats() {
+        Ok(stats) => Ok(Json(ApiResponse::success(stats))),
+        Err(e) => Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Failed to get store stats: {}", e),
+        )),
+    }
 }
