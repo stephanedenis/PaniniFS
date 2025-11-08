@@ -7,8 +7,9 @@ import {
   Camera,
   Activity,
   Heart,
-  Share2
-, Brain } from 'lucide-react';
+  Share2,
+  Brain
+} from 'lucide-react';
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,7 +24,6 @@ export function Layout({ children }: LayoutProps) {
 
   const navItems = [
     { path: '/', icon: Home, label: 'Dashboard' },
-    { path: '/concepts', icon: FileText, label: 'Concepts' },
     { path: '/timeline', icon: Clock, label: 'Timeline' },
     { path: '/snapshots', icon: Camera, label: 'Snapshots' },
     { path: '/concepts', icon: Brain, label: 'Concepts' },

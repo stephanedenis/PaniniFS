@@ -24,8 +24,11 @@ pub fn create_router(state: AppState) -> Router {
         .route("/concepts/:id/diff", get(handlers::get_diff))
         // NEW: Concept extraction endpoints
         .route("/concepts/extract", post(concept_handlers::extract_concepts))
+        .route("/concepts/extract/bulk", post(concept_handlers::bulk_extract_concepts))
+        .route("/concepts/extract/filesystem", post(concept_handlers::filesystem_extract_concepts))
         .route("/concepts/stats", get(concept_handlers::get_concept_stats))
         .route("/concepts/list", get(concept_handlers::list_concepts))
+        .route("/concepts/graph", get(concept_handlers::get_concept_graph))
         .route("/concepts/:id/details", get(concept_handlers::get_concept))
         .route(
             "/extraction/status/:job_id",

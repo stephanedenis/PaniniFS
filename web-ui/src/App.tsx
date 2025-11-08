@@ -6,17 +6,17 @@ import { TimelinePage } from '@/pages/TimelinePage';
 import { SnapshotsPage } from '@/pages/SnapshotsPage';
 import DhatuDashboard from '@/pages/DhatuDashboard';
 import GraphExplorer from '@/pages/GraphExplorer';
+import { ConceptsExplorer } from '@/pages/ConceptsExplorer';
 
 function App() {
   return (
     <Layout>
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/concepts" element={<ConceptsPage />} />
+        <Route path="/concepts" element={<ConceptsExplorer />} />
         <Route path="/timeline" element={<TimelinePage />} />
         <Route path="/snapshots" element={<SnapshotsPage />} />
-        <Route path=\"/concepts\" element={<ConceptsExplorer />} />
-            <Route path="/dhatu" element={<DhatuDashboard />} />
+        <Route path="/dhatu" element={<DhatuDashboard />} />
         <Route path="/graph" element={<GraphExplorer />} />
       </Routes>
     </Layout>
