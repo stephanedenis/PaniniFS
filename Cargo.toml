@@ -1,0 +1,54 @@
+[workspace]
+members = [
+    "crates/panini-core",
+    "crates/panini-api",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Stephane Denis <stephane@panini.ai>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/stephanedenis/Panini-FS"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1.35", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Time handling
+chrono = { version = "0.4", features = ["serde"] }
+
+# Hashing and crypto
+sha2 = "0.10"
+
+# Collections and data structures
+bytes = "1.5"
+byteorder = "1.5"
+
+# Graph data structures
+petgraph = "0.6"
+
+# Web framework
+axum = { version = "0.7" }
+tower = { version = "0.4" }
+tower-http = { version = "0.5", features = ["fs", "cors", "trace"] }
+
+# Async traits
+async-trait = "0.1"
+
+# Tracing and logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Testing
+tempfile = "3.8"
+glob = "0.3"
