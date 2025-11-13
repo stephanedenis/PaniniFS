@@ -7,11 +7,11 @@ Découpe fichiers en chunks sémantiquement cohérents pour traitement
 GPU-accéléré asynchrone sur Colab Pro avec garantie bit-perfect.
 
 Author: Équipe PaniniFS
-Date: 2025-11-12
-Version: 0.2.0 - Multi-format video support (MP4, MOV, WebM, AVI)
+Date: 2025-11-13
+Version: 0.2.2 - Next development cycle
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.2"
 
 import hashlib
 import json
