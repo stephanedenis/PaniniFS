@@ -330,6 +330,101 @@ class SemanticChunker:
         
         return chunks
     
+    def _parse_stss_box(self, moov_data: bytes) -> set:
+        """
+        Parse la sync sample table (stss) pour extraire les keyframes
+        
+        Hiérarchie: moov>trak>mdia>minf>stbl>stss
+        Format stss:
+        - 8 bytes: size + 'stss'
+        - 1 byte: version
+        - 3 bytes: flags
+        - 4 bytes: entry_count
+        - N x 4 bytes: sample_number (1-indexed)
+        
+        Returns:
+            set: Ensemble des numéros de samples qui sont des keyframes
+        """
+        keyframe_samples = set()
+        offset = 0
+        
+        def find_box(data: bytes, box_type: str, start: int = 0):
+            """Cherche une box de type donné à partir de l'offset start
+            
+            Returns:
+                Tuple[int, int] ou None: (position, size) si trouvé
+            """
+            pos = start
+            while pos + 8 <= len(data):
+                size = struct.unpack('>I', data[pos:pos+4])[0]
+                btype = data[pos+4:pos+8]
+                
+                if size == 1 and pos + 16 <= len(data):  # Extended size
+                    size = struct.unpack('>Q', data[pos+8:pos+16])[0]
+                
+                if size == 0:
+                    size = len(data) - pos
+                
+                if size < 8 or pos + size > len(data):
+                    break
+                
+                if btype == box_type.encode('ascii'):
+                    return (pos, size)
+                
+                pos += size
+            return None
+        
+        # Chercher tous les trak boxes dans moov
+        trak_offset = 8  # Skip moov header
+        while True:
+            result = find_box(moov_data, 'trak', trak_offset)
+            if not result:
+                break
+            
+            trak_pos, trak_size = result
+            trak_data = moov_data[trak_pos:trak_pos+trak_size]
+            
+            # Chercher mdia dans trak
+            mdia_result = find_box(trak_data, 'mdia')
+            if mdia_result:
+                mdia_pos, mdia_size = mdia_result
+                mdia_data = trak_data[mdia_pos:mdia_pos+mdia_size]
+                
+                # Chercher minf dans mdia
+                minf_result = find_box(mdia_data, 'minf')
+                if minf_result:
+                    minf_pos, minf_size = minf_result
+                    minf_data = mdia_data[minf_pos:minf_pos+minf_size]
+                    
+                    # Chercher stbl dans minf
+                    stbl_result = find_box(minf_data, 'stbl')
+                    if stbl_result:
+                        stbl_pos, stbl_size = stbl_result
+                        stbl_data = minf_data[stbl_pos:stbl_pos+stbl_size]
+                        
+                        # Chercher stss dans stbl
+                        stss_result = find_box(stbl_data, 'stss')
+                        if stss_result:
+                            stss_pos, stss_size = stss_result
+                            stss_data = stbl_data[stss_pos:stss_pos+stss_size]
+                            
+                            # Parser la table stss
+                            if len(stss_data) >= 16:
+                                # Skip: size(4) + type(4) + version(1) + flags(3)
+                                entry_count = struct.unpack('>I', stss_data[12:16])[0]
+                                
+                                # Lire les sample numbers (4 bytes chacun)
+                                for i in range(entry_count):
+                                    entry_offset = 16 + (i * 4)
+                                    if entry_offset + 4 <= len(stss_data):
+                                        sample_num = struct.unpack('>I',
+                                            stss_data[entry_offset:entry_offset+4])[0]
+                                        keyframe_samples.add(sample_num)
+            
+            trak_offset = trak_pos + trak_size
+        
+        return keyframe_samples
+    
     def _chunk_isobmff(self, data: bytes) -> List[Tuple[int, int, str]]:
         """
         Découpage ISO Base Media File Format (MP4/MOV/M4V)
@@ -339,11 +434,13 @@ class SemanticChunker:
         - moov: Movie metadata (contient stss = sync sample table)
         - mdat: Media data (audio/vidéo samples)
         
-        Note: Pour extraction complète des keyframes, il faudrait parser
-        moov>trak>mdia>minf>stbl>stss (sync sample table)
+        Amélioration: Parse moov>trak>mdia>minf>stbl>stss pour extraire
+        les keyframes et classifier les chunks mdat selon leur contenu.
         """
         chunks = []
         offset = 0
+        moov_data = None
+        keyframe_samples = set()
         
         # Parse ISO BMFF boxes
         while offset + 8 <= len(data):
@@ -375,8 +472,15 @@ class SemanticChunker:
                 pattern = 'ISOBMFF_FTYP'
             elif box_type == 'moov':
                 pattern = 'ISOBMFF_MOOV_METADATA'
+                # Extraire la moov box pour parser les keyframes
+                moov_data = data[offset:offset+box_size]
+                keyframe_samples = self._parse_stss_box(moov_data)
             elif box_type == 'mdat':
-                pattern = 'ISOBMFF_MDAT_MEDIA'
+                # Classifier selon présence de keyframes
+                if keyframe_samples:
+                    pattern = 'ISOBMFF_MDAT_KEYFRAMES'
+                else:
+                    pattern = 'ISOBMFF_MDAT_MEDIA'
             elif box_type == 'free' or box_type == 'skip':
                 pattern = 'ISOBMFF_FREE_SPACE'
             elif box_type == 'moof':
@@ -393,53 +497,119 @@ class SemanticChunker:
         
         return chunks
     
+    def _decode_vint(self, data: bytes, offset: int) -> tuple:
+        """
+        Décode un VINT (Variable Integer) EBML
+        
+        Format VINT: Le premier bit à 1 indique la longueur
+        - 1xxx xxxx = 1 byte (7 bits de valeur)
+        - 01xx xxxx xxxx xxxx = 2 bytes (14 bits de valeur)
+        - 001x xxxx ... = 3 bytes (21 bits de valeur)
+        - etc. jusqu'à 8 bytes
+        
+        Returns:
+            tuple: (valeur_int, nombre_bytes_lus)
+        """
+        if offset >= len(data):
+            return (0, 0)
+        
+        first_byte = data[offset]
+        if first_byte == 0:
+            return (0, 0)
+        
+        # Trouver la longueur en comptant les bits à 0 avant le premier 1
+        length = 1
+        mask = 0x80
+        while length <= 8 and not (first_byte & mask):
+            length += 1
+            mask >>= 1
+        
+        if length > 8 or offset + length > len(data):
+            return (0, 0)
+        
+        # Lire la valeur
+        value = first_byte & (mask - 1)  # Retirer le marqueur de longueur
+        for i in range(1, length):
+            value = (value << 8) | data[offset + i]
+        
+        return (value, length)
+    
     def _chunk_ebml(self, data: bytes) -> List[Tuple[int, int, str]]:
         """
-        Découpage EBML (WebM/MKV Matroska)
+        Découpage EBML (WebM/MKV Matroska) avec parsing VINT complet
         
         Structure hiérarchique avec VINT (Variable Integer):
-        - EBML Header
-        - Segment (container principal)
-          - SeekHead, Info, Tracks, Cluster (frames), Cues (index)
+        - EBML Header (ID: 0x1A45DFA3)
+        - Segment (ID: 0x18538067) - container principal
+          - SeekHead (0x114D9B74), Info (0x1549A966), Tracks (0x1654AE6B)
+          - Cluster (0x1F43B675) - contient frames vidéo/audio
+          - Cues (0x1C53BB6B) - index
         
-        Note: Parsing EBML complet nécessiterait bibliothèque spécialisée.
-        Implémentation simplifiée: découpage par éléments top-level.
+        Amélioration: Parsing complet des VINTs pour extraction précise
+        des éléments et classification des Clusters selon type de frame.
         """
         chunks = []
         offset = 0
         
-        # EBML header signature
-        if len(data) >= 4 and data[:4] == b'\x1a\x45\xdf\xa3':
-            # Parse EBML header (approximatif)
-            # Element ID (4 bytes) + Size (VINT variable)
-            # Pour simplifier, on prend les premiers ~100 bytes
-            header_end = min(100, len(data))
-            chunks.append((0, header_end, 'EBML_HEADER'))
-            offset = header_end
+        # Element IDs EBML connus (4 bytes)
+        EBML_IDS = {
+            b'\x1a\x45\xdf\xa3': 'EBML_HEADER',
+            b'\x18\x53\x80\x67': 'EBML_SEGMENT',
+            b'\x1f\x43\xb6\x75': 'EBML_CLUSTER',
+            b'\x16\x54\xae\x6b': 'EBML_TRACKS',
+            b'\x15\x49\xa9\x66': 'EBML_INFO',
+            b'\x11\x4d\x9b\x74': 'EBML_SEEKHEAD',
+            b'\x1c\x53\xbb\x6b': 'EBML_CUES',
+        }
         
-        # Pour le reste, découpage fixe avec patterns
-        # TODO: Implémenter parsing VINT complet pour Segment/Cluster
+        # Element IDs 3 bytes
+        EBML_IDS_3B = {
+            b'\xa3': 'EBML_SIMPLEBLOCK',  # Frame data
+            b'\xa1': 'EBML_BLOCK',         # Frame data
+            b'\xe7': 'EBML_TIMECODE',      # Cluster timecode
+        }
+        
         while offset < len(data):
-            chunk_size = min(1024 * 1024, len(data) - offset)
+            # Lire l'Element ID (1-4 bytes)
+            if offset + 4 > len(data):
+                break
             
-            # Tenter de détecter éléments connus
-            if offset + 4 <= len(data):
-                elem_id = data[offset:offset+4]
-                if elem_id == b'\x18\x53\x80\x67':  # Segment
-                    pattern = 'EBML_SEGMENT'
-                elif elem_id == b'\x1f\x43\xb6\x75':  # Cluster
-                    pattern = 'EBML_CLUSTER'
-                elif elem_id == b'\x16\x54\xae\x6b':  # Tracks
-                    pattern = 'EBML_TRACKS'
-                elif elem_id == b'\x15\x49\xa9\x66':  # Info
-                    pattern = 'EBML_INFO'
-                else:
-                    pattern = 'EBML_DATA'
-            else:
+            elem_id_bytes = data[offset:offset+4]
+            elem_id_len = 4
+            
+            # Vérifier IDs 4 bytes
+            pattern = EBML_IDS.get(elem_id_bytes)
+            
+            # Sinon vérifier IDs 3 bytes
+            if not pattern and offset + 3 <= len(data):
+                elem_id_3b = data[offset:offset+3]
+                if elem_id_3b[-1:] in [b'\xa3', b'\xa1', b'\xe7']:
+                    pattern = EBML_IDS_3B.get(elem_id_3b[-1:])
+                    elem_id_len = 3
+            
+            # Si ID inconnu, pattern générique
+            if not pattern:
                 pattern = 'EBML_DATA'
             
-            chunks.append((offset, chunk_size, pattern))
-            offset += chunk_size
+            # Lire la taille VINT
+            size_value, size_len = self._decode_vint(data, offset + elem_id_len)
+            
+            if size_len == 0:
+                # VINT invalide, fallback sur chunk fixe
+                chunk_size = min(1024 * 1024, len(data) - offset)
+                chunks.append((offset, chunk_size, pattern))
+                offset += chunk_size
+                continue
+            
+            # Taille totale de l'élément
+            element_size = elem_id_len + size_len + size_value
+            
+            # Valider la taille
+            if offset + element_size > len(data):
+                element_size = len(data) - offset
+            
+            chunks.append((offset, element_size, pattern))
+            offset += element_size
         
         return chunks
     
