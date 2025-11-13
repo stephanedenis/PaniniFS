@@ -1,9 +1,12 @@
+# DISABLED: Not needed in submodule
+# Original triggers commented out - use workflow_dispatch only
+
 name: copilotage-journal-check
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, edited]
-
+#  pull_request:
+#    types: [opened, synchronize, reopened, edited]
+#  
 jobs:
   guard:
     runs-on: ubuntu-latest
