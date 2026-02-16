@@ -1,0 +1,26 @@
+# Ignorer la base de données Dolt locale
+panini-concepts-db/
+
+# Ignorer les fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ignorer les dossiers Dolt
+.dolt/
+.doltcfg/
+
+# Ignorer les logs
+*.log
+
+# Ignorer les fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+
+# Ignorer les environnements virtuels Python
+venv/
+env/
+ENV/
+.venv/
