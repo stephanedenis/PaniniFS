@@ -1,0 +1,11 @@
+# Dépendances Python pour le POC Dolt concept store PaniniFS
+
+# Dolt Python client (option 1: bibliothèque Python)
+# Note: doltpy peut avoir des problèmes de compatibilité - voir init_dolt.py pour alternative CLI
+doltpy>=2.0.0
+
+# Alternative: utiliser subprocess avec la CLI dolt directement (recommandé)
+# Installation de dolt CLI: https://docs.dolthub.com/introduction/installation
+
+# Autres dépendances
+requests>=2.31.0  # Pour télécharger dolt si besoin
