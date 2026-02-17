@@ -105,17 +105,109 @@ Dolt expose un **protocole MySQL compatible** (`dolt sql-server`), ce qui permet
 
 ### Limites identifiées
 
-1. **Pas de vrai ACL** : l'isolation repose sur les branches, pas sur des permissions SQL
+1. ~~**Pas de vrai ACL**~~ → Résolu : voir section "Modèle d'accès" ci-dessous
 2. **Pas de BLOB streaming** : `chunk_blobs` avec LONGBLOB limité par la RAM Dolt
 3. **GROUP_CONCAT** : non supporté par Dolt SQL, contourné dans les vues
 4. **JSON escaping** : nécessite `dolt sql` via stdin (pas `-q`) pour les JSON complexes
 5. **Pas de merge incrémental** : `dolt merge` est full-branch, pas par table
 
+### Modèle d'accès : Branches + ACL natif (pas de fork)
+
+Trois options ont été évaluées pour isoler les tiers :
+
+#### Option A : Fork (repos séparés) ❌
+
+```
+  panini-public/     → repo Dolt indépendant (public)
+  panini-confidential/ → repo Dolt indépendant
+  panini-private/    → repo Dolt indépendant par user
+```
+
+**Avantages** : isolation physique totale, permissions au niveau OS/DoltHub.
+**Inconvénients** :
+- Les JOINs cross-tier deviennent impossibles en SQL natif
+- `private/stephane` ne peut plus faire `SELECT * FROM dhatu_definitions`
+  → il faut dupliquer les tables de référence dans chaque repo
+- La promotion (stats agrégées → public) nécessite un ETL externe
+- 3× la complexité opérationnelle (backup, migration, versioning)
+- Perte de l'avantage principal de Dolt : un seul graphe de commits
+
+**Verdict** : ❌ Le fork brise l'unicité du stockage.
+
+#### Option B : Branches seules (POC actuel) ⚠️
+
+```
+  main                → tout le monde lit
+  confidential        → tout le monde lit aussi (!)
+  private/stephane    → tout le monde lit aussi (!)
+```
+
+**Avantages** : simple, JOINs cross-tier, héritage de données, `dolt diff`.
+**Inconvénients** : aucune isolation réelle — quiconque a accès au repo
+peut `dolt checkout private/stephane` et tout voir.
+
+**Verdict** : ⚠️ Suffisant en mode mono-utilisateur, insuffisant en multi-user.
+
+#### Option C : Branches + `dolt sql-server` + Branch Permissions ✅ Recommandé
+
+```
+  dolt sql-server (port 3306)
+  ├── CREATE USER public_reader  → lecture seule sur main
+  ├── CREATE USER analyst        → lecture/écriture sur confidential
+  ├── CREATE USER stephane       → lecture/écriture sur private/stephane
+  └── dolt_branch_control        → contrôle fin par branche + user
+```
+
+Dolt intègre nativement un **système de permissions par branche** via
+deux tables système : `dolt_branch_control` et `dolt_branch_namespace_control`.
+
+Configuration cible :
+
+```sql
+-- Nettoyage du défaut (qui autorise tout le monde)
+DELETE FROM dolt_branch_control;
+
+-- PUBLIC : tout le monde peut lire main, seul admin peut écrire
+INSERT INTO dolt_branch_control VALUES ('%', 'main', 'admin', '%', 'admin');
+
+-- CONFIDENTIAL : analysts peuvent lire/écrire
+INSERT INTO dolt_branch_control VALUES ('%', 'confidential', 'analyst', '%', 'write');
+
+-- PRIVATE : chaque utilisateur ne peut écrire que SA branche
+INSERT INTO dolt_branch_control VALUES ('%', 'private/stephane', 'stephane', '%', 'admin');
+INSERT INTO dolt_branch_control VALUES ('%', 'private/alice', 'alice', '%', 'admin');
+
+-- PROMOTION : seul admin peut créer des branches promote/*
+INSERT INTO dolt_branch_namespace_control VALUES ('%', 'promote/%', 'admin', '%');
+
+-- Restriction : personne ne peut créer de branche private/ pour un autre
+INSERT INTO dolt_branch_namespace_control VALUES ('%', 'private/%', '', '');
+-- Chaque user peut créer sa propre branche private/
+INSERT INTO dolt_branch_namespace_control VALUES ('%', 'private/stephane%', 'stephane', '%');
+```
+
+**Avantages** :
+- ✅ Vrais ACL SQL : `stephane` ne peut PAS écrire dans `private/alice`
+- ✅ JOINs cross-tier préservés (tous les users ont READ sur toutes les branches)
+- ✅ Un seul repo, un seul graphe de commits, un seul `dolt diff`
+- ✅ Promotion contrôlée : seul `admin` peut merge vers `main`
+- ✅ Protocole MySQL standard : compatible `sqlx` (Rust), Python, Web UI
+- ✅ Pattern matching sur noms de branches (`private/%`, `promote/%`)
+- ✅ Pas de duplication de données entre tiers
+
+**Point important** (de la doc Dolt) : "all users still have **read access**
+to all branches. Permissions only affect **modifying** branches."
+
+→ Pour une isolation en lecture aussi, il faut combiner avec `dolt clone --single-branch`
+pour distribuer uniquement `main` aux utilisateurs publics.
+
+**Verdict** : ✅ C'est le bon modèle — branches pour la structure, ACL pour le contrôle.
+
 ### Prochaines étapes
 
-1. **Brancher le vrai chunker** sur Dolt (PNG réel → `chunk_metadata`)
-2. **Brancher le fingerprinter audio** sur Dolt (WAV réel → `audio_fingerprints`)
-3. **`dolt sql-server`** : démarrer le serveur MySQL pour les clients Rust
-4. **panini-core en Rust** : client `sqlx` vers Dolt MySQL
+1. **`dolt sql-server` + Branch Permissions** : démarrer le serveur MySQL, configurer les ACL
+2. **Brancher le vrai chunker** sur Dolt (PNG réel → `chunk_metadata`)
+3. **Brancher le fingerprinter audio** sur Dolt (WAV réel → `audio_fingerprints`)
+4. **panini-core en Rust** : client `sqlx` vers Dolt MySQL (port 3306)
 5. **Web UI dashboards** : v_dhatu_distribution, v_format_coverage en temps réel
-6. **`dolt clone`** : distribution du tier public à d'autres nœuds
+6. **`dolt clone --single-branch -b main`** : distribution du tier public uniquement
