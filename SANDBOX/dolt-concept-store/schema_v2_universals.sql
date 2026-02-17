@@ -1,15 +1,22 @@
 -- =============================================================================
--- PaniniFS Semantic Primitives v2 — Architecture 3 couches
+-- PaniniFS Semantic Primitives v2.2 — Architecture 3 couches + axes émotionnels
 -- =============================================================================
 --
 -- Fondé sur la revue interdisciplinaire (UNIVERSAUX_INTERDISCIPLINAIRES_*.md)
 -- qui identifie 7 dimensions irréductibles à travers 10 domaines scientifiques.
 --
--- Architecture: 3 couches de primitifs
---   Couche 1: Méta-catégories ontologiques (DOLCE/BFO/SUMO)
---   Couche 2: Opérations structurelles (catégories/logique/computation)
---   Couche 3: Prédicats sémantiques (dhātu PanLang, révisés)
+-- v2.2: L'atome unique EMOTION (√hṛd) est remplacé par 8 sous-primitifs
+-- émotionnels en 4 axes neurophysiologiques (Panksepp/Ekman/Plutchik/Damasio).
+-- Voir PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md pour la justification.
 --
+-- Architecture: 3 couches + sous-couche émotionnelle
+--   Couche 1:  Méta-catégories ontologiques (DOLCE/BFO/SUMO)
+--   Couche 2:  Opérations structurelles (catégories/logique/computation)
+--   Couche 3a: Prédicats sémantiques (9 dhātu — EMOTION retiré)
+--   Couche 3b: Extensions non-verbales (espace, temps, évaluation, taxonomie)
+--   Couche 3c: Axes émotionnels (4 axes × 2 pôles = 8 sous-primitifs)
+--
+-- Total: 4 + 5 + 9 + 4 + 8 = 30 primitifs
 -- Stockage: branches Dolt tiered (public/confidential/private)
 -- =============================================================================
 
@@ -49,7 +56,7 @@ CREATE TABLE IF NOT EXISTS structural_operations (
 );
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- COUCHE 3 — Prédicats sémantiques (dhātu)
+-- COUCHE 3a — Prédicats sémantiques (dhātu) — 9 predicats (EMOTION retiré)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS semantic_predicates (
@@ -83,6 +90,29 @@ CREATE TABLE IF NOT EXISTS nonverbal_extensions (
     dimension   VARCHAR(30) NOT NULL,         -- SITUATION, QUALITE, RELATION
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ontological_category) REFERENCES ontological_categories(id)
+);
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- COUCHE 3c — Axes émotionnels (Panksepp/Ekman/Plutchik/Damasio) [v2.2]
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS emotional_axes (
+    id              VARCHAR(20) PRIMARY KEY,      -- SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM
+    code            VARCHAR(10) NOT NULL UNIQUE,  -- SEK, FEA, CAR, GRI, RAG, DIS, PLA, TED
+    axis_name_fr    VARCHAR(100) NOT NULL,        -- APPÉTENCE, LIEN, ASSERTION, JOUISSANCE
+    axis_name_en    VARCHAR(100) NOT NULL,        -- APPETENCE, BOND, ASSERTION, ENJOYMENT
+    polarity        VARCHAR(10) NOT NULL,         -- '+' ou '-'
+    name_fr         VARCHAR(100) NOT NULL,
+    name_en         VARCHAR(100) NOT NULL,
+    dhatu_sa        VARCHAR(50),                  -- Racine sanskrit: √iṣ, √bhī, etc.
+    description     TEXT NOT NULL,
+    neural_circuit  VARCHAR(200),                 -- Circuit neuronal principal
+    neurotransmitters VARCHAR(200),               -- Neurotransmetteurs clés
+    panksepp_system VARCHAR(30),                  -- Système Panksepp correspondant
+    ekman_emotion   VARCHAR(50),                  -- Émotion Ekman correspondante (si applicable)
+    plutchik_emotion VARCHAR(50),                 -- Émotion Plutchik correspondante (si applicable)
+    nsm_mapping     JSON,                         -- Mapping vers NSM primes
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -130,7 +160,7 @@ CREATE TABLE IF NOT EXISTS composition_rules (
     concept_id      VARCHAR(50) NOT NULL,
     position        INT NOT NULL,                    -- Ordre dans la formule
     atom_id         VARCHAR(20) NOT NULL,             -- Réf vers semantic_predicates ou nonverbal_ext
-    atom_layer      VARCHAR(10) NOT NULL,             -- 'predicate' ou 'extension'
+    atom_layer      VARCHAR(10) NOT NULL,             -- 'predicate', 'extension', or 'emotional'
     role            VARCHAR(30),                      -- Rôle dans la composition: CAUSE, AGENT, THEME
     created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_concept (concept_id),

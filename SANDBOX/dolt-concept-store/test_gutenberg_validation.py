@@ -292,9 +292,12 @@ v2_count = dolt_val("SELECT COUNT(*) FROM concepts")
 check("v2 concepts still present (104)",
       v2_count and int(v2_count) >= 100, f"got {v2_count}")
 
-# Check that v2 primitives still intact
+# Check that v2.2 primitives still intact (9 predicates + 8 emotional axes)
 predicates = dolt_val("SELECT COUNT(*) FROM semantic_predicates")
-check("10 semantic predicates intact", predicates == "10", f"got {predicates}")
+check("9 semantic predicates intact (EMOTION → couche 3c)", predicates == "9", f"got {predicates}")
+
+emotional = dolt_val("SELECT COUNT(*) FROM emotional_axes")
+check("8 emotional axes intact", emotional == "8", f"got {emotional}")
 
 # Check ontological categories
 categories = dolt_val("SELECT COUNT(*) FROM ontological_categories")

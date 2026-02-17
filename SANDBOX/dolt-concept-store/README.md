@@ -1,14 +1,14 @@
 # Dolt Concept Store pour PaniniFS
 
-**Proof of Concept v2.1** : Architecture universelle 3 couches pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références et **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments).
+**Proof of Concept v2.2** : Architecture universelle 3 couches + axes émotionnels pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références, **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments), et enrichie de **8 sous-primitifs émotionnels neurophysiologiques** (Panksepp/Ekman/Plutchik/Damasio).
 
 ## 🎯 Vision
 
-PaniniFS décompose l'information en **primitifs conceptuels universels**. Ce POC implémente une architecture rigoureuse de **23 primitifs en 3 couches**, validée par convergence entre 10 domaines scientifiques (théorie de l'information, sémiotique, théorie des catégories, ontologies formelles, linguistique computationnelle), puis **validée empiriquement** via un corpus multilingue de traductions Gutenberg avec chaîne de provenance complète (édition → traducteur → époque → source).
+PaniniFS décompose l'information en **primitifs conceptuels universels**. Ce POC implémente une architecture rigoureuse de **30 primitifs en 3 couches + axes émotionnels**, validée par convergence entre 10 domaines scientifiques (théorie de l'information, sémiotique, théorie des catégories, ontologies formelles, linguistique computationnelle, neurosciences affectives), puis **validée empiriquement** via un corpus multilingue de traductions Gutenberg avec chaîne de provenance complète (édition → traducteur → époque → source).
 
 Le stockage utilise **Dolt**, une base SQL avec workflows Git, permettant versioning, expérimentation par branches, et traçabilité complète.
 
-## 🏗️ Architecture v2 : 3 Couches de Primitifs Universels
+## 🏗️ Architecture v2.2 : 3 Couches + Axes Émotionnels (30 Primitifs)
 
 ```
 ╔══════════════════════════════════════════════════════════════════════╗
@@ -24,37 +24,46 @@ Le stockage utilise **Dolt**, une base SQL avec workflows Git, permettant versio
 ║  │ COMP │ │ ID  │ │ NEG  │ │ QUANT │ │   MOD    │                ║
 ║  └──────┘ └─────┘ └──────┘ └───────┘ └──────────┘                ║
 ╠══════════════════════════════════════════════════════════════════════╣
-║  COUCHE 3a — PRÉDICATS SÉMANTIQUES (10 dhātu / racines verbales)   ║
+║  COUCHE 3a — PRÉDICATS SÉMANTIQUES (9 dhātu — EMOTION → couche 3c)║
 ║  ┌────────────┐ ┌───────────┐ ┌──────────┐ ┌──────────────┐       ║
 ║  │ MOUVEMENT  │ │ COGNITION │ │PERCEPTION│ │COMMUNICATION │       ║
 ║  │   √gam     │ │   √jñā    │ │   √dṛś   │ │    √vac      │       ║
 ║  ├────────────┤ ├───────────┤ ├──────────┤ ├──────────────┤       ║
-║  │  CREATION  │ │  EMOTION  │ │EXISTENCE │ │ DESTRUCTION  │       ║
-║  │   √kṛ      │ │   √hṛd    │ │   √as    │ │              │       ║
-║  ├────────────┤ ├───────────┤ └──────────┘ └──────────────┘       ║
-║  │ POSSESSION │ │DOMINATION │                                      ║
-║  │   √labh    │ │   √īś     │                                      ║
-║  └────────────┘ └───────────┘                                      ║
+║  │  CREATION  │ │ EXISTENCE │ │POSSESSION│ │ DESTRUCTION  │       ║
+║  │   √kṛ      │ │   √as     │ │  √labh   │ │              │       ║
+║  ├────────────┤ └───────────┘ └──────────┘ └──────────────┘       ║
+║  │ DOMINATION │                                                    ║
+║  │   √īś      │                                                    ║
+║  └────────────┘                                                    ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  COUCHE 3b — EXTENSIONS NON-VERBALES (dimensions manquantes)       ║
 ║  ┌─────────┐ ┌───────┐ ┌──────────┐ ┌──────────┐                 ║
 ║  │ ESPACE  │ │ TEMPS │ │   EVAL   │ │   TAXO   │                 ║
 ║  └─────────┘ └───────┘ └──────────┘ └──────────┘                 ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  COUCHE 3c — AXES ÉMOTIONNELS (8 sous-primitifs, 4 axes bipolaires)║
+║  ┌─────────────────────────────────────────────────────────────┐   ║
+║  │  APPÉTENCE :  SEEKING (√iṣ)   ↔  FEAR    (√bhī)           │   ║
+║  │  LIEN      :  CARE    (√snuh) ↔  GRIEF   (√śuc)           │   ║
+║  │  ASSERTION :  RAGE    (√krudh)↔  DISGUST (√jugupsā)       │   ║
+║  │  JOUISSANCE:  PLAY    (√krīḍ) ↔  TEDIUM  (√glai)          │   ║
+║  └─────────────────────────────────────────────────────────────┘   ║
 ╚══════════════════════════════════════════════════════════════════════╝
-         4          5          10           4    =  23 primitifs
+         4          5          9      4      8   =  30 primitifs
 ```
 
 ### Couverture des 7 dimensions irréductibles
 
-| Dimension  | Couverture PanLang actuelle | Primitifs responsables        |
-|------------|----------------------------|-------------------------------|
-| PROCESSUS  | ✅ Forte (100% des concepts)| 10 dhātu                     |
-| ENTITÉ     | ⚠️ Partielle               | EXISTENCE, POSSESSION         |
-| QUALITÉ    | ⚠️ Partielle               | EVAL (extension)             |
-| RELATION   | ⚠️ Partielle               | TAXO (extension)             |
-| MODALITÉ   | ✅ Via couche 2             | MOD, QUANT                   |
-| STRUCTURE  | ❌ Gap identifié            | COMP, ID, NEG (à intégrer)   |
-| SITUATION  | ❌ Gap identifié            | ESPACE, TEMPS (à intégrer)   |
+| Dimension  | Couverture PanLang actuelle | Primitifs responsables               |
+|------------|----------------------------|--------------------------------------|
+| PROCESSUS  | ✅ Forte (100% des concepts)| 9 dhātu + 8 axes émotionnels        |
+| ENTITÉ     | ⚠️ Partielle               | EXISTENCE, POSSESSION                |
+| QUALITÉ    | ⚠️ Partielle               | EVAL (extension)                     |
+| RELATION   | ⚠️ Partielle               | TAXO (extension)                     |
+| MODALITÉ   | ✅ Via couche 2             | MOD, QUANT                           |
+| STRUCTURE  | ❌ Gap identifié            | COMP, ID, NEG (à intégrer)           |
+| SITUATION  | ❌ Gap identifié            | ESPACE, TEMPS (à intégrer)           |
+| ÉMOTION    | ✅ Forte (v2.2)            | 8 axes neurophysiologiques (couche 3c)|
 
 ## 📦 Structure du POC
 
@@ -83,6 +92,8 @@ SANDBOX/dolt-concept-store/
 ├── test_v2_validation.py              # Tests validation v2 (44/44)
 ├── UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md  # Revue 72 refs
 ├── ARCHITECTURE_UNIFIED_DOLT.md       # Doc architecture
+│
+├── PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md  # Justification modèle émotionnel (v2.2)
 │
 ├── # ═══ v2.1 (Validation Gutenberg) ═
 ├── schema_gutenberg_provenance.sql    # Schéma provenance (5 tables + 3 views)
@@ -122,8 +133,8 @@ python3 import_panlang_v2.py
 
 Ce script :
 - ✅ Initialise la DB Dolt (`panini-unified-db/`)
-- ✅ Applique le schéma 3 couches (10 tables + 4 views)
-- ✅ Seed les 23 primitifs (4 onto + 5 struct + 10 pred + 4 ext)
+- ✅ Applique le schéma 3 couches + axes émotionnels (11 tables + 4 views)
+- ✅ Seed les 30 primitifs (4 onto + 5 struct + 9 pred + 4 ext + 8 émotionnels)
 - ✅ Importe 107 concepts PanLang nettoyés (48 metadata exclus)
 - ✅ Classifie en quality tiers (A/B/C) avec audit trail
 - ✅ Calcule la couverture des 7 dimensions irréductibles
@@ -132,10 +143,10 @@ Ce script :
 ### Étape 3 : Valider l'import
 
 ```bash
-python3 test_v2_validation.py   # 38/38 tests ✅
+python3 test_v2_validation.py   # 48/48 tests ✅
 ```
 
-## 📊 Schéma v2 — 10 Tables + 4 Vues
+## 📊 Schéma v2.2 — 11 Tables + 4 Vues
 
 ### Layer 1 : `ontological_categories`
 4 catégories convergentes DOLCE/BFO/SUMO.
@@ -159,7 +170,7 @@ python3 test_v2_validation.py   # 38/38 tests ✅
 | MOD   | Modality     | Functor            | □/◇ (modal)         |
 
 ### Layer 3a : `semantic_predicates`
-10 dhātu avec mappings cross-frameworks.
+9 dhātu avec mappings cross-frameworks (EMOTION → couche 3c).
 
 | id            | dhātu  | NSM prime         | Vendler aspect | Jackendoff      |
 |---------------|--------|--------------------|----------------|-----------------|
@@ -168,7 +179,6 @@ python3 test_v2_validation.py   # 38/38 tests ✅
 | PERCEPTION    | √dṛś   | SEE, HEAR, FEEL    | achievement    | Perceptual      |
 | COMMUNICATION | √vac   | SAY                | activity       | Expressive      |
 | CREATION      | √kṛ    | MAKE, DO           | accomplishment | CAUSE+BECOME    |
-| EMOTION       | √hṛd   | FEEL               | state          | Affective       |
 | EXISTENCE     | √as    | EXIST, LIVE, DIE   | state          | BE              |
 | DESTRUCTION   |        | (inverse CREATION) | achievement    | CAUSE+NOT+BE    |
 | POSSESSION    | √labh  | HAVE               | state          | HAVE            |
@@ -183,6 +193,18 @@ python3 test_v2_validation.py   # 38/38 tests ✅
 | TEMPS  | SITUATION | WHEN, NOW, BEFORE, AFTER, A LONG TIME     |
 | EVAL   | QUALITÉ   | GOOD, BAD                                 |
 | TAXO   | RELATION  | KIND OF, PART OF                          |
+
+### Layer 3c : `emotional_axes` (v2.2)
+8 sous-primitifs émotionnels organisés en 4 axes bipolaires, fondés sur la convergence Panksepp (7 systems) / Ekman (6 basic) / Plutchik (8 primary) / Damasio (somatic markers).
+
+| Axe        | Pôle +   | dhātu     | Pôle −   | dhātu      | Circuit neural             |
+|------------|----------|-----------|----------|------------|----------------------------|
+| APPÉTENCE  | SEEKING  | √iṣ       | FEAR     | √bhī       | VTA→NAcc / Amygdale→PAG    |
+| LIEN       | CARE     | √snuh     | GRIEF    | √śuc       | Ocytocine / Opioïdes↓      |
+| ASSERTION  | RAGE     | √krudh    | DISGUST  | √jugupsā   | PAG-hypothalamus / Insula  |
+| JOUISSANCE | PLAY     | √krīḍ     | TEDIUM   | √glai      | Thalamo-striatal / hypo-DA |
+
+> **Justification** : L'atome EMOTION (√hṛd) unique produisait 0 concept à convergence majoritaire dans la validation Gutenberg. Les 8 sous-primitifs sont ancrés dans les circuits neuraux identifiés par Panksepp (1998/2012) et convergent avec 5 autres cadres théoriques. Voir `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` pour la justification complète.
 
 ### Tables d'import
 
@@ -246,10 +268,11 @@ GROUP BY sp.ontological_category;
 | Tier B (qualité moyenne)  | 45                    |
 | Tier C (quarantaine)      | 10                    |
 | Tier C (retirés)          | 3                     |
+| Axes émotionnels          | 8 (4 axes bipolaires) |
 | Règles de composition     | 250                   |
 | Entrées couverture dim.   | 254                   |
 | Issues d'audit            | 38                    |
-| Tests validation v2       | 44/44 ✅              |
+| Tests validation v2.2     | 48/48 ✅              |
 
 ### Validation Gutenberg
 
@@ -262,8 +285,8 @@ GROUP BY sp.ontological_category;
 | Décompositions atomiques  | 340                   |
 | Enregistrements convergence | 202                 |
 | Concepts majorités        | 21 (50 détections)    |
-| Tests Gutenberg           | 38/38 ✅              |
-| **Tests totaux**          | **82/82 ✅**          |
+| Tests Gutenberg           | 39/39 ✅              |
+| **Tests totaux**          | **87/87 ✅**          |
 
 ### Issues identifiées
 
@@ -353,7 +376,7 @@ python3 gutenberg_multilingual_validator.py
 
 2. **Les concepts cognitifs et communicatifs sont les plus transversaux** (COMPRENDRE, ENTENDRE, EXPLIQUER, RACONTER) — convergence avec les NSM primes THINK, KNOW, SAY.
 
-3. **Les concepts émotionnels sont culturellement spécifiques** (COLÈRE, JOIE, BEAUTÉ souvent uniques à un traducteur) — confirmation de la thèse de Wierzbicka sur les « cultural keywords ».
+3. **Les concepts émotionnels sont culturellement spécifiques** (COLÈRE, JOIE, BEAUTÉ souvent uniques à un traducteur) — confirmation de la thèse de Wierzbicka sur les « cultural keywords ». **→ v2.2 : EMOTION atomique remplacé par 8 sous-primitifs neurophysiologiques** pour capturer la granularité émotionnelle (SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM).
 
 4. **Le finnois et l'espéranto posent des défis spécifiques** :
    - Finnois : formes agglutinatives (cas partitif/génitif) nécessitant des marqueurs morphologiquement adaptés
@@ -391,8 +414,10 @@ L'architecture v2 repose sur la convergence de 10 domaines :
 8. **Sémiotique** — Peirce (triadic), Hjelmslev
 9. **Grammaire universelle** — Chomsky (Merge), Montague
 10. **Tradition sanskrite** — Dhātupāṭha, Pāṇini, Bhartṛhari
+11. **Neurosciences affectives** — Panksepp (7 systèmes), Ekman (6 basic), Plutchik (8 primary), Damasio (marqueurs somatiques), Barrett (émotions construites), LeDoux (circuits de survie)
 
 Voir : `UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md` (72 références, 886 lignes)
+Voir : `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` (justification émotionnelle, 24 références)
 
 ## 🚧 Prochaines Étapes
 
@@ -423,7 +448,8 @@ Voir : `UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md` (72 références, 8
 | v1.0    | 2025-02    | Unified storage : 17 tables, 3-tier, cascade, ACL        | 34/34 ✅     |
 | v2.0    | 2025-02    | 3-layer universals : 23 primitifs, 107 concepts          | 38/38 ✅     |
 | v2.0.1  | 2025-02    | Revalidation Tier C : 3 retrait, 10 quarantaine          | 44/44 ✅     |
-| **v2.1**| **2025-02**| **Validation Gutenberg : 10 traductions, 6 langues, 46 segments** | **82/82 ✅** |
+| v2.1    | 2025-02    | Validation Gutenberg : 10 traductions, 6 langues, 46 segments | 82/82 ✅     |
+| **v2.2**| **2025-02**| **Axes émotionnels : 8 sous-primitifs neurophysiologiques (Panksepp/Ekman/Plutchik/Damasio), EMOTION → couche 3c, 30 primitifs** | **87/87 ✅** |
 
 ## 📄 Licence
 
@@ -433,6 +459,6 @@ Voir `LICENSE` à la racine du projet.
 ---
 
 **Auteur:** PaniniFS Core Team  
-**Version:** 2.1.0  
+**Version:** 2.2.0  
 **Date:** 2025-02-17  
-**Status:** Proof of Concept (empirically validated)
+**Status:** Proof of Concept (empirically validated + neurophysiological grounding)

@@ -687,9 +687,11 @@ Issues de la théorie des catégories + logique + computation :
 | 8 | QUANTIFICATION | `QUANT` | Limites (catégories), ONE/ALL/SOME (NSM), entropie |
 | 9 | MODALITÉ | `MOD` | CAN/MAYBE (NSM), probabilité, disposition (BFO) |
 
-#### Couche 3 : Prédicats sémantiques (10, revus)
+#### Couche 3a : Prédicats sémantiques (9, revus — ÉMOTION → couche 3c)
 
-Les 10 atomes PanLang actuels, réorganisés dans la dimension PROCESSUS et enrichis :
+Les 9 atomes PanLang sémantiques, réorganisés dans la dimension PROCESSUS et enrichis.
+L'ancien atome ÉMOTION (√hṛd) a été retiré et remplacé par 8 sous-primitifs émotionnels
+fondés sur les neurosciences affectives (voir couche 3c ci-dessous).
 
 | # | Prédicat | Dhātu | Couverture |
 |---|---------|-------|-----------|
@@ -698,29 +700,47 @@ Les 10 atomes PanLang actuels, réorganisés dans la dimension PROCESSUS et enri
 | 12 | PERCEPTION | √dṛś | SEE, HEAR (NSM) |
 | 13 | COMMUNICATION | √vac | SAY (NSM) |
 | 14 | CRÉATION | √kṛ | CAUSE (Jackendoff), DO (NSM) |
-| 15 | ÉMOTION | √hṛd | FEEL (NSM) |
-| 16 | EXISTENCE | √as | EXIST, BE (NSM, Jackendoff) |
-| 17 | DESTRUCTION | — | DIE (NSM) |
-| 18 | POSSESSION | √labh | HAVE (NSM) |
-| 19 | VOLITION | √īś | WANT (NSM) — renommé de DOMINATION |
+| 15 | EXISTENCE | √as | EXIST, BE (NSM, Jackendoff) |
+| 16 | DESTRUCTION | — | DIE (NSM) |
+| 17 | POSSESSION | √labh | HAVE (NSM) |
+| 18 | VOLITION | √īś | WANT (NSM) — renommé de DOMINATION |
 
-#### Extensions nécessaires (couche 3 bis) :
+#### Couche 3b : Extensions nécessaires (non-verbales) :
 
 | # | Extension | Justification |
 |---|----------|--------------|
-| 20 | SITUATION (espace) | WHERE, HERE, ABOVE (NSM), Spatial Region (BFO), topos |
-| 21 | SITUATION (temps) | WHEN, BEFORE, AFTER (NSM), Temporal Region (BFO) |
-| 22 | ÉVALUATION | GOOD, BAD (NSM), axiologie |
-| 23 | TAXONOMIE | KIND OF, PART OF (NSM), méréologie |
+| 19 | SITUATION (espace) | WHERE, HERE, ABOVE (NSM), Spatial Region (BFO), topos |
+| 20 | SITUATION (temps) | WHEN, BEFORE, AFTER (NSM), Temporal Region (BFO) |
+| 21 | ÉVALUATION | GOOD, BAD (NSM), axiologie |
+| 22 | TAXONOMIE | KIND OF, PART OF (NSM), méréologie |
 
-### 13.2 Total : 23 primitifs en 3 couches
+#### Couche 3c : Axes émotionnels (v2.2 — Panksepp/Ekman/Plutchik/Damasio) :
+
+L'atome unique ÉMOTION (√hṛd) ne discriminait pas entre des circuits neuronaux
+fondamentalement distincts. La validation Gutenberg (v2.1) a confirmé empiriquement
+que les concepts émotionnels ne convergent jamais entre traductions (0 concept majorité).
+
+8 sous-primitifs émotionnels organisés en 4 axes bipolaires :
+
+| # | Axe | Pôle + | Dhātu | Pôle − | Dhātu | Circuit neural |
+|---|-----|--------|-------|--------|-------|---------------|
+| 23-24 | APPÉTENCE | SEEKING | √iṣ | FEAR | √bhī | Mésolimbique DA ↔ Amygdale-PAG |
+| 25-26 | LIEN | CARE | √snuh | GRIEF | √śuc | Ocytocine ↔ Opioïdes↓ |
+| 27-28 | ASSERTION | RAGE | √krudh | DISGUST | √jugupsā | PAG/hypothal. ↔ Insula |
+| 29-30 | JOUISSANCE | PLAY | √krīḍ | TEDIUM | √glai | Thalamo-striatal ↔ Hypo-DA |
+
+Références : Panksepp (1998, 2012), Ekman (1992), Plutchik (2001), Damasio (1994, 1999),
+LeDoux (1996, 2012), Barrett (2017). Voir PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md.
+
+### 13.2 Total : 30 primitifs en 3 couches + sous-couche émotionnelle
 
 - **4** méta-catégories ontologiques (ce qui *est*)
 - **5** opérations structurelles (comment on *compose*)  
-- **10** prédicats sémantiques verbaux (ce qui *se passe*) — les dhātu PanLang actuels
+- **9** prédicats sémantiques verbaux (ce qui *se passe*) — les dhātu PanLang (EMOTION retiré)
 - **4** extensions non-verbales (où, quand, comment, quoi)
+- **8** axes émotionnels (circuits neurophysiologiques distincts)
 
-= **23 primitifs** — à comparer avec :
+= **30 primitifs** — à comparer avec :
 - PanLang actuel : 10 (sous-spécifié)
 - NSM : 65 (linguistiquement motivé)
 - SKI : 3 (Turing-complet mais inutilisable)

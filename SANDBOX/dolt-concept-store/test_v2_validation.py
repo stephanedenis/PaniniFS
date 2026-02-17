@@ -65,11 +65,15 @@ test("structural_operations = 5 rows", n_struct == 5, f"got {n_struct}")
 
 # Semantic predicates
 n_pred = int(dolt_sql_value("SELECT COUNT(*) FROM semantic_predicates"))
-test("semantic_predicates = 10 rows", n_pred == 10, f"got {n_pred}")
+test("semantic_predicates = 9 rows", n_pred == 9, f"got {n_pred}")
 
 # Nonverbal extensions
 n_ext = int(dolt_sql_value("SELECT COUNT(*) FROM nonverbal_extensions"))
 test("nonverbal_extensions = 4 rows", n_ext == 4, f"got {n_ext}")
+
+# Emotional axes (v2.2)
+n_emo = int(dolt_sql_value("SELECT COUNT(*) FROM emotional_axes"))
+test("emotional_axes = 8 rows", n_emo == 8, f"got {n_emo}")
 
 # Concepts — should be 104 (107 - 3 retraits)
 n_concepts = int(dolt_sql_value("SELECT COUNT(*) FROM concepts"))
@@ -92,7 +96,7 @@ test("quality_audit has entries", n_audit > 0, f"got {n_audit}")
 # SECTION 2 : 23 Primitives — Layer coverage
 # ═══════════════════════════════════════════════════════════════════
 print("\n" + "=" * 70)
-print("SECTION 2 : 23 primitifs en 3 couches")
+print("SECTION 2 : 30 primitifs en 3 couches + axes émotionnels")
 print("=" * 70)
 
 # Layer 1: Ontological (4)
@@ -107,10 +111,10 @@ test("Layer 2 structural IDs = COMP,ID,MOD,NEG,QUANT",
      struct_ids == "COMP,ID,MOD,NEG,QUANT",
      f"got {struct_ids}")
 
-# Layer 3a: Semantic predicates (10)
+# Layer 3a: Semantic predicates (9 — EMOTION removed)
 pred_ids = dolt_sql_value("SELECT GROUP_CONCAT(id ORDER BY id) FROM semantic_predicates")
-expected_preds = "COGNITION,COMMUNICATION,CREATION,DESTRUCTION,DOMINATION,EMOTION,EXISTENCE,MOUVEMENT,PERCEPTION,POSSESSION"
-test("Layer 3a semantic predicate IDs correct",
+expected_preds = "COGNITION,COMMUNICATION,CREATION,DESTRUCTION,DOMINATION,EXISTENCE,MOUVEMENT,PERCEPTION,POSSESSION"
+test("Layer 3a semantic predicate IDs correct (9, no EMOTION)",
      pred_ids == expected_preds,
      f"got {pred_ids}")
 
@@ -120,9 +124,22 @@ test("Layer 3b nonverbal IDs = ESPACE,EVAL,TAXO,TEMPS",
      ext_ids == "ESPACE,EVAL,TAXO,TEMPS",
      f"got {ext_ids}")
 
-# Total primitives = 4 + 5 + 10 + 4 = 23
-total_prims = n_onto + n_struct + n_pred + n_ext
-test("Total primitives = 23", total_prims == 23, f"got {total_prims}")
+# Layer 3c: Emotional axes (8 — v2.2)
+emo_ids = dolt_sql_value("SELECT GROUP_CONCAT(id ORDER BY id) FROM emotional_axes")
+expected_emos = "CARE,DISGUST,FEAR,GRIEF,PLAY,RAGE,SEEKING,TEDIUM"
+test("Layer 3c emotional axis IDs correct (8)",
+     emo_ids == expected_emos,
+     f"got {emo_ids}")
+
+# Emotional axes: 4 positive, 4 negative
+emo_pos = int(dolt_sql_value("SELECT COUNT(*) FROM emotional_axes WHERE polarity = '+'"))
+emo_neg = int(dolt_sql_value("SELECT COUNT(*) FROM emotional_axes WHERE polarity = '-'"))
+test("Emotional axes: 4 positive", emo_pos == 4, f"got {emo_pos}")
+test("Emotional axes: 4 negative", emo_neg == 4, f"got {emo_neg}")
+
+# Total primitives = 4 + 5 + 9 + 4 + 8 = 30
+total_prims = n_onto + n_struct + n_pred + n_ext + n_emo
+test("Total primitives = 30", total_prims == 30, f"got {total_prims}")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -161,11 +178,13 @@ test("All concepts have composition rules",
      concepts_without_rules == 0,
      f"{concepts_without_rules} concepts sans règles")
 
-# Every atom in composition_rules must reference a valid semantic predicate
+# Every atom in composition_rules must reference a valid predicate, extension, or emotional axis
 invalid_atoms = int(dolt_sql_value("""
     SELECT COUNT(*) FROM composition_rules cr
     LEFT JOIN semantic_predicates sp ON cr.atom_id = sp.id
-    WHERE sp.id IS NULL
+    LEFT JOIN nonverbal_extensions ne ON cr.atom_id = ne.id
+    LEFT JOIN emotional_axes ea ON cr.atom_id = ea.id
+    WHERE sp.id IS NULL AND ne.id IS NULL AND ea.id IS NULL
 """))
 test("All composition rule atoms are valid predicates",
      invalid_atoms == 0,
@@ -371,10 +390,10 @@ test("MUSIQUE formula = PERCEPTION + CREATION",
      musique_formula == "PERCEPTION + CREATION",
      f"got {musique_formula}")
 
-# DÉGOÛT should now be EMOTION + PERCEPTION
+# DÉGOÛT should now be DISGUST + PERCEPTION (v2.2)
 degout_formula = dolt_sql_value("SELECT formule_simple FROM concepts WHERE id = 'DÉGOÛT'")
-test("DÉGOÛT formula = EMOTION + PERCEPTION",
-     degout_formula == "EMOTION + PERCEPTION",
+test("DÉGOÛT formula = DISGUST + PERCEPTION",
+     degout_formula == "DISGUST + PERCEPTION",
      f"got {degout_formula}")
 
 

@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 """
-import_panlang_v2.py — Import PanLang ULTIME → Dolt with v2 schema (3-layer universals)
+import_panlang_v2.py — Import PanLang ULTIME → Dolt with v2.2 schema (3-layer + emotional axes)
 
 Based on:
   - UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md (72 references)
+  - PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md (24 references)
   - Quality audit (Phase 17): 107 real concepts, 48 fake/metadata excluded
-  - schema_v2_universals.sql: 3-layer architecture
+  - schema_v2_universals.sql: 3-layer architecture + emotional sub-primitives
+
+v2.2 changes:
+  - EMOTION (√hṛd) removed from Layer 3a semantic predicates
+  - 8 emotional sub-primitives added in Layer 3c (emotional_axes table)
+  - 4 axes: APPETENCE, BOND, ASSERTION, ENJOYMENT
+  - Based on Panksepp (7 systems), Ekman (6 basic), Plutchik (8 primary),
+    Damasio (somatic markers), LeDoux (survival circuits)
 
 Workflow:
   1. Seed ontological categories (4: ENT, PROC, QUAL, ABS)
   2. Seed structural operations (5: COMP, ID, NEG, QUANT, MOD)
-  3. Seed semantic predicates (10 dhātu PanLang)
+  3. Seed semantic predicates (9 dhātu PanLang — EMOTION removed)
   4. Seed nonverbal extensions (4: ESPACE, TEMPS, EVAL, TAXO)
-  5. Load PanLang ULTIME JSON → clean → classify → import 107 concepts
+  4b. Seed emotional axes (8: SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM)
   6. Compute dimension coverage for each concept
   7. Log quality audit issues
   8. Commit to Dolt
@@ -59,83 +67,144 @@ EXCLUDED_CONCEPTS = {
     "PERFORMANCE", "QUALITE_RESOLUTION", "IMPACT_DICTIONNAIRE",
     "CONCEPTS_INTEGRES", "INTEGRATION_SUMMARY", "DETAILED_RESULTS",
     "TRIPARTITE_PERFORMANCE", "DOMAINES", "LANGUES",
+    # 3 revalidation retraits (v2.0.1) — substantifs inappropriés
+    "ARBRE", "FENÊTRE", "ÉTOILE",
 }
 
-# The 10 atoms
-ATOMS = {
+# The 9 semantic predicate atoms (EMOTION removed in v2.2)
+ATOMS_PREDICATES = {
     "MOUVEMENT", "COGNITION", "PERCEPTION", "COMMUNICATION",
-    "CREATION", "EMOTION", "EXISTENCE", "DESTRUCTION",
+    "CREATION", "EXISTENCE", "DESTRUCTION",
     "POSSESSION", "DOMINATION",
 }
 
+# The 8 emotional sub-primitive atoms (v2.2 — replaces EMOTION)
+ATOMS_EMOTIONAL = {
+    "SEEKING", "FEAR", "CARE", "GRIEF",
+    "RAGE", "DISGUST", "PLAY", "TEDIUM",
+}
+
+# All valid atoms (predicates + emotional)
+ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | {"EMOTION"}  # Keep EMOTION for legacy parsing
+
 # Atom → dimension mapping (from the literature review § 11.3)
+# v2.2: EMOTION replaced by 8 emotional sub-primitives
 ATOM_DIMENSIONS = {
+    # Layer 3a — Semantic predicates (9)
     "MOUVEMENT":      {"PROCESSUS": 1.0},
     "COGNITION":      {"PROCESSUS": 0.7, "QUALITÉ": 0.3},
     "PERCEPTION":     {"PROCESSUS": 0.5, "QUALITÉ": 0.5},
     "COMMUNICATION":  {"PROCESSUS": 0.6, "RELATION": 0.4},
     "CREATION":       {"PROCESSUS": 1.0},
-    "EMOTION":        {"QUALITÉ": 0.7, "PROCESSUS": 0.3},
     "EXISTENCE":      {"ENTITÉ": 0.6, "PROCESSUS": 0.4},
     "DESTRUCTION":    {"PROCESSUS": 1.0},
     "POSSESSION":     {"RELATION": 0.7, "PROCESSUS": 0.3},
     "DOMINATION":     {"MODALITÉ": 0.6, "RELATION": 0.4},
+    # Layer 3c — Emotional axes (8) — all are QUALITÉ-dominant
+    "SEEKING":        {"QUALITÉ": 0.6, "PROCESSUS": 0.4},
+    "FEAR":           {"QUALITÉ": 0.7, "PROCESSUS": 0.3},
+    "CARE":           {"QUALITÉ": 0.6, "RELATION": 0.4},
+    "GRIEF":          {"QUALITÉ": 0.8, "PROCESSUS": 0.2},
+    "RAGE":           {"QUALITÉ": 0.6, "PROCESSUS": 0.4},
+    "DISGUST":        {"QUALITÉ": 0.8, "PROCESSUS": 0.2},
+    "PLAY":           {"QUALITÉ": 0.5, "PROCESSUS": 0.3, "RELATION": 0.2},
+    "TEDIUM":         {"QUALITÉ": 0.9, "PROCESSUS": 0.1},
+    # Legacy — kept for parsing old formulas, remapped to SEEKING+FEAR avg
+    "EMOTION":        {"QUALITÉ": 0.7, "PROCESSUS": 0.3},
 }
 
-# Atom → NSM prime mapping
+# Atom → NSM prime mapping (v2.2: emotional sub-primitives)
 ATOM_NSM = {
     "MOUVEMENT":      ["MOVE"],
     "COGNITION":      ["THINK", "KNOW"],
     "PERCEPTION":     ["SEE", "HEAR"],
     "COMMUNICATION":  ["SAY"],
     "CREATION":       ["DO", "HAPPEN"],
-    "EMOTION":        ["FEEL"],
     "EXISTENCE":      ["EXIST", "THERE IS"],
     "DESTRUCTION":    ["DIE"],
     "POSSESSION":     ["HAVE"],
     "DOMINATION":     ["WANT", "CAN"],
+    # Emotional axes (v2.2)
+    "SEEKING":        ["WANT"],
+    "FEAR":           ["FEEL"],
+    "CARE":           ["FEEL", "GOOD"],
+    "GRIEF":          ["FEEL", "BAD"],
+    "RAGE":           ["FEEL", "BAD"],
+    "DISGUST":        ["FEEL", "BAD"],
+    "PLAY":           ["FEEL", "GOOD"],
+    "TEDIUM":         ["FEEL", "BAD"],
+    # Legacy
+    "EMOTION":        ["FEEL"],
 }
 
-# Atom → Jackendoff mapping
+# Atom → Jackendoff mapping (v2.2: emotional sub-primitives)
 ATOM_JACKENDOFF = {
     "MOUVEMENT":      "GO",
     "COGNITION":      None,
     "PERCEPTION":     None,
     "COMMUNICATION":  None,
     "CREATION":       "CAUSE",
-    "EMOTION":        None,
     "EXISTENCE":      "BE",
     "DESTRUCTION":    None,
     "POSSESSION":     None,
     "DOMINATION":     None,
+    # Emotional axes
+    "SEEKING":        None,
+    "FEAR":           None,
+    "CARE":           None,
+    "GRIEF":          None,
+    "RAGE":           None,
+    "DISGUST":        None,
+    "PLAY":           None,
+    "TEDIUM":         None,
+    "EMOTION":        None,
 }
 
-# Atom → Pustejovsky quale
+# Atom → Pustejovsky quale (v2.2: emotional sub-primitives)
 ATOM_PUSTEJOVSKY = {
     "MOUVEMENT":      "AGENTIVE",
     "COGNITION":      "FORMAL",
     "PERCEPTION":     "FORMAL",
     "COMMUNICATION":  "TELIC",
     "CREATION":       "AGENTIVE",
-    "EMOTION":        "FORMAL",
     "EXISTENCE":      "FORMAL",
     "DESTRUCTION":    "AGENTIVE",
     "POSSESSION":     "CONSTITUTIVE",
     "DOMINATION":     "TELIC",
+    # Emotional axes — all FORMAL (they characterize states)
+    "SEEKING":        "FORMAL",
+    "FEAR":           "FORMAL",
+    "CARE":           "FORMAL",
+    "GRIEF":          "FORMAL",
+    "RAGE":           "FORMAL",
+    "DISGUST":        "FORMAL",
+    "PLAY":           "FORMAL",
+    "TEDIUM":         "FORMAL",
+    "EMOTION":        "FORMAL",
 }
 
-# Atom → Dhātu sanskrit
+# Atom → Dhātu sanskrit (v2.2: emotional sub-primitives)
 ATOM_DHATU = {
     "MOUVEMENT":      "√gam",
     "COGNITION":      "√jñā",
     "PERCEPTION":     "√dṛś",
     "COMMUNICATION":  "√vac",
     "CREATION":       "√kṛ",
-    "EMOTION":        "√hṛd",
     "EXISTENCE":      "√as",
     "DESTRUCTION":    None,
     "POSSESSION":     "√labh",
     "DOMINATION":     "√īś",
+    # Emotional axes (v2.2)
+    "SEEKING":        "√iṣ",
+    "FEAR":           "√bhī",
+    "CARE":           "√snuh",
+    "GRIEF":          "√śuc",
+    "RAGE":           "√krudh",
+    "DISGUST":        "√jugupsā",
+    "PLAY":           "√krīḍ",
+    "TEDIUM":         "√glai",
+    # Legacy
+    "EMOTION":        "√hṛd",
 }
 
 # Duplicate formulas (same formule_simple for different concepts)
@@ -152,6 +221,54 @@ KNOWN_DUPLICATES = {
     "IMAGINER":     "POSSESSION",           # IMAGINER = POSSESSION (tautology)
     "RÉCIT":        "DESTRUCTION",          # RÉCIT = DESTRUCTION (tautology)
     "SENTIR":       "PERCEPTION",           # SENTIR = PERCEPTION (tautology)
+}
+
+# v2.2: Remap concepts that use legacy EMOTION atom to specific emotional sub-primitives
+# Based on PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md and gutenberg_multilingual_validator.py
+EMOTION_REMAP = {
+    "COLÈRE":       {"EMOTION": "RAGE"},          # EMOTION + DOMINATION → RAGE + DOMINATION
+    "PEUR":         {"EMOTION": "FEAR"},           # EMOTION + PERCEPTION → FEAR + PERCEPTION
+    "JOIE":         {"EMOTION": "PLAY"},           # EMOTION + CREATION → PLAY + CREATION
+    "TRISTESSE":    {"EMOTION": "GRIEF"},          # EMOTION + DESTRUCTION → GRIEF + DESTRUCTION
+    "MÉLANCOLIE":   {"EMOTION": "GRIEF"},          # EMOTION + COGNITION + DESTRUCTION → GRIEF + COGNITION + DESTRUCTION (but also add TEDIUM logic in gutenberg)
+    "BEAUTÉ":       {"EMOTION": "SEEKING"},        # PERCEPTION + EMOTION + CREATION → PERCEPTION + SEEKING + CREATION
+    "DÉGOÛT":       {"EMOTION": "DISGUST"},        # If formula had EMOTION → DISGUST (but source is EXISTENCE tautology)
+    "FUIR":         {"EMOTION": "FEAR"},           # MOUVEMENT + EMOTION → MOUVEMENT + FEAR
+    "SOUFFRIR":     {"EMOTION": "GRIEF"},          # DESTRUCTION + EMOTION → DESTRUCTION + GRIEF
+    "INTIMIDER":    {"EMOTION": "FEAR"},           # DOMINATION + EMOTION → DOMINATION + FEAR
+    "CONSOLER":     {"EMOTION": "CARE"},           # COMMUNICATION + EMOTION → COMMUNICATION + CARE
+    "RESSENTIR":    {"EMOTION": "SEEKING"},        # COGNITION + EMOTION → COGNITION + SEEKING
+    "VIVRE":        {"EMOTION": "SEEKING"},        # EXISTENCE + EMOTION → EXISTENCE + SEEKING
+    "DESIRER":      {"EMOTION": "SEEKING"},        # POSSESSION + EMOTION → POSSESSION + SEEKING
+    "HAIR":         {"EMOTION": "DISGUST"},        # EMOTION + DESTRUCTION + DOMINATION → DISGUST + DESTRUCTION + DOMINATION
+    "DANSER":       {"EMOTION": "PLAY"},           # MOUVEMENT + EMOTION → MOUVEMENT + PLAY (if applicable)
+    "AIMER":        {"EMOTION": "CARE"},           # EMOTION + COMMUNICATION + POSSESSION → CARE + COMMUNICATION + POSSESSION
+    "SURPRISE":     {"EMOTION": "SEEKING"},        # EMOTION + PERCEPTION → SEEKING + PERCEPTION
+    "AFFECTION":    {"EMOTION": "CARE"},           # EMOTION + POSSESSION → CARE + POSSESSION
+    "AMI":          {"EMOTION": "CARE"},           # EMOTION + COMMUNICATION + PERCEPTION → CARE + COMMUNICATION + PERCEPTION
+    "ART":          {"EMOTION": "PLAY"},           # CREATION + COMMUNICATION + EMOTION → CREATION + COMMUNICATION + PLAY
+    "ENNEMI":       {"EMOTION": "RAGE"},           # EMOTION + DOMINATION + DESTRUCTION → RAGE + DOMINATION + DESTRUCTION
+    "EUPHORIE":     {"EMOTION": "PLAY"},           # EMOTION + CREATION + MOUVEMENT → PLAY + CREATION + MOUVEMENT
+    "FAMILLE":      {"EMOTION": "CARE"},           # EXISTENCE + EMOTION + POSSESSION + CREATION → EXISTENCE + CARE + POSSESSION + CREATION
+    "JUSTICE":      {"EMOTION": "SEEKING"},        # COGNITION + DOMINATION + EXISTENCE + EMOTION → COGNITION + DOMINATION + EXISTENCE + SEEKING
+    "NOSTALGIE":    {"EMOTION": "GRIEF"},          # EMOTION + COGNITION + POSSESSION → GRIEF + COGNITION + POSSESSION
+    "PAIX":         {"EMOTION": "CARE"},           # COMMUNICATION + EMOTION + CREATION → COMMUNICATION + CARE + CREATION
+}
+
+# For concepts where DÉGOÛT is a tautology in PanLang, override formula entirely
+FORMULA_OVERRIDES_V22 = {
+    "DÉGOÛT": ("DISGUST + PERCEPTION", ["DISGUST", "PERCEPTION"]),
+    # Revalidation quarantine overrides (v2.0.1)
+    "MUSIQUE": ("PERCEPTION + CREATION", ["PERCEPTION", "CREATION"]),
+    "RÉCIT": ("COMMUNICATION + COGNITION", ["COMMUNICATION", "COGNITION"]),
+    # v2.2: EMOTION concept = meta-concept covering all 8 axes → SEEKING (primary drive)
+    "EMOTION": ("SEEKING + CARE", ["SEEKING", "CARE"]),
+}
+
+# Concepts to quarantine (quality tier Q) — revalidation v2.0.1
+QUARANTINE_CONCEPTS = {
+    "MUSIQUE", "RÉCIT", "DÉGOÛT", "GOÛTER", "BEAU", "SENTIR",
+    "LIEU", "SATISFACTION", "IMAGINER", "PROXIMITÉ",
 }
 
 
@@ -351,9 +468,9 @@ def seed_structural_operations():
 # ─────────────────────────────────────────────────────────────────────────────
 
 def seed_semantic_predicates():
-    """Insert the 10 dhātu-based semantic predicates."""
+    """Insert the 9 dhātu-based semantic predicates (EMOTION removed in v2.2)."""
     print("\n" + "=" * 70)
-    print("STEP 3: Seed semantic predicates — 10 dhātu (layer 3)")
+    print("STEP 3: Seed semantic predicates — 9 dhātu (layer 3a, EMOTION→3c)")
     print("=" * 70)
 
     predicates = [
@@ -372,9 +489,6 @@ def seed_semantic_predicates():
         ("CREATION", "CRE", "Création", "Creation", "√kṛ",
          "Fabrication, causation, mise en existence",
          "PROC", ["DO", "HAPPEN"], "CAUSE", ["Verbs of Creation"], "accomplishment"),
-        ("EMOTION", "EMO", "Émotion", "Emotion", "√hṛd",
-         "Affect, sentiment, réaction émotionnelle",
-         "PROC", ["FEEL"], None, ["Psych-verbs (Experiencer)"], "state"),
         ("EXISTENCE", "EXI", "Existence", "Existence", "√as",
          "Être, présence, subsistance, identité",
          "PROC", ["EXIST", "THERE IS"], "BE", None, "state"),
@@ -404,7 +518,10 @@ def seed_semantic_predicates():
         )
 
     if dolt_sql_batch(queries):
-        print(f"  ✅ Inserted 10 semantic predicates (dhātu)")
+        print(f"  ✅ Inserted 9 semantic predicates (dhātu) — EMOTION moved to 3c")
+    # v2.2: Remove legacy EMOTION row if it persists from previous imports
+    dolt_sql("DELETE FROM semantic_predicates WHERE id = 'EMOTION';", check=False)
+    print("  🧹 Cleaned legacy EMOTION from semantic_predicates (now in emotional_axes)")
     return True
 
 
@@ -448,6 +565,85 @@ def seed_nonverbal_extensions():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Step 4b: Seed emotional axes (v2.2)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def seed_emotional_axes():
+    """Insert the 8 emotional sub-primitives in 4 axes (Panksepp/Ekman/Plutchik/Damasio)."""
+    print("\n" + "=" * 70)
+    print("STEP 4b: Seed emotional axes — 8 sub-primitives (layer 3c)")
+    print("=" * 70)
+
+    # (id, code, axis_fr, axis_en, polarity, name_fr, name_en, dhatu,
+    #  description, neural_circuit, neurotransmitters, panksepp, ekman, plutchik, nsm)
+    axes = [
+        ("SEEKING", "SEK", "Appétence", "Appetence", "+",
+         "Recherche/Désir", "Seeking/Desire", "√iṣ",
+         "Exploration, anticipation, motivation, désir — le moteur fondamental de l'action",
+         "VTA → NAcc (mésolimbique)", "Dopamine, glutamate",
+         "SEEKING", None, "Anticipation", ["WANT"]),
+        ("FEAR", "FEA", "Appétence", "Appetence", "-",
+         "Peur/Évitement", "Fear/Avoidance", "√bhī",
+         "Fuite, évitement, freezing — réponse à la menace",
+         "Amygdale centrale → hypothalamus ant. → PAG dorsal", "CRF, glutamate, neuropeptide Y",
+         "FEAR", "Peur", "Peur", ["FEEL"]),
+        ("CARE", "CAR", "Lien", "Bond", "+",
+         "Soin/Attachement", "Care/Attachment", "√snuh",
+         "Soin parental, attachement, tendresse, nurturance",
+         "Hypothalamus ventromédian, BNST", "Ocytocine, opioïdes endogènes, prolactine",
+         "CARE", None, "Confiance", ["FEEL", "GOOD"]),
+        ("GRIEF", "GRI", "Lien", "Bond", "-",
+         "Deuil/Séparation", "Grief/Separation", "√śuc",
+         "Cris de détresse, séparation, deuil, perte sociale",
+         "PAG → cortex cingulaire antérieur", "Opioïdes (inhibition), CRF, glutamate",
+         "PANIC/GRIEF", "Tristesse", "Tristesse", ["FEEL", "BAD"]),
+        ("RAGE", "RAG", "Assertion", "Assertion", "+",
+         "Rage/Confrontation", "Rage/Confrontation", "√krudh",
+         "Agression défensive, frustration, confrontation, colère",
+         "Amygdale médiale → hypothalamus → PAG dorsal", "Glutamate, substance P",
+         "RAGE", "Colère", "Colère", ["FEEL", "BAD"]),
+        ("DISGUST", "DIS", "Assertion", "Assertion", "-",
+         "Dégoût/Rejet", "Disgust/Rejection", "√jugupsā",
+         "Rejet sensoriel, aversion, retrait, contamination",
+         "Insula antérieure, ganglions de la base", "Sérotonine",
+         None, "Dégoût", "Dégoût", ["FEEL", "BAD"]),
+        ("PLAY", "PLA", "Jouissance", "Enjoyment", "+",
+         "Jeu/Joie sociale", "Play/Social joy", "√krīḍ",
+         "Joie sociale, excitation ludique, combat ludique, créativité",
+         "Noyaux intralaminaires thalamiques → striatum, cortex frontal", "Dopamine, opioïdes, cannabinoïdes",
+         "PLAY", "Joie", "Joie", ["FEEL", "GOOD"]),
+        ("TEDIUM", "TED", "Jouissance", "Enjoyment", "-",
+         "Ennui/Anhedonie", "Tedium/Anhedonia", "√glai",
+         "Apathie, anhedonie, lassitude, désengagement",
+         "Hypo-activation mésolimbique", "Dopamine (déficit)",
+         None, None, None, ["FEEL", "BAD"]),
+    ]
+
+    queries = []
+    for (ax_id, code, axis_fr, axis_en, polarity, fr, en, dhatu,
+         desc, circuit, neurotrans, panksepp, ekman, plutchik, nsm) in axes:
+        queries.append(
+            f"REPLACE INTO emotional_axes "
+            f"(id, code, axis_name_fr, axis_name_en, polarity, name_fr, name_en, "
+            f"dhatu_sa, description, neural_circuit, neurotransmitters, "
+            f"panksepp_system, ekman_emotion, plutchik_emotion, nsm_mapping) "
+            f"VALUES ({escape_sql(ax_id)}, {escape_sql(code)}, "
+            f"{escape_sql(axis_fr)}, {escape_sql(axis_en)}, {escape_sql(polarity)}, "
+            f"{escape_sql(fr)}, {escape_sql(en)}, {escape_sql(dhatu)}, "
+            f"{escape_sql(desc)}, {escape_sql(circuit)}, {escape_sql(neurotrans)}, "
+            f"{escape_sql(panksepp)}, {escape_sql(ekman)}, {escape_sql(plutchik)}, "
+            f"{json_sql(nsm)});"
+        )
+
+    if dolt_sql_batch(queries):
+        print(f"  ✅ Inserted 8 emotional axes (4 axes × 2 polarities)")
+        print(f"     Axes: APPÉTENCE, LIEN, ASSERTION, JOUISSANCE")
+        print(f"     (+): SEEKING, CARE, RAGE, PLAY")
+        print(f"     (−): FEAR, GRIEF, DISGUST, TEDIUM")
+    return True
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Step 5: Load, clean, classify, import concepts
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -475,8 +671,16 @@ def parse_formule(raw_formule):
 
 
 def classify_quality(concept_name, atoms, validity, formule_simple):
-    """Classify concept quality: A (excellent), B (acceptable), C (problematic)."""
+    """Classify concept quality: A (excellent), B (acceptable), Q (quarantine)."""
     issues = []
+
+    # v2.0.1 revalidation: quarantine specific concepts
+    if concept_name in QUARANTINE_CONCEPTS:
+        issues.append("quarantine_revalidation")
+        # Still log low validity for audit completeness
+        if validity is not None and validity < 0.3:
+            issues.append("low_validity")
+        return "Q", issues
 
     # Tautology: concept = single atom identical to itself
     if concept_name in KNOWN_DUPLICATES:
@@ -579,6 +783,10 @@ def load_and_import_concepts():
         # Skip known metadata/fake
         if key in EXCLUDED_CONCEPTS:
             excluded_meta += 1
+            # Log retrait for the 3 removed substantifs
+            if key in ("ARBRE", "FENÊTRE", "ÉTOILE"):
+                audit_issues.append((key, "retrait_revalidation", "critical",
+                                     f"Substantif inapproprié retiré lors de la revalidation v2.0.1"))
             continue
 
         # Parse formule
@@ -598,6 +806,17 @@ def load_and_import_concepts():
             audit_issues.append((key, "invalid_atoms", "warning",
                                  f"Unknown atoms: {invalid}"))
             continue
+
+        # v2.2: Apply formula overrides (e.g. DÉGOÛT tautology → DISGUST + PERCEPTION)
+        if key in FORMULA_OVERRIDES_V22:
+            formule_simple, atoms = FORMULA_OVERRIDES_V22[key]
+            atoms = list(atoms)
+
+        # v2.2: Remap EMOTION → specific emotional sub-primitive
+        if key in EMOTION_REMAP and "EMOTION" in atoms:
+            remap = EMOTION_REMAP[key]
+            atoms = [remap.get(a, a) for a in atoms]
+            formule_simple = " + ".join(atoms)
 
         # Get metadata
         validity = entry.get("validite")
@@ -636,11 +855,12 @@ def load_and_import_concepts():
 
         # Build composition_rules INSERTs
         for pos, atom in enumerate(atoms):
+            layer = 'emotional' if atom in ATOMS_EMOTIONAL else 'predicate'
             composition_queries.append(
                 f"REPLACE INTO composition_rules "
                 f"(concept_id, position, atom_id, atom_layer, role) "
                 f"VALUES ({escape_sql(key)}, {pos}, {escape_sql(atom)}, "
-                f"'predicate', NULL);"
+                f"{escape_sql(layer)}, NULL);"
             )
 
         # Build dimension_coverage INSERTs
@@ -711,14 +931,16 @@ def commit_to_dolt(concept_count):
 
     dolt("add", ".")
     msg = (
-        f"feat: import {concept_count} PanLang concepts with v2 3-layer schema\n\n"
+        f"feat: import {concept_count} PanLang concepts with v2.2 schema (emotional axes)\n\n"
         f"- 4 ontological categories (ENT, PROC, QUAL, ABS)\n"
         f"- 5 structural operations (COMP, ID, NEG, QUANT, MOD)\n"
-        f"- 10 semantic predicates (dhātu)\n"
+        f"- 9 semantic predicates (dhātu, EMOTION removed)\n"
         f"- 4 nonverbal extensions (ESPACE, TEMPS, EVAL, TAXO)\n"
+        f"- 8 emotional axes (SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM)\n"
         f"- {concept_count} concepts imported with quality tiers\n"
         f"- Dimension coverage computed for 7 irreducible dimensions\n"
-        f"- Quality audit log with issue tracking"
+        f"- Quality audit log with issue tracking\n"
+        f"- Total: 30 primitives (4+5+9+4+8)"
     )
     dolt("commit", "-m", msg, "--author", "PaniniFS Bot <bot@panini-fs.dev>")
     print(f"  ✅ Committed to Dolt")
@@ -773,19 +995,20 @@ def verify():
 
 def main():
     print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║  PanLang v2 Import — 3-Layer Universal Primitives Architecture  ║")
-    print("║  Based on interdisciplinary literature review (72 references)   ║")
+    print("║  PanLang v2.2 Import — 3-Layer + Emotional Axes Architecture      ║")
+    print("║  30 primitives: 4+5+9+4+8 (Panksepp/Ekman/Plutchik/Damasio)      ║")
     print("╚══════════════════════════════════════════════════════════════════╝")
     print()
 
     # Step 0
     init_dolt_db()
 
-    # Step 1-4: Seed reference data
+    # Step 1-4b: Seed reference data
     seed_ontological_categories()
     seed_structural_operations()
     seed_semantic_predicates()
     seed_nonverbal_extensions()
+    seed_emotional_axes()
 
     # Step 5: Import concepts
     concept_count = load_and_import_concepts()
@@ -799,8 +1022,8 @@ def main():
     # Step 7: Verify
     verify()
 
-    print("\n" + "=" * 70)
-    print(f"✅ DONE — {concept_count} concepts imported with v2 3-layer schema")
+    print(f"\n" + "=" * 70)
+    print(f"✅ DONE — {concept_count} concepts imported with v2.2 schema (30 primitives)")
     print("=" * 70)
 
 
