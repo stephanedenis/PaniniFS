@@ -203,11 +203,137 @@ pour distribuer uniquement `main` aux utilisateurs publics.
 
 **Verdict** : ✅ C'est le bon modèle — branches pour la structure, ACL pour le contrôle.
 
+### `dolt sql-server` + Branch ACL : validé ✅
+
+Le serveur MySQL Dolt avec permissions par branche a été implémenté et testé :
+
+```
+dolt sql-server (port 3306, démon détaché)
+├── public_user  / pub_panini_2026   → lecture seule, écriture main
+├── analyst      / conf_panini_2026  → écriture main + confidential
+├── owner        / priv_panini_2026  → admin sur toutes les branches (%)
+└── dolt_branch_control (4 règles) + dolt_branch_namespace_control (1 règle)
+```
+
+**Résultat : 14/14 tests passés** (`test_branch_acl.py`)
+- Lecture cross-tier pour tous les utilisateurs ✅
+- Isolation en écriture par branche ✅
+- Namespace control : seul `owner` peut créer `private/*` ✅
+- Scripts automatisés : `setup_dolt_acl.py` + `test_branch_acl.py`
+
+### Topologie en cascade : distribution multi-repos ✅
+
+#### Le besoin
+
+Pour la distribution de PaniniFS, un modèle de type Git est souhaité :
+
+> « Un DoltHub panini-publique duquel on a dérivé des repos confidentiels,
+> et desquels on a un repo privé (local ou payant-cloud) »
+
+#### Architecture cascade validée (20/20 tests)
+
+```
+  DoltHub (GRATUIT)            DoltLab / DoltHub Pro        Local / Hosted
+  +-------------------+        +--------------------+       +-----------------+
+  | panini-public     |        | panini-confidentiel|       | panini-prive    |
+  |                   | clone  |                    | clone |                 |
+  | main              |<------>| main               |<----->| main            |
+  |  dhatu (7)        |        |  dhatu (7)         |       |  dhatu (7)      |
+  |  format_grammars  |        |  format_grammars   |       |  format_grammars|
+  |  public_statistics|        |  public_statistics  |       |  public_stats   |
+  |                   |        |                    |       |                 |
+  |                   |        | confidential        |       | confidential    |
+  |                   |        |  semantic_mappings  |       |  semantic_maps  |
+  |                   |        |  analysis_results   |       |  analysis_res   |
+  |                   |        |  dedup_index        |       |  dedup_index    |
+  |                   |        |                    |       |                 |
+  |                   |        |                    |       | private/stephane |
+  |                   |        |                    |       |  user_files     |
+  |                   |        |                    |       |  encrypt_keys   |
+  +-------------------+        +--------------------+       +-----------------+
+        ^                                                         |
+        +------------- upstream remote (direct sync) -------------+
+```
+
+#### Flux de données en cascade
+
+| Direction | Opération | Contenu | Mécanisme |
+|-----------|-----------|---------|-----------|
+| **↓ Descendant** | clone/pull | Toutes les données ancêtres | `dolt clone` / `dolt pull` |
+| **↑ Ascendant** | push main | Stats agrégées uniquement | `dolt push origin main` |
+| **↑ Direct** | fetch upstream | Public → Privé directement | `dolt fetch upstream` |
+
+#### Multi-remote (comme Git)
+
+Le repo privé maintient **deux remotes** simultanément :
+- `origin` → panini-confidential (pour les données analysées)
+- `upstream` → panini-public (pour les mises à jour directes des dhātu)
+
+```bash
+# Dans panini-private :
+dolt remote -v
+# origin-confidential  https://doltlab.org/panini-confidential
+# upstream-public      https://dolthub.com/org/panini-public
+
+# Sync depuis public :
+dolt fetch upstream-public
+dolt merge upstream-public/main
+
+# Promotion vers confidential :
+dolt push origin-confidential main
+```
+
+#### Isolation par branches (prouvée)
+
+| Repo | Branches | Tables exclusives |
+|------|----------|-------------------|
+| `panini-public` | `main` uniquement | dhatu, format_grammars, public_statistics |
+| `panini-confidential` | `main` + `confidential` | + semantic_mappings, analysis_results, dedup_index |
+| `panini-private` | `main` + `confidential` + `private/*` | + user_files, encryption_keys |
+
+**Les branches sont LOCALES** : la branche `confidential` n'existe que dans
+`panini-confidential` et `panini-private`, jamais dans `panini-public`.
+Idem pour `private/*` qui n'existe que dans le repo privé.
+
+#### Double sécurité
+
+La topologie cascade se combine avec le `dolt sql-server` + ACL :
+
+1. **Niveau repo** : le `dolt clone` contrôle qui reçoit quelle base de données
+2. **Niveau branche** : le `dolt_branch_control` contrôle qui écrit sur quelle branche
+
+Un utilisateur public ne peut même pas cloner le repo confidentiel.
+Un analyste avec accès au repo confidentiel ne peut pas modifier les branches privées.
+
+#### Hébergement et coûts
+
+| Tier | Option A | Option B | Coût |
+|------|----------|----------|------|
+| PUBLIC | DoltHub.com | — | **Gratuit** (DBs publiques illimitées, toute taille) |
+| CONFIDENTIAL | DoltLab (self-hosted) | DoltHub Pro | **Gratuit** (DoltLab) ou **$50/mois** (Pro) |
+| PRIVATE | Disque local | Hosted Dolt | **Gratuit** (local) ou **$50/mois min** (Hosted) |
+
+DoltHub offre les DBs publiques gratuites quelle que soit la taille.
+DoltLab est l'équivalent GitLab pour Dolt : self-hosted, gratuit, open-source.
+
+#### Script de test : `test_cascade_topology.py`
+
+POC complet avec 20 tests automatisés validant :
+- Création de 3 repos en cascade (public → confidentiel → privé)
+- Isolation des données par tier et par branche
+- Sync upstream (public → privé via fetch + merge)
+- Promotion de statistiques agrégées (privé → public via main)
+- Protection contre la fuite de branches
+- Topologie multi-remote
+
 ### Prochaines étapes
 
-1. **`dolt sql-server` + Branch Permissions** : démarrer le serveur MySQL, configurer les ACL
-2. **Brancher le vrai chunker** sur Dolt (PNG réel → `chunk_metadata`)
-3. **Brancher le fingerprinter audio** sur Dolt (WAV réel → `audio_fingerprints`)
-4. **panini-core en Rust** : client `sqlx` vers Dolt MySQL (port 3306)
-5. **Web UI dashboards** : v_dhatu_distribution, v_format_coverage en temps réel
-6. **`dolt clone --single-branch -b main`** : distribution du tier public uniquement
+1. ~~**`dolt sql-server` + Branch Permissions**~~ ✅ Implémenté et testé (14/14)
+2. ~~**Topologie cascade multi-repos**~~ ✅ Validée (20/20)
+3. **Brancher le vrai chunker** sur Dolt (PNG réel → `chunk_metadata`)
+4. **Brancher le fingerprinter audio** sur Dolt (WAV réel → `audio_fingerprints`)
+5. **panini-core en Rust** : client `sqlx` vers Dolt MySQL (port 3306)
+6. **Web UI dashboards** : v_dhatu_distribution, v_format_coverage en temps réel
+7. **DoltHub account** : créer `stephanedenis/panini-public` et publier les 7 dhātu
+8. **DoltLab instance** : déployer pour le repo confidentiel (Docker self-hosted)
+9. **CI/CD pipeline** : dolt push automatisé depuis les tests → DoltHub
