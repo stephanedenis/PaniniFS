@@ -1,6 +1,6 @@
 # Dolt Concept Store pour PaniniFS
 
-**Proof of Concept v2.2** : Architecture universelle 3 couches + axes émotionnels pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références, **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments), et enrichie de **8 sous-primitifs émotionnels neurophysiologiques** (Panksepp/Ekman/Plutchik/Damasio).
+**Proof of Concept v2.2 + v3-alpha** : Architecture universelle 3 couches + axes émotionnels pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références, **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments), enrichie de **8 sous-primitifs émotionnels neurophysiologiques** (Panksepp/Ekman/Plutchik/Damasio), et complétée par une **analyse des gaps de reconstruction** avec un POC phrase-level (122 phrases, 176 attributions mot→atome, profils stylistiques par traducteur).
 
 ## 🎯 Vision
 
@@ -95,10 +95,15 @@ SANDBOX/dolt-concept-store/
 │
 ├── PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md  # Justification modèle émotionnel (v2.2)
 │
+├── # ═══ v3-alpha (Reconstruction phrase-level) ═
+├── ANALYSE_GAPS_RECONSTRUCTION.md     # Diagnostic : peut-on reconstituer un texte ?
+├── schema_v3_reconstruction.sql       # Schéma v3 (4 tables + 2 vues)
+├── poc_reconstruction_phrases.py      # POC phrase-level (7 étapes)
+│
 ├── # ═══ v2.1 (Validation Gutenberg) ═
 ├── schema_gutenberg_provenance.sql    # Schéma provenance (5 tables + 3 views)
 ├── gutenberg_multilingual_validator.py # Pipeline validation 8 étapes
-├── test_gutenberg_validation.py       # Tests Gutenberg (38/38)
+├── test_gutenberg_validation.py       # Tests Gutenberg (39/39)
 ├── gutenberg_corpus/                  # Textes téléchargés (gitignored)
 │   ├── pg11_en.txt                    #   Alice — Carroll (original)
 │   ├── pg55456_fr.txt                 #   Alice — Bué (1869)
@@ -421,20 +426,30 @@ Voir : `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` (justification émotionnelle,
 
 ## 🚧 Prochaines Étapes
 
-### Court terme
+### Court terme (fait)
 - [x] Combler les gaps STRUCTURE et SITUATION dans les formules PanLang
 - [x] Validation empirique sur corpus Gutenberg multilingue (10 traductions, 6 langues)
+- [x] Axes émotionnels v2.2 : 8 sous-primitifs neurophysiologiques
+- [x] Analyse des gaps de reconstruction (ANALYSE_GAPS_RECONSTRUCTION.md)
+- [x] POC v3-alpha : phrase-level avec attribution mot→atome ciblée
+- [x] Profils stylistiques par traducteur (TTR, hapax, ponctuation)
+
+### Court terme (à faire)
 - [ ] Enrichir les dictionnaires de mots-clés (DE, IT, ES, EO, FI) pour réduire le biais français
 - [ ] Ajouter des œuvres supplémentaires (Pinocchio, Grimm, Divine Comédie)
 - [ ] Intégrer les 50 NSM primes manquants (logiques, déictiques, substantifs)
+- [ ] Étendre le POC v3 à tous les segments (pas seulement ch01_falling)
 
-### Moyen terme
+### Moyen terme — Vers la reconstruction
+- [ ] Alignement phrase-par-phrase inter-traductions (Hunalign/Bleualign)
+- [ ] Arbres de dépendances syntaxiques par phrase (via spaCy/Stanza)
+- [ ] Rôles sémantiques (AGENT, PATIENT, GOAL, etc.)
 - [ ] Implémenter l'analyzer Rust avec output JSON → Dolt v2
 - [ ] Validation cross-framework (NSM, Jackendoff, Pustejovsky)
-- [ ] ACL branches (public/confidential/private) sur schéma v2
 - [ ] Analyse statistique de la convergence (bootstrap, intervalles de confiance)
 
-### Long terme
+### Long terme — Codec sémantique complet
+- [ ] Formule de reconstruction : graphe_sémantique + syntaxe + style → texte
 - [ ] Expérimentation de nouveaux primitifs via branches Dolt
 - [ ] Publication du dataset versionné sur DoltHub
 - [ ] Alignement avec BabelNet / WordNet / FrameNet
@@ -450,6 +465,7 @@ Voir : `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` (justification émotionnelle,
 | v2.0.1  | 2025-02    | Revalidation Tier C : 3 retrait, 10 quarantaine          | 44/44 ✅     |
 | v2.1    | 2025-02    | Validation Gutenberg : 10 traductions, 6 langues, 46 segments | 82/82 ✅     |
 | **v2.2**| **2025-02**| **Axes émotionnels : 8 sous-primitifs neurophysiologiques (Panksepp/Ekman/Plutchik/Damasio), EMOTION → couche 3c, 30 primitifs** | **87/87 ✅** |
+| v3-alpha| 2026-02 | Analyse gaps reconstruction + POC phrase-level (122 phrases, 176 attributions mot→atome, profils stylistiques, 4 tables + 2 vues) | 87/87 ✅ |
 
 ## 📄 Licence
 
@@ -459,6 +475,6 @@ Voir `LICENSE` à la racine du projet.
 ---
 
 **Auteur:** PaniniFS Core Team  
-**Version:** 2.2.0  
-**Date:** 2025-02-17  
-**Status:** Proof of Concept (empirically validated + neurophysiological grounding)
+**Version:** 2.2.0 + v3-alpha  
+**Date:** 2026-02-17  
+**Status:** Proof of Concept (empirically validated + neurophysiological grounding + reconstruction gap analysis)
