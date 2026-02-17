@@ -120,14 +120,15 @@ DHATU_INVENTORY = [
 ]
 
 
-def run_dolt_cmd(args, cwd=None):
-    """Execute une commande dolt via subprocess"""
+def run_dolt_cmd(args, cwd=None, input_data=None):
+    """Exécute une commande dolt avec gestion d'erreur"""
     try:
         result = subprocess.run(
             ["dolt"] + args,
             cwd=cwd or DB_DIR,
             capture_output=True,
             text=True,
+            input=input_data,
             check=True
         )
         return result.stdout
@@ -156,9 +157,9 @@ def init_dolt_repo():
     run_dolt_cmd(["init"], cwd=DB_DIR)
     print("✅ Repo Dolt initialisé dans", DB_DIR)
     
-    # Configurer l'utilisateur
-    run_dolt_cmd(["config", "--local", "user.name", "PaniniFS System"])
-    run_dolt_cmd(["config", "--local", "user.email", "panini@localhost"])
+    # Configurer l'utilisateur (--add est requis pour set une config)
+    run_dolt_cmd(["config", "--local", "--add", "user.name", "PaniniFS System"])
+    run_dolt_cmd(["config", "--local", "--add", "user.email", "panini@localhost"])
 
 
 def create_schema():
@@ -181,14 +182,25 @@ def populate_dhatu_definitions():
     """Peuple la table dhatu_definitions"""
     print("🔧 Peuplement des 7 dhātu...")
     
-    for dhatu in DHATU_DEFINITIONS:
-        sql = f"""
-        INSERT INTO dhatu_definitions (id, code, name_fr, name_en, description, components)
-        VALUES ('{dhatu['id']}', '{dhatu['code']}', '{dhatu['name_fr']}', 
-                '{dhatu['name_en']}', '{dhatu['description']}', '{dhatu['components']}');
-        """
-        run_dolt_cmd(["sql", "-q", sql])
+    # Créer un fichier SQL temporaire pour éviter les problèmes d'échappement
+    sql_file = os.path.join(DB_DIR, "populate_dhatu.sql")
     
+    with open(sql_file, 'w', encoding='utf-8') as f:
+        for dhatu in DHATU_DEFINITIONS:
+            # Échappement sécurisé des apostrophes
+            desc_escaped = dhatu['description'].replace("'", "''")
+            name_fr_escaped = dhatu['name_fr'].replace("'", "''")
+            name_en_escaped = dhatu['name_en'].replace("'", "''")
+            
+            f.write(f"""INSERT INTO dhatu_definitions (id, code, name_fr, name_en, description, components)
+VALUES ('{dhatu['id']}', '{dhatu['code']}', '{name_fr_escaped}', '{name_en_escaped}', '{desc_escaped}', '{dhatu['components']}');
+""")
+    
+    # Exécuter le fichier SQL
+    with open(sql_file, 'r', encoding='utf-8') as f:
+        run_dolt_cmd(["sql"], cwd=DB_DIR, input_data=f.read())
+    
+    os.remove(sql_file)
     print(f"✅ {len(DHATU_DEFINITIONS)} dhātu insérés")
 
 
@@ -196,15 +208,23 @@ def populate_dhatu_inventory():
     """Peuple la table dhatu_inventory"""
     print("🔧 Peuplement de l'inventaire v0.1...")
     
-    for item in DHATU_INVENTORY:
-        lexicon = item.get('lexicon_alias', '')
-        sql = f"""
-        INSERT INTO dhatu_inventory (id, category, symbol, stable_id, description, lexicon_alias)
-        VALUES ('{item['id']}', '{item['category']}', '{item['symbol']}', 
-                '{item['stable_id']}', '{item.get('description', '')}', '{lexicon}');
-        """
-        run_dolt_cmd(["sql", "-q", sql])
+    # Créer un fichier SQL temporaire
+    sql_file = os.path.join(DB_DIR, "populate_inventory.sql")
     
+    with open(sql_file, 'w', encoding='utf-8') as f:
+        for item in DHATU_INVENTORY:
+            lexicon = item.get('lexicon_alias', '')
+            desc_escaped = item.get('description', '').replace("'", "''")
+            
+            f.write(f"""INSERT INTO dhatu_inventory (id, category, symbol, stable_id, description, lexicon_alias)
+VALUES ('{item['id']}', '{item['category']}', '{item['symbol']}', '{item['stable_id']}', '{desc_escaped}', '{lexicon}');
+""")
+    
+    # Exécuter le fichier SQL
+    with open(sql_file, 'r', encoding='utf-8') as f:
+        run_dolt_cmd(["sql"], cwd=DB_DIR, input_data=f.read())
+    
+    os.remove(sql_file)
     print(f"✅ {len(DHATU_INVENTORY)} primitives insérées")
 
 
