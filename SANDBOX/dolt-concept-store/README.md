@@ -1,501 +1,288 @@
 # Dolt Concept Store pour PaniniFS
 
-**Proof of Concept** : Intégration de Dolt comme base de données versionnée pour stocker les concepts sémantiques de PaniniFS.
+**Proof of Concept v2** : Architecture universelle 3 couches pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références.
 
 ## 🎯 Vision
 
-PaniniFS décompose l'information jusqu'aux **atomes conceptuels universels** — les 7 dhātu informationnels. Ce POC démontre comment **Dolt**, une base SQL avec workflows Git, peut servir de store versionné pour ces concepts, permettant l'expérimentation, la traçabilité et l'évolution du modèle sémantique.
+PaniniFS décompose l'information en **primitifs conceptuels universels**. Ce POC implémente une architecture rigoureuse de **23 primitifs en 3 couches**, validée par convergence entre 10 domaines scientifiques (théorie de l'information, sémiotique, théorie des catégories, ontologies formelles, linguistique computationnelle).
 
-## 🏗️ Architecture : Séparation des Responsabilités
+Le stockage utilise **Dolt**, une base SQL avec workflows Git, permettant versioning, expérimentation par branches, et traçabilité complète.
+
+## 🏗️ Architecture v2 : 3 Couches de Primitifs Universels
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         RUST CORE (CORE/)                            │
-│  • Lecture et parsing de fichiers                                   │
-│  • Analyse sémantique et extraction des patterns                    │
-│  • Détection des atomes dhātu dans le code/texte                   │
-│  • Calcul du hash sémantique (déduplication cross-langue)          │
-│  • Output: JSON structuré                                           │
-└────────────────────────────┬────────────────────────────────────────┘
-                             │
-                             │ Communication:
-                             │  • subprocess + JSON stdout
-                             │  • named pipe (streaming)
-                             │  • MySQL protocol (direct)
-                             │
-┌────────────────────────────▼────────────────────────────────────────┐
-│                    DOLT CONCEPT STORE (SANDBOX/)                     │
-│  • Stockage des 7 dhātu et de l'inventaire v0.1                    │
-│  • Versioning des mappings sémantiques (Git-like)                  │
-│  • Historique complet des analyses (audit trail)                   │
-│  • Branches pour expérimentation de nouveaux dhātu                 │
-│  • Diff entre versions du modèle sémantique                        │
-│  • Attribution et provenance (traçabilité)                         │
-│  • Déduplication cross-langue (même concept = même hash)           │
-└─────────────────────────────────────────────────────────────────────┘
+╔══════════════════════════════════════════════════════════════════════╗
+║  COUCHE 1 — CATÉGORIES ONTOLOGIQUES (DOLCE/BFO/SUMO convergence)   ║
+║  ┌────────┐ ┌──────────┐ ┌─────────┐ ┌─────────────┐              ║
+║  │  ENT   │ │   PROC   │ │  QUAL   │ │     ABS     │              ║
+║  │ Entité │ │ Processus│ │ Qualité │ │ Abstraction │              ║
+║  │dravya  │ │  kriyā   │ │  guṇa   │ │  sāmānya   │              ║
+║  └────────┘ └──────────┘ └─────────┘ └─────────────┘              ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  COUCHE 2 — OPÉRATIONS STRUCTURELLES (logique/catégories/calcul)   ║
+║  ┌──────┐ ┌─────┐ ┌──────┐ ┌───────┐ ┌──────────┐                ║
+║  │ COMP │ │ ID  │ │ NEG  │ │ QUANT │ │   MOD    │                ║
+║  └──────┘ └─────┘ └──────┘ └───────┘ └──────────┘                ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  COUCHE 3a — PRÉDICATS SÉMANTIQUES (10 dhātu / racines verbales)   ║
+║  ┌────────────┐ ┌───────────┐ ┌──────────┐ ┌──────────────┐       ║
+║  │ MOUVEMENT  │ │ COGNITION │ │PERCEPTION│ │COMMUNICATION │       ║
+║  │   √gam     │ │   √jñā    │ │   √dṛś   │ │    √vac      │       ║
+║  ├────────────┤ ├───────────┤ ├──────────┤ ├──────────────┤       ║
+║  │  CREATION  │ │  EMOTION  │ │EXISTENCE │ │ DESTRUCTION  │       ║
+║  │   √kṛ      │ │   √hṛd    │ │   √as    │ │              │       ║
+║  ├────────────┤ ├───────────┤ └──────────┘ └──────────────┘       ║
+║  │ POSSESSION │ │DOMINATION │                                      ║
+║  │   √labh    │ │   √īś     │                                      ║
+║  └────────────┘ └───────────┘                                      ║
+╠══════════════════════════════════════════════════════════════════════╣
+║  COUCHE 3b — EXTENSIONS NON-VERBALES (dimensions manquantes)       ║
+║  ┌─────────┐ ┌───────┐ ┌──────────┐ ┌──────────┐                 ║
+║  │ ESPACE  │ │ TEMPS │ │   EVAL   │ │   TAXO   │                 ║
+║  └─────────┘ └───────┘ └──────────┘ └──────────┘                 ║
+╚══════════════════════════════════════════════════════════════════════╝
+         4          5          10           4    =  23 primitifs
 ```
 
-### Frontière de responsabilités claire
+### Couverture des 7 dimensions irréductibles
 
-| Rust (Analyse)                  | Dolt (Stockage)                   |
-|---------------------------------|-----------------------------------|
-| Lecture fichiers                | Tables SQL versionnées            |
-| Analyse sémantique              | Commits et branches Git-like      |
-| Extraction des atomes dhātu     | Historique et audit trail         |
-| Calcul des signatures           | Diff entre versions               |
-| Hash sémantique                 | Requêtes et agrégations           |
-| Output JSON                     | Attribution et provenance         |
-
-## 📚 Les 7 Dhātu Informationnels
-
-Les dhātu sont les atomes conceptuels universels de PaniniFS (référence : `Copilotage/knowledge/SEMANTIC_UNIVERSALS_DHATU.md`):
-
-1. **COMM** (communiquer/partager) — canal, source, cible
-2. **ITER** (itérer/répéter) — boucle, fréquence, cumul
-3. **TRANS** (transformer) — entrée, opération, sortie
-4. **DECIDE** (choisir/régler) — critères, seuils, branches
-5. **LOCATE** (localiser/ancrer) — position, contexte, repères
-6. **GROUP** (regrouper/structurer) — collection, appartenance
-7. **SEQ** (séquencer/ordonner) — ordre, dépendances, timeline
+| Dimension  | Couverture PanLang actuelle | Primitifs responsables        |
+|------------|----------------------------|-------------------------------|
+| PROCESSUS  | ✅ Forte (100% des concepts)| 10 dhātu                     |
+| ENTITÉ     | ⚠️ Partielle               | EXISTENCE, POSSESSION         |
+| QUALITÉ    | ⚠️ Partielle               | EVAL (extension)             |
+| RELATION   | ⚠️ Partielle               | TAXO (extension)             |
+| MODALITÉ   | ✅ Via couche 2             | MOD, QUANT                   |
+| STRUCTURE  | ❌ Gap identifié            | COMP, ID, NEG (à intégrer)   |
+| SITUATION  | ❌ Gap identifié            | ESPACE, TEMPS (à intégrer)   |
 
 ## 📦 Structure du POC
 
 ```
 SANDBOX/dolt-concept-store/
-├── README.md                 # Ce fichier
-├── requirements.txt          # Dépendances Python (doltpy)
-├── schema.sql               # Schéma SQL complet des tables Dolt
-├── init_dolt.py             # Initialisation et seed de la DB
-├── demo_workflow.py         # Démonstration du workflow complet
-├── rust_bridge_stub.py      # Stub du bridge Rust ↔ Dolt
-├── .gitignore              # Ignore la DB locale
-└── panini-concepts-db/      # Base Dolt (ignorée par git)
-    └── .dolt/              # Repo Dolt (comme .git)
+├── README.md                          # Ce fichier
+├── requirements.txt                   # Dépendances Python
+│
+├── # ═══ v1 (POC initial) ═══════════
+├── schema.sql                         # Schéma v1 (7 dhātu)
+├── init_dolt.py                       # Init + seed v1
+├── demo_workflow.py                   # Démo workflow v1
+├── rust_bridge_stub.py                # Stub bridge Rust ↔ Dolt
+│
+├── # ═══ Unified POC ════════════════
+├── schema_unified.sql                 # Schéma 3-tier (17 tables)
+├── dolt_unified_storage.py            # POC stockage unifié
+├── demo_multilingual_dedup.py         # Dédup cross-langue (5035 phrases)
+├── setup_dolt_acl.py                  # Config ACL branches
+├── test_branch_acl.py                 # Tests ACL (14/14)
+├── test_cascade_topology.py           # Tests cascade (20/20)
+│
+├── # ═══ v2 (Architecture 3 couches) ═
+├── schema_v2_universals.sql           # Schéma v2 (10 tables + 4 views)
+├── import_panlang_v2.py               # Import PanLang → Dolt v2
+├── test_v2_validation.py              # Tests validation v2 (38/38)
+├── UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md  # Revue 72 refs
+├── ARCHITECTURE_UNIFIED_DOLT.md       # Doc architecture
+│
+├── panini-concepts-db/                # Base Dolt v1 (ignorée par git)
+└── panini-unified-db/                 # Base Dolt v2 (ignorée par git)
 ```
 
-## 🚀 Installation et Setup
+## 🚀 Quick Start — Architecture v2
 
 ### Étape 1 : Installer Dolt
 
-Dolt est une base SQL avec Git workflows intégré.
-
-**Linux/macOS:**
 ```bash
 sudo bash -c 'curl -L https://github.com/dolthub/dolt/releases/latest/download/install.sh | bash'
+dolt version  # v1.82.1+
 ```
 
-**Vérifier l'installation:**
-```bash
-dolt version
-```
-
-Documentation complète : https://docs.dolthub.com/introduction/installation
-
-### Étape 2 : Installer les dépendances Python (optionnel)
+### Étape 2 : Importer PanLang avec le schéma v2
 
 ```bash
 cd SANDBOX/dolt-concept-store/
-pip install -r requirements.txt
-```
-
-**Note:** Le POC utilise principalement `subprocess` pour appeler la CLI `dolt` directement, ce qui est plus fiable que `doltpy` pour les versions récentes de Dolt.
-
-### Étape 3 : Initialiser la base de données
-
-```bash
-python init_dolt.py
+python3 import_panlang_v2.py
 ```
 
 Ce script :
-- ✅ Crée un repo Dolt dans `./panini-concepts-db/`
-- ✅ Applique le schéma SQL (`schema.sql`)
-- ✅ Peuple les 7 dhātu dans `dhatu_definitions`
-- ✅ Peuple l'inventaire v0.1 dans `dhatu_inventory`
-- ✅ Fait un commit initial : "seed: 7 dhātu + inventory v0.1"
+- ✅ Initialise la DB Dolt (`panini-unified-db/`)
+- ✅ Applique le schéma 3 couches (10 tables + 4 views)
+- ✅ Seed les 23 primitifs (4 onto + 5 struct + 10 pred + 4 ext)
+- ✅ Importe 107 concepts PanLang nettoyés (48 metadata exclus)
+- ✅ Classifie en quality tiers (A/B/C) avec audit trail
+- ✅ Calcule la couverture des 7 dimensions irréductibles
+- ✅ Commit dans Dolt
 
-### Étape 4 : Exécuter la démonstration
-
-```bash
-python demo_workflow.py
-```
-
-Cette démo montre :
-- 📝 Déduplication sémantique cross-langue ("Hello world" = "Bonjour monde")
-- 📊 Analyse de fichiers avec vecteurs dhātu
-- 🌿 Création de branches expérimentales
-- 🔍 Diff entre branches (main vs experiment)
-- 📜 Historique et audit trail
-- 🔎 Requêtes sémantiques avancées
-
-### Étape 5 : Explorer le bridge Rust ↔ Dolt
+### Étape 3 : Valider l'import
 
 ```bash
-python rust_bridge_stub.py
+python3 test_v2_validation.py   # 38/38 tests ✅
 ```
 
-Ce stub documente :
-- 📡 Contrat d'interface JSON entre Rust et Dolt
-- 🔧 3 options de communication (subprocess, named pipe, MySQL protocol)
-- 💡 Exemples de code Rust pour connexion directe
-- 📝 Comment requêter les résultats depuis n'importe quel langage
+## 📊 Schéma v2 — 10 Tables + 4 Vues
 
-## 📊 Schéma des Tables
+### Layer 1 : `ontological_categories`
+4 catégories convergentes DOLCE/BFO/SUMO.
 
-### 1. `dhatu_definitions`
-Définition des 7 dhātu informationnels.
+| id   | name_fr      | name_sa   | dolce_equiv | bfo_equiv                       |
+|------|-------------|-----------|-------------|---------------------------------|
+| ENT  | Entité      | dravya    | Endurant    | Continuant                      |
+| PROC | Processus   | kriyā     | Perdurant   | Occurrent                       |
+| QUAL | Qualité     | guṇa      | Quality     | Specifically Dependent Continuant|
+| ABS  | Abstraction | sāmānya  | Abstract    | Generically Dependent Continuant|
 
+### Layer 2 : `structural_operations`
+5 opérations issues de la théorie des catégories et de la logique.
+
+| id    | name_en      | category_theory    | logical_equiv       |
+|-------|--------------|--------------------|---------------------|
+| COMP  | Composition  | Composition ∘      | ∧ (conjunction)     |
+| ID    | Identity     | Identity morphism  | = (identity)        |
+| NEG   | Negation     | Complement         | ¬ (negation)        |
+| QUANT | Quantification| Quantifier        | ∀/∃ (quantifiers)   |
+| MOD   | Modality     | Functor            | □/◇ (modal)         |
+
+### Layer 3a : `semantic_predicates`
+10 dhātu avec mappings cross-frameworks.
+
+| id            | dhātu  | NSM prime         | Vendler aspect | Jackendoff      |
+|---------------|--------|--------------------|----------------|-----------------|
+| MOUVEMENT     | √gam   | MOVE               | activity       | GO              |
+| COGNITION     | √jñā   | THINK, KNOW        | state          | Conceptual      |
+| PERCEPTION    | √dṛś   | SEE, HEAR, FEEL    | achievement    | Perceptual      |
+| COMMUNICATION | √vac   | SAY                | activity       | Expressive      |
+| CREATION      | √kṛ    | MAKE, DO           | accomplishment | CAUSE+BECOME    |
+| EMOTION       | √hṛd   | FEEL               | state          | Affective       |
+| EXISTENCE     | √as    | EXIST, LIVE, DIE   | state          | BE              |
+| DESTRUCTION   |        | (inverse CREATION) | achievement    | CAUSE+NOT+BE    |
+| POSSESSION    | √labh  | HAVE               | state          | HAVE            |
+| DOMINATION    | √īś    | WANT, CAN          | state          | Volitional      |
+
+### Layer 3b : `nonverbal_extensions`
+4 extensions pour combler les gaps dimensionnels.
+
+| id     | dimension | NSM primes                                |
+|--------|-----------|-------------------------------------------|
+| ESPACE | SITUATION | WHERE, HERE, ABOVE, BELOW, FAR, NEAR      |
+| TEMPS  | SITUATION | WHEN, NOW, BEFORE, AFTER, A LONG TIME     |
+| EVAL   | QUALITÉ   | GOOD, BAD                                 |
+| TAXO   | RELATION  | KIND OF, PART OF                          |
+
+### Tables d'import
+
+| Table               | Contenu                                       | Rows  |
+|---------------------|-----------------------------------------------|-------|
+| `concepts`          | 107 concepts PanLang nettoyés                 | 107   |
+| `composition_rules` | Décomposition atome par atome                 | 250   |
+| `dimension_coverage`| Couverture des 7 dimensions par concept       | 254   |
+| `quality_audit`     | Issues identifiées (tautologies, absurdités)  | 38    |
+
+### 4 Vues analytiques
+
+| Vue                        | Description                              |
+|----------------------------|------------------------------------------|
+| `v_atom_distribution`      | Fréquence d'usage de chaque atome        |
+| `v_quality_summary`        | Résumé par tier de qualité               |
+| `v_dimension_gap_analysis` | Analyse des gaps dimensionnels           |
+| `v_problematic_concepts`   | Concepts flaggés (tier C, audit issues)  |
+
+## � Requêtes utiles
+
+### Distribution des atomes
 ```sql
-CREATE TABLE dhatu_definitions (
-    id VARCHAR(20) PRIMARY KEY,
-    code VARCHAR(10) NOT NULL UNIQUE,
-    name_fr VARCHAR(100),
-    name_en VARCHAR(100),
-    description TEXT,
-    components TEXT,  -- JSON: ["canal", "source", "cible"]
-    created_at TIMESTAMP
-);
+SELECT * FROM v_atom_distribution ORDER BY usage_count DESC;
 ```
 
-### 2. `dhatu_inventory`
-Inventaire v0.1 des primitives conceptuelles.
-
+### Concepts problématiques (tier C)
 ```sql
-CREATE TABLE dhatu_inventory (
-    id VARCHAR(50) PRIMARY KEY,
-    category VARCHAR(50),      -- AGENT, ACTION, PATIENT, etc.
-    symbol VARCHAR(100),
-    stable_id VARCHAR(100),    -- concept:book, action:hunt, etc.
-    description TEXT,
-    lexicon_alias VARCHAR(100),
-    created_at TIMESTAMP
-);
+SELECT * FROM v_problematic_concepts;
 ```
 
-### 3. `semantic_mappings`
-Mappings sémantiques avec déduplication cross-langue.
-
+### Gaps dimensionnels
 ```sql
-CREATE TABLE semantic_mappings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    content_hash VARCHAR(64),     -- SHA256 du texte original
-    source_text TEXT,
-    language VARCHAR(10),         -- fr, en, es, etc.
-    dhatu_signature JSON,         -- {"COMM": 0.9, "TRANS": 0.1, ...}
-    semantic_hash VARCHAR(64),    -- Hash du concept (identique entre langues)
-    analyzed_at TIMESTAMP,
-    INDEX idx_semantic_hash (semantic_hash)
-);
+SELECT * FROM v_dimension_gap_analysis;
 ```
 
-**Déduplication:** Textes sémantiquement équivalents partagent le même `semantic_hash`, indépendamment de la langue.
-
-### 4. `analysis_results`
-Résultats d'analyse par fichier.
-
+### Composition d'un concept
 ```sql
-CREATE TABLE analysis_results (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    file_path VARCHAR(500),
-    file_hash VARCHAR(64),
-    dhatu_vector JSON,           -- {"COMM": 0.3, "ITER": 0.1, ...}
-    dominant_dhatu VARCHAR(20),  -- Dhātu dominant
-    analysis_version VARCHAR(20),
-    metadata JSON,
-    created_at TIMESTAMP,
-    INDEX idx_dominant_dhatu (dominant_dhatu)
-);
+SELECT c.id, c.formule_simple, cr.atom_id, cr.position
+FROM concepts c
+JOIN composition_rules cr ON c.id = cr.concept_id
+WHERE c.id = 'AMOUR'
+ORDER BY cr.position;
 ```
 
-### 5. `attribution_log`
-Log d'attribution et provenance (traçabilité).
-
+### Concepts par catégorie ontologique
 ```sql
-CREATE TABLE attribution_log (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    entry_type VARCHAR(50),      -- 'semantic_mapping', 'analysis_result'
-    entry_id INT,
-    semantic_hash VARCHAR(64),
-    source VARCHAR(200),         -- URL, file path, etc.
-    author VARCHAR(100),
-    license VARCHAR(100),
-    attribution_text TEXT,
-    logged_at TIMESTAMP
-);
+SELECT sp.ontological_category, COUNT(cr.concept_id) AS concepts
+FROM composition_rules cr
+JOIN semantic_predicates sp ON cr.atom_id = sp.id
+GROUP BY sp.ontological_category;
 ```
 
-## 🔄 Workflow Git-like avec Dolt
+## 📈 Résultats de l'Import v2
 
-### Branches
-```bash
-cd panini-concepts-db
+| Métrique                  | Valeur                |
+|---------------------------|-----------------------|
+| Concepts importés         | 107                   |
+| Entrées metadata exclues  | 48                    |
+| Tier A (haute qualité)    | 49                    |
+| Tier B (qualité moyenne)  | 45                    |
+| Tier C (problématique)    | 13                    |
+| Règles de composition     | 250                   |
+| Entrées couverture dim.   | 254                   |
+| Issues d'audit            | 38                    |
+| Tests de validation       | 38/38 ✅              |
 
-# Créer une branche expérimentale
-dolt branch experiment/new-dhatu
+### Issues identifiées
 
-# Basculer sur la branche
-dolt checkout experiment/new-dhatu
+| Type              | Sévérité | Count | Exemple                       |
+|-------------------|----------|-------|-------------------------------|
+| Tautologie        | warning  | 23    | ÉTOILE = COMMUNICATION        |
+| Low validity      | critical | 12    | DÉGOÛT (validity 0.16)        |
+| Formule absurde   | critical | 3     | MUSIQUE = DESTRUCTION+MOUVEMENT|
 
-# Ajouter un nouveau dhātu candidat
-dolt sql -q "INSERT INTO dhatu_definitions ..."
+## 🎓 Fondements Scientifiques
 
-# Commit
-dolt add .
-dolt commit -m "experiment: add COMPOSE dhatu"
-```
+L'architecture v2 repose sur la convergence de 10 domaines :
 
-### Diff
-```bash
-# Voir les différences entre branches
-dolt diff main experiment/new-dhatu
+1. **Théorie de l'information** — Shannon, Kolmogorov, MDL
+2. **Communication sémantique** — Rate-distortion, Information Bottleneck
+3. **Calculabilité** — SKI combinateurs, Church encoding
+4. **Théorie des catégories** — Lawvere 1963, constructions universelles
+5. **Ontologies formelles** — DOLCE, BFO, SUMO
+6. **NSM** — Wierzbicka (65 primes)
+7. **Sémantique lexicale** — Jackendoff, Pustejovsky (Generative Lexicon)
+8. **Sémiotique** — Peirce (triadic), Hjelmslev
+9. **Grammaire universelle** — Chomsky (Merge), Montague
+10. **Tradition sanskrite** — Dhātupāṭha, Pāṇini, Bhartṛhari
 
-# Ou via SQL
-dolt sql -q "SELECT * FROM dolt_diff_dhatu_definitions"
-```
-
-### Merge
-```bash
-# Merger l'expérimentation si concluante
-dolt checkout main
-dolt merge experiment/new-dhatu
-```
-
-### Historique
-```bash
-# Voir l'historique complet
-dolt log
-
-# Audit trail détaillé
-dolt log --oneline
-```
-
-## 🌐 Options de Communication Rust ↔ Dolt
-
-### Option 1 : Subprocess (recommandé pour MVP)
-**Le plus simple.**
-
-```python
-# Python bridge
-import subprocess
-import json
-
-# Rust analyzer output JSON sur stdout
-result = subprocess.run(
-    ["rust-analyzer", "analyze", "src/main.rs", "--format", "json"],
-    capture_output=True, text=True
-)
-
-# Parse et insère dans Dolt
-analysis = json.loads(result.stdout)
-subprocess.run(
-    ["dolt", "sql", "-q", f"INSERT INTO analysis_results ..."],
-    cwd="panini-concepts-db"
-)
-```
-
-### Option 2 : Named Pipe (pour streaming)
-**Temps réel, watch mode.**
-
-```bash
-# Terminal 1: Rust analyzer en daemon
-mkfifo /tmp/panini-analyzer
-rust-analyzer watch --output-pipe /tmp/panini-analyzer
-
-# Terminal 2: Python bridge listener
-python bridge_daemon.py --input-pipe /tmp/panini-analyzer
-```
-
-### Option 3 : MySQL Protocol (pour production)
-**Rust → Dolt direct, pas d'intermédiaire.**
-
-```rust
-// Rust avec driver MySQL
-use mysql::*;
-
-let pool = Pool::new("mysql://root@localhost:3306/panini-concepts-db")?;
-let mut conn = pool.get_conn()?;
-
-conn.exec_drop(
-    "INSERT INTO analysis_results (file_path, dhatu_vector, ...) VALUES (?, ?, ...)",
-    (path, json, ...)
-)?;
-
-// Commit via SQL
-conn.exec_drop("CALL dolt_commit('-am', 'Analysis from Rust')", ())?;
-```
-
-Démarrer le serveur SQL :
-```bash
-cd panini-concepts-db
-dolt sql-server --host 0.0.0.0 --port 3306
-```
-
-## 🔍 Requêter les Concepts
-
-### Via CLI
-```bash
-cd panini-concepts-db
-
-# Les 7 dhātu
-dolt sql -q "SELECT code, name_fr, name_en FROM dhatu_definitions"
-
-# Analyses récentes
-dolt sql -q "SELECT file_path, dominant_dhatu FROM analysis_results ORDER BY created_at DESC LIMIT 10"
-
-# Déduplication cross-langue
-dolt sql -q "SELECT * FROM semantic_deduplication"
-```
-
-### Via MySQL Client
-```bash
-mysql -h 127.0.0.1 -u root panini-concepts-db
-
-mysql> SELECT * FROM dhatu_definitions;
-mysql> SELECT * FROM analysis_results WHERE dominant_dhatu = 'TRANS';
-```
-
-### Via Python/Rust/autre
-```python
-import mysql.connector
-
-conn = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    database='panini-concepts-db'
-)
-
-cursor = conn.cursor()
-cursor.execute("SELECT * FROM dhatu_definitions")
-for row in cursor:
-    print(row)
-```
-
-## 📈 Cas d'Usage
-
-### 1. Expérimentation de Nouveaux Dhātu
-```bash
-# Créer une branche
-dolt checkout -b experiment/spatial-dhatu
-
-# Ajouter un dhātu spatial candidat
-dolt sql -q "INSERT INTO dhatu_definitions (id, code, name_fr, name_en) 
-             VALUES ('dhatu_spatial', 'SPATIAL', 'Spatialiser', 'Spatialize')"
-
-# Tester sur un corpus
-python analyze_corpus.py --dhatu spatial
-
-# Si concluant, merger dans main
-dolt checkout main
-dolt merge experiment/spatial-dhatu
-```
-
-### 2. Audit Trail des Analyses
-```bash
-# Qui a analysé quoi, quand?
-dolt log --table analysis_results
-
-# Voir l'évolution d'un fichier spécifique
-dolt sql -q "SELECT * FROM analysis_results WHERE file_path = 'src/main.rs' ORDER BY created_at"
-
-# Attribution et provenance
-dolt sql -q "SELECT * FROM attribution_log WHERE entry_type = 'analysis_result'"
-```
-
-### 3. Déduplication Cross-Langue
-```sql
--- Trouver les concepts partagés entre langues
-SELECT 
-    semantic_hash,
-    COUNT(DISTINCT language) as language_count,
-    GROUP_CONCAT(source_text SEPARATOR ' | ') as translations
-FROM semantic_mappings
-GROUP BY semantic_hash
-HAVING language_count > 1;
-```
-
-### 4. Évolution du Modèle Sémantique
-```bash
-# Diff entre versions du modèle
-dolt diff v0.1 v0.2 dhatu_definitions
-
-# Voir l'impact d'un changement de modèle
-dolt checkout v0.1
-python analyze_corpus.py --output results_v0.1.json
-
-dolt checkout v0.2
-python analyze_corpus.py --output results_v0.2.json
-
-diff results_v0.1.json results_v0.2.json
-```
-
-## 🎓 Références
-
-### Documentation PaniniFS
-- `Copilotage/knowledge/SEMANTIC_UNIVERSALS_DHATU.md` — Les 7 dhātu informationnels
-- `docs/en/research/dhatu-inventory-v0-1.md` — Inventaire des primitives v0.1
-
-### Documentation Dolt
-- [Installation](https://docs.dolthub.com/introduction/installation)
-- [Getting Started](https://docs.dolthub.com/introduction/getting-started)
-- [Git for Data](https://www.dolthub.com/blog/2021-09-17-database-version-control/)
-- [SQL Server](https://docs.dolthub.com/sql-reference/server)
+Voir : `UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md` (72 références, 886 lignes)
 
 ## 🚧 Prochaines Étapes
 
-### Court terme (POC validé)
-- [ ] Implémenter l'analyzer Rust avec output JSON conforme
-- [ ] Choisir l'option de communication (recommandation: subprocess → MySQL)
-- [ ] Intégrer le bridge dans le workflow de CI/CD
-- [ ] Tester sur un corpus réel de fichiers
+### Court terme
+- [ ] Combler les gaps STRUCTURE et SITUATION dans les formules PanLang
+- [ ] Intégrer les 50 NSM primes manquants (logiques, déictiques, substantifs)
+- [ ] Tests de couverture sur corpus PanLang v2
 
-### Moyen terme (production)
-- [ ] Serveur Dolt SQL permanent avec backups
-- [ ] API REST au-dessus de Dolt (optionnel)
-- [ ] Tableaux de bord pour visualiser les distributions dhātu
-- [ ] Synchronisation multi-repos (DoltHub remote)
+### Moyen terme
+- [ ] Implémenter l'analyzer Rust avec output JSON → Dolt v2
+- [ ] Validation cross-framework (NSM, Jackendoff, Pustejovsky)
+- [ ] ACL branches (public/confidential/private) sur schéma v2
 
-### Long terme (recherche)
-- [ ] Expérimentation de nouveaux dhātu via branches
-- [ ] Analyse comparative cross-projets
-- [ ] Détection automatique de patterns sémantiques
-- [ ] Publication du dataset sémantique versionné
+### Long terme
+- [ ] Expérimentation de nouveaux primitifs via branches Dolt
+- [ ] Publication du dataset versionné sur DoltHub
+- [ ] Alignement avec BabelNet / WordNet / FrameNet
 
-## 📝 Notes de Design
+## 📝 Historique des Versions
 
-### Pourquoi Dolt?
-
-1. **Versioning natif** : Tout l'historique des concepts est préservé
-2. **Branches** : Expérimentation sans risque
-3. **Diff** : Comparer les versions du modèle sémantique
-4. **SQL standard** : Requêtes familières, pas de nouveau langage
-5. **Git workflows** : Commit, merge, branch, log, diff
-6. **MySQL compatible** : S'intègre avec tous les outils existants
-7. **Provenance** : Traçabilité complète via commits
-
-### Pourquoi séparer Rust et Dolt?
-
-**Séparation des responsabilités :**
-- **Rust** : Excellent pour analyse haute performance, parsing, extraction
-- **Dolt** : Excellent pour stockage versionné, requêtes, collaboration
-
-**Flexibilité :**
-- Changer l'analyzer sans toucher au store
-- Expérimenter avec plusieurs analyseurs en parallèle
-- Requêter depuis n'importe quel langage/outil
-
-**Scalabilité :**
-- Distribuer l'analyse (plusieurs workers Rust)
-- Centraliser le stockage (un seul Dolt server)
-- Synchronisation via DoltHub (remotes Git-like)
-
-## 🤝 Contribution
-
-Ce POC est un point de départ pour discussion et itération.
-
-**Feedback bienvenu sur :**
-- Le schéma des tables
-- Les options de communication Rust ↔ Dolt
-- Les cas d'usage prioritaires
-- L'ergonomie du workflow
+| Version | Date       | Description                                          | Tests      |
+|---------|------------|------------------------------------------------------|------------|
+| v0.1    | 2025-01-15 | POC initial : 7 dhātu, dédup cross-langue            | ✅          |
+| v1.0    | 2025-02    | Unified storage : 17 tables, 3-tier, cascade, ACL    | 34/34 ✅    |
+| **v2.0**| **2025-02**| **3-layer universals : 23 primitifs, 107 concepts**  | **38/38 ✅**|
 
 ## 📄 Licence
 
@@ -505,6 +292,6 @@ Voir `LICENSE` à la racine du projet.
 ---
 
 **Auteur:** PaniniFS Core Team  
-**Version:** 0.1.0  
-**Date:** 2025-01-15  
-**Status:** Proof of Concept
+**Version:** 2.0.0  
+**Date:** 2025-02-17  
+**Status:** Proof of Concept (validated)
