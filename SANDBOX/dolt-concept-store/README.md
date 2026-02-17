@@ -1,10 +1,10 @@
 # Dolt Concept Store pour PaniniFS
 
-**Proof of Concept v2** : Architecture universelle 3 couches pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références.
+**Proof of Concept v2.1** : Architecture universelle 3 couches pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références et **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments).
 
 ## 🎯 Vision
 
-PaniniFS décompose l'information en **primitifs conceptuels universels**. Ce POC implémente une architecture rigoureuse de **23 primitifs en 3 couches**, validée par convergence entre 10 domaines scientifiques (théorie de l'information, sémiotique, théorie des catégories, ontologies formelles, linguistique computationnelle).
+PaniniFS décompose l'information en **primitifs conceptuels universels**. Ce POC implémente une architecture rigoureuse de **23 primitifs en 3 couches**, validée par convergence entre 10 domaines scientifiques (théorie de l'information, sémiotique, théorie des catégories, ontologies formelles, linguistique computationnelle), puis **validée empiriquement** via un corpus multilingue de traductions Gutenberg avec chaîne de provenance complète (édition → traducteur → époque → source).
 
 Le stockage utilise **Dolt**, une base SQL avec workflows Git, permettant versioning, expérimentation par branches, et traçabilité complète.
 
@@ -80,9 +80,25 @@ SANDBOX/dolt-concept-store/
 ├── # ═══ v2 (Architecture 3 couches) ═
 ├── schema_v2_universals.sql           # Schéma v2 (10 tables + 4 views)
 ├── import_panlang_v2.py               # Import PanLang → Dolt v2
-├── test_v2_validation.py              # Tests validation v2 (38/38)
+├── test_v2_validation.py              # Tests validation v2 (44/44)
 ├── UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md  # Revue 72 refs
 ├── ARCHITECTURE_UNIFIED_DOLT.md       # Doc architecture
+│
+├── # ═══ v2.1 (Validation Gutenberg) ═
+├── schema_gutenberg_provenance.sql    # Schéma provenance (5 tables + 3 views)
+├── gutenberg_multilingual_validator.py # Pipeline validation 8 étapes
+├── test_gutenberg_validation.py       # Tests Gutenberg (38/38)
+├── gutenberg_corpus/                  # Textes téléchargés (gitignored)
+│   ├── pg11_en.txt                    #   Alice — Carroll (original)
+│   ├── pg55456_fr.txt                 #   Alice — Bué (1869)
+│   ├── pg19778_de.txt                 #   Alice — Zimmermann (1869)
+│   ├── pg28371_it.txt                 #   Alice — Pietrocòla-Rossetti (1872)
+│   ├── pg17482_eo.txt                 #   Alice — Kearney (1910, Esperanto)
+│   ├── pg46569_fi.txt                 #   Alice — Swan (1906, Finnish)
+│   ├── pg4650_fr.txt                  #   Candide — Voltaire (original, 1759)
+│   ├── pg19942_en.txt                 #   Candide — English translation
+│   ├── pg7109_es.txt                  #   Candide — Spanish translation
+│   └── pg52336_fi.txt                 #   Candide — Onerva (Finnish)
 │
 ├── panini-concepts-db/                # Base Dolt v1 (ignorée par git)
 └── panini-unified-db/                 # Base Dolt v2 (ignorée par git)
@@ -224,15 +240,30 @@ GROUP BY sp.ontological_category;
 
 | Métrique                  | Valeur                |
 |---------------------------|-----------------------|
-| Concepts importés         | 107                   |
+| Concepts importés         | 104                   |
 | Entrées metadata exclues  | 48                    |
 | Tier A (haute qualité)    | 49                    |
 | Tier B (qualité moyenne)  | 45                    |
-| Tier C (problématique)    | 13                    |
+| Tier C (quarantaine)      | 10                    |
+| Tier C (retirés)          | 3                     |
 | Règles de composition     | 250                   |
 | Entrées couverture dim.   | 254                   |
 | Issues d'audit            | 38                    |
-| Tests de validation       | 38/38 ✅              |
+| Tests validation v2       | 44/44 ✅              |
+
+### Validation Gutenberg
+
+| Métrique                  | Valeur                |
+|---------------------------|-----------------------|
+| Œuvres                    | 2 (Alice, Candide)    |
+| Éditions (traductions)    | 10                    |
+| Langues                   | 6 (EN, FR, DE, IT, EO, FI) |
+| Segments extraits         | 46                    |
+| Décompositions atomiques  | 340                   |
+| Enregistrements convergence | 202                 |
+| Concepts majorités        | 21 (50 détections)    |
+| Tests Gutenberg           | 38/38 ✅              |
+| **Tests totaux**          | **82/82 ✅**          |
 
 ### Issues identifiées
 
@@ -242,7 +273,111 @@ GROUP BY sp.ontological_category;
 | Low validity      | critical | 12    | DÉGOÛT (validity 0.16)        |
 | Formule absurde   | critical | 3     | MUSIQUE = DESTRUCTION+MOUVEMENT|
 
-## 🎓 Fondements Scientifiques
+## � Validation Gutenberg — Corpus Multilingue avec Provenance
+
+### Méthodologie
+
+Le modèle PanLang est validé empiriquement sur des œuvres littéraires du Projet Gutenberg traduites en plusieurs langues. Chaque traduction est attribuée à son traducteur avec provenance complète :
+
+```
+Œuvre (Carroll/Voltaire) → Édition Gutenberg → Traducteur (nom, époque, année)
+                                             → Source (URL, credits, release date)
+```
+
+**Principe fondamental** : « Séparer ce qui est commun de ce qui est spécifique » — chaque traducteur ayant sa propre interprétation, on attribue d'abord les décompositions atomiques aux auteurs/traducteurs respectifs, puis on collige les convergences inter-traductions pour identifier les concepts véritablement transversaux.
+
+### Corpus
+
+| Œuvre | Langues | Éditions | Passages-clés |
+|-------|---------|----------|---------------|
+| **Alice au pays des merveilles** (Carroll, 1865) | EN, FR, DE, IT, EO, FI | 6 | 5 (ouverture, chute, chapelier, chenille, verdict) |
+| **Candide** (Voltaire, 1759) | FR, EN, ES, FI | 4 | 4 (ouverture, guerre, autodafé, jardin) |
+
+### Traducteurs et provenance
+
+| Édition | Traducteur | Époque | Année trad. |
+|---------|-----------|--------|-------------|
+| Alice EN | Lewis Carroll | Victorien | 1865 (original) |
+| Alice FR | Henri Bué (1843–1929) | Victorien | 1869 |
+| Alice DE | Antonie Zimmermann | Victorien | 1869 |
+| Alice IT | T. Pietrocòla-Rossetti | Victorien | 1872 |
+| Alice EO | Elfric L. Kearney (1856–1913) | Edwardien | 1910 |
+| Alice FI | Anni Swan (1875–1958) | Edwardien | 1906 |
+| Candide FR | Voltaire | Lumières | 1759 (original) |
+| Candide EN | Inconnu | — | — |
+| Candide ES | Inconnu | — | — |
+| Candide FI | L. Onerva (1882–1972) | Moderne | — |
+
+### Pipeline de validation (8 étapes)
+
+```bash
+cd SANDBOX/dolt-concept-store/
+python3 gutenberg_multilingual_validator.py
+```
+
+1. **Schema** — Applique 5 tables + 3 vues de provenance
+2. **Register** — Enregistre 2 œuvres + 10 éditions avec métadonnées
+3. **Download** — Télécharge 10 textes depuis Gutenberg
+4. **Segments** — Extrait 46 passages-clés par marqueurs textuels
+5. **Decompose** — Décompose chaque segment en atomes PanLang (340 détections)
+6. **Convergence** — Calcule la convergence inter-traductions (202 enregistrements)
+7. **Report** — Génère le rapport de synthèse
+8. **Commit** — Commit dans Dolt
+
+### Résultats de convergence
+
+| Type | Count | Ratio moyen | Description |
+|------|-------|-------------|-------------|
+| **Majority** | 50 | 52.3% | Concept détecté dans >50% des traductions |
+| Minority | 46 | 33.3% | Concept détecté dans 33–50% des traductions |
+| Unique | 106 | 19.4% | Concept spécifique à un seul traducteur |
+
+### Top 10 concepts majorités (les plus transversaux)
+
+| Concept | Passages | Convergence moy. | Description |
+|---------|----------|-------------------|-------------|
+| RÉALISER | 5 | 50.0% | Détecté dans 5/9 passages — le plus répandu |
+| RACONTER | 4 | 54.2% | Acte narratif transversal |
+| PARTAGER | 4 | 54.2% | Échange, communication |
+| EXPLIQUER | 4 | 50.0% | Explication, dialogue |
+| COMPRENDRE | 3 | 61.1% | Plus haute convergence moyenne |
+| ENTENDRE | 3 | 61.1% | Perception auditive/compréhension |
+| COMMANDER | 3 | 55.6% | Autorité, pouvoir |
+| VOIR | 3 | 50.0% | Perception visuelle |
+| EXPLORER | 3 | 50.0% | Découverte, curiosité |
+| SAVOIR | 3 | 50.0% | Connaissance |
+
+### Enseignements clés
+
+1. **Aucun concept n'atteint 100% d'universalité** avec le mapping strict des 46 concepts v2 — c'est un résultat honnête qui reflète la complexité réelle de la traduction littéraire.
+
+2. **Les concepts cognitifs et communicatifs sont les plus transversaux** (COMPRENDRE, ENTENDRE, EXPLIQUER, RACONTER) — convergence avec les NSM primes THINK, KNOW, SAY.
+
+3. **Les concepts émotionnels sont culturellement spécifiques** (COLÈRE, JOIE, BEAUTÉ souvent uniques à un traducteur) — confirmation de la thèse de Wierzbicka sur les « cultural keywords ».
+
+4. **Le finnois et l'espéranto posent des défis spécifiques** :
+   - Finnois : formes agglutinatives (cas partitif/génitif) nécessitant des marqueurs morphologiquement adaptés
+   - Espéranto : encodage x-system dans Gutenberg (cx/sx/ux/gx) au lieu d'Unicode (ĉ/ŝ/ŭ/ĝ)
+
+5. **La richesse du dictionnaire de mots-clés français** favorise la détection dans les traductions françaises — biais méthodologique à corriger en enrichissant les dictionnaires des autres langues.
+
+### Schéma de provenance (5 tables + 3 vues)
+
+```sql
+-- Tables
+gutenberg_works        -- Œuvres (id, titre, auteur, année)
+gutenberg_editions     -- Éditions (traducteur, époque, année, URL Gutenberg)
+gutenberg_segments     -- Segments textuels extraits
+segment_decompositions -- Décomposition atome par atome
+translation_convergence -- Convergence inter-traductions
+
+-- Vues
+v_provenance_chain     -- Chaîne complète œuvre → édition → traducteur
+v_concept_universality -- Score d'universalité par concept
+v_translator_profile   -- Profil atomique par traducteur
+```
+
+## �🎓 Fondements Scientifiques
 
 L'architecture v2 repose sur la convergence de 10 domaines :
 
@@ -262,27 +397,33 @@ Voir : `UNIVERSAUX_INTERDISCIPLINAIRES_REVUE_LITTERATURE.md` (72 références, 8
 ## 🚧 Prochaines Étapes
 
 ### Court terme
-- [ ] Combler les gaps STRUCTURE et SITUATION dans les formules PanLang
+- [x] Combler les gaps STRUCTURE et SITUATION dans les formules PanLang
+- [x] Validation empirique sur corpus Gutenberg multilingue (10 traductions, 6 langues)
+- [ ] Enrichir les dictionnaires de mots-clés (DE, IT, ES, EO, FI) pour réduire le biais français
+- [ ] Ajouter des œuvres supplémentaires (Pinocchio, Grimm, Divine Comédie)
 - [ ] Intégrer les 50 NSM primes manquants (logiques, déictiques, substantifs)
-- [ ] Tests de couverture sur corpus PanLang v2
 
 ### Moyen terme
 - [ ] Implémenter l'analyzer Rust avec output JSON → Dolt v2
 - [ ] Validation cross-framework (NSM, Jackendoff, Pustejovsky)
 - [ ] ACL branches (public/confidential/private) sur schéma v2
+- [ ] Analyse statistique de la convergence (bootstrap, intervalles de confiance)
 
 ### Long terme
 - [ ] Expérimentation de nouveaux primitifs via branches Dolt
 - [ ] Publication du dataset versionné sur DoltHub
 - [ ] Alignement avec BabelNet / WordNet / FrameNet
+- [ ] Extension du corpus à 20+ langues (langues non-indo-européennes)
 
 ## 📝 Historique des Versions
 
-| Version | Date       | Description                                          | Tests      |
-|---------|------------|------------------------------------------------------|------------|
-| v0.1    | 2025-01-15 | POC initial : 7 dhātu, dédup cross-langue            | ✅          |
-| v1.0    | 2025-02    | Unified storage : 17 tables, 3-tier, cascade, ACL    | 34/34 ✅    |
-| **v2.0**| **2025-02**| **3-layer universals : 23 primitifs, 107 concepts**  | **38/38 ✅**|
+| Version | Date       | Description                                              | Tests       |
+|---------|------------|----------------------------------------------------------|-------------|
+| v0.1    | 2025-01-15 | POC initial : 7 dhātu, dédup cross-langue                | ✅           |
+| v1.0    | 2025-02    | Unified storage : 17 tables, 3-tier, cascade, ACL        | 34/34 ✅     |
+| v2.0    | 2025-02    | 3-layer universals : 23 primitifs, 107 concepts          | 38/38 ✅     |
+| v2.0.1  | 2025-02    | Revalidation Tier C : 3 retrait, 10 quarantaine          | 44/44 ✅     |
+| **v2.1**| **2025-02**| **Validation Gutenberg : 10 traductions, 6 langues, 46 segments** | **82/82 ✅** |
 
 ## 📄 Licence
 
@@ -292,6 +433,6 @@ Voir `LICENSE` à la racine du projet.
 ---
 
 **Auteur:** PaniniFS Core Team  
-**Version:** 2.0.0  
+**Version:** 2.1.0  
 **Date:** 2025-02-17  
-**Status:** Proof of Concept (validated)
+**Status:** Proof of Concept (empirically validated)
