@@ -71,9 +71,9 @@ test("semantic_predicates = 10 rows", n_pred == 10, f"got {n_pred}")
 n_ext = int(dolt_sql_value("SELECT COUNT(*) FROM nonverbal_extensions"))
 test("nonverbal_extensions = 4 rows", n_ext == 4, f"got {n_ext}")
 
-# Concepts — should be 107
+# Concepts — should be 104 (107 - 3 retraits)
 n_concepts = int(dolt_sql_value("SELECT COUNT(*) FROM concepts"))
-test("concepts = 107 rows", n_concepts == 107, f"got {n_concepts}")
+test("concepts = 104 rows", n_concepts == 104, f"got {n_concepts}")
 
 # Composition rules — at least 1 per concept
 n_rules = int(dolt_sql_value("SELECT COUNT(*) FROM composition_rules"))
@@ -135,11 +135,13 @@ print("=" * 70)
 n_a = int(dolt_sql_value("SELECT COUNT(*) FROM concepts WHERE quality_tier = 'A'"))
 n_b = int(dolt_sql_value("SELECT COUNT(*) FROM concepts WHERE quality_tier = 'B'"))
 n_c = int(dolt_sql_value("SELECT COUNT(*) FROM concepts WHERE quality_tier = 'C'"))
+n_q = int(dolt_sql_value("SELECT COUNT(*) FROM concepts WHERE quality_tier = 'Q'"))
 
 test("Tier A ≥ 40", n_a >= 40, f"got {n_a}")
 test("Tier B ≥ 30", n_b >= 30, f"got {n_b}")
-test("Tier C ≤ 20 (problematic)", n_c <= 20, f"got {n_c}")
-test("A + B + C = 107", n_a + n_b + n_c == 107, f"got {n_a + n_b + n_c}")
+test("Tier C = 0 (all revalidated)", n_c == 0, f"got {n_c}")
+test("Tier Q = 10 (quarantined)", n_q == 10, f"got {n_q}")
+test("A + B + Q = 104", n_a + n_b + n_q == 104, f"got {n_a + n_b + n_q}")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -229,30 +231,30 @@ print("\n" + "=" * 70)
 print("SECTION 6 : Piste d'audit")
 print("=" * 70)
 
-# Known problematic concepts must be flagged
-etoile_audit = int(dolt_sql_value("""
+# Revalidation audits must exist
+etoile_retrait = int(dolt_sql_value("""
     SELECT COUNT(*) FROM quality_audit
-    WHERE concept_id = 'ÉTOILE' AND issue_type = 'tautology'
+    WHERE concept_id = 'ÉTOILE' AND issue_type = 'retrait_revalidation'
 """))
-test("ÉTOILE flagged as tautology", etoile_audit > 0, "not found in audit")
+test("ÉTOILE logged as retrait", etoile_retrait > 0, "not found in audit")
 
-musique_audit = int(dolt_sql_value("""
+musique_quarantine = int(dolt_sql_value("""
     SELECT COUNT(*) FROM quality_audit
-    WHERE concept_id = 'MUSIQUE' AND issue_type = 'absurd_formula'
+    WHERE concept_id = 'MUSIQUE' AND issue_type = 'quarantine_revalidation'
 """))
-test("MUSIQUE flagged as absurd", musique_audit > 0, "not found in audit")
+test("MUSIQUE quarantined with new formula", musique_quarantine > 0, "not found in audit")
 
-recit_audit = int(dolt_sql_value("""
+recit_quarantine = int(dolt_sql_value("""
     SELECT COUNT(*) FROM quality_audit
-    WHERE concept_id = 'RÉCIT' AND issue_type IN ('tautology', 'absurd_formula')
+    WHERE concept_id = 'RÉCIT' AND issue_type = 'quarantine_revalidation'
 """))
-test("RÉCIT flagged as problematic", recit_audit > 0, "not found in audit")
+test("RÉCIT quarantined with new formula", recit_quarantine > 0, "not found in audit")
 
 # Low validity concepts should be in audit
 low_validity_count = int(dolt_sql_value("""
     SELECT COUNT(*) FROM quality_audit WHERE issue_type = 'low_validity'
 """))
-test("Low validity issues logged", low_validity_count >= 10, f"got {low_validity_count}")
+test("Low validity issues logged", low_validity_count >= 5, f"got {low_validity_count}")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -278,6 +280,16 @@ has_leaks = len(lines) > 1  # header only = no leaks
 test("No metadata concepts leaked into DB",
      not has_leaks,
      f"leaked: {lines[1:]}")
+
+# Removed substantifs must NOT be in the database
+removed_leaks = dolt_sql("""
+    SELECT id FROM concepts
+    WHERE id IN ('ARBRE', 'FENÊTRE', 'ÉTOILE')
+""")
+removed_lines = removed_leaks.strip().split("\n")
+test("Removed substantifs (ARBRE, FENÊTRE, ÉTOILE) not in DB",
+     len(removed_lines) <= 1,
+     f"leaked: {removed_lines[1:]}")
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -331,10 +343,46 @@ test("MOUVEMENT.ontological_category = PROC", mouv_onto == "PROC", f"got {mouv_o
 
 
 # ═══════════════════════════════════════════════════════════════════
-# SECTION 10 : Views functionality
+# SECTION 10 : Quarantine validation
 # ═══════════════════════════════════════════════════════════════════
 print("\n" + "=" * 70)
-print("SECTION 10 : Vues fonctionnelles")
+print("SECTION 10 : Validation quarantaine")
+print("=" * 70)
+
+# All Q concepts must have composition rules
+q_without_rules = int(dolt_sql_value("""
+    SELECT COUNT(*) FROM concepts c
+    LEFT JOIN composition_rules cr ON c.id = cr.concept_id
+    WHERE c.quality_tier = 'Q' AND cr.concept_id IS NULL
+"""))
+test("All quarantined concepts have composition rules",
+     q_without_rules == 0,
+     f"{q_without_rules} without rules")
+
+# RÉCIT should now be COMMUNICATION + COGNITION
+recit_formula = dolt_sql_value("SELECT formule_simple FROM concepts WHERE id = 'RÉCIT'")
+test("RÉCIT formula = COMMUNICATION + COGNITION",
+     recit_formula == "COMMUNICATION + COGNITION",
+     f"got {recit_formula}")
+
+# MUSIQUE should now be PERCEPTION + CREATION
+musique_formula = dolt_sql_value("SELECT formule_simple FROM concepts WHERE id = 'MUSIQUE'")
+test("MUSIQUE formula = PERCEPTION + CREATION",
+     musique_formula == "PERCEPTION + CREATION",
+     f"got {musique_formula}")
+
+# DÉGOÛT should now be EMOTION + PERCEPTION
+degout_formula = dolt_sql_value("SELECT formule_simple FROM concepts WHERE id = 'DÉGOÛT'")
+test("DÉGOÛT formula = EMOTION + PERCEPTION",
+     degout_formula == "EMOTION + PERCEPTION",
+     f"got {degout_formula}")
+
+
+# ═══════════════════════════════════════════════════════════════════
+# SECTION 11 : Views functionality
+# ═══════════════════════════════════════════════════════════════════
+print("\n" + "=" * 70)
+print("SECTION 11 : Vues fonctionnelles")
 print("=" * 70)
 
 # v_atom_distribution
