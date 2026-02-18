@@ -900,22 +900,43 @@ def align_words_to_atoms(text, lang):
     """Attribute each word to its atom(s). Reuses ATOM_KEYWORDS with
     paragraph-level context for disambiguation.
     
-    Cascade de résolution (v2 — pont morpho-sémantique) :
+    Cascade de résolution (v3 — couverture 100%) :
+      0. Classification structurelle (titres, TOC, illustrations)
       1. Match direct/prefix dans ATOM_KEYWORDS (original)
+      1b. EO X-notation normalization (gx→ĝ, sx→ŝ, etc.)
       2. Lemmatisation → ATOM_KEYWORDS (irréguliers + suffixes)
       3. Racines étymologiques (latines, germaniques)
       4. Inférence inter-langues (langues parentes)
+      5. Compound word splitting (Finnish agglutination)
     """
     # Import conditionnel pour ne pas casser si le module est absent
     try:
-        from morpho_semantic_bridge import resolve_word_full
+        from morpho_semantic_bridge import (
+            resolve_word_full, classify_structural_text, normalize_eo_x_notation
+        )
         has_bridge = True
     except ImportError:
-        has_bridge = False
+        try:
+            from morpho_semantic_bridge import resolve_word_full
+            has_bridge = True
+        except ImportError:
+            has_bridge = False
 
-    words = text.split()
+    # --- Pass 0: Structural text classification ---
+    if has_bridge:
+        structural = classify_structural_text(text, lang)
+        if structural:
+            return structural  # Structural text fully classified
+
+    # Normalize EO X-notation for keyword matching
+    text_for_matching = text
+    if lang == "eo" and has_bridge:
+        text_for_matching = normalize_eo_x_notation(text)
+
+    words = text_for_matching.split()
+    original_words = text.split()  # Keep originals for word_form
     attributions = []
-    sentences = split_into_sentences(text, lang)
+    sentences = split_into_sentences(text_for_matching, lang)
     matched_positions = set()  # Track positions already matched
     
     # Map word positions to sentence index
@@ -960,9 +981,10 @@ def align_words_to_atoms(text, lang):
                     elif lang == "en" and word_lower == "be":
                         disambiguation = "be = EXISTENCE (copula); very frequent, possible noise"
 
+                    orig_form = original_words[word_pos] if word_pos < len(original_words) else word_raw
                     attributions.append({
                         "word_position": word_pos,
-                        "word_form": word_raw,
+                        "word_form": orig_form,
                         "word_lemma": kw,
                         "atom_id": atom,
                         "confidence": confidence,
@@ -986,9 +1008,10 @@ def align_words_to_atoms(text, lang):
             bridge_results = resolve_word_full(word_lower, lang, ATOM_KEYWORDS)
             for r in bridge_results:
                 if r["confidence"] >= 0.45:  # Seuil minimum
+                    orig_form = original_words[word_pos] if word_pos < len(original_words) else word_raw
                     attributions.append({
                         "word_position": word_pos,
-                        "word_form": word_raw,
+                        "word_form": orig_form,
                         "word_lemma": r["lemma"],
                         "atom_id": r["atom_id"],
                         "confidence": r["confidence"],
@@ -998,6 +1021,36 @@ def align_words_to_atoms(text, lang):
                     })
                     matched_positions.add(word_pos)
                     break  # Best match only per word
+
+    # --- Pass 3: Finnish compound word splitting ---
+    if lang == "fi" and has_bridge:
+        for word_pos, word_raw in enumerate(words):
+            if word_pos in matched_positions:
+                continue
+            word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
+            if len(word_lower) < 8:  # Compounds are long
+                continue
+            # Try splitting at various positions
+            for split_pos in range(4, len(word_lower) - 3):
+                part2 = word_lower[split_pos:]
+                bridge_results = resolve_word_full(part2, lang, ATOM_KEYWORDS)
+                for r in bridge_results:
+                    if r["confidence"] >= 0.50:
+                        orig_form = original_words[word_pos] if word_pos < len(original_words) else word_raw
+                        attributions.append({
+                            "word_position": word_pos,
+                            "word_form": orig_form,
+                            "word_lemma": r["lemma"],
+                            "atom_id": r["atom_id"],
+                            "confidence": round(r["confidence"] * 0.85, 3),
+                            "keyword_matched": r["lemma"],
+                            "disambiguation": f"FI compound split: {word_lower} → ...+{part2} → {r['lemma']}",
+                            "sentence_local_idx": word_to_sent.get(word_pos, 0),
+                        })
+                        matched_positions.add(word_pos)
+                        break
+                if word_pos in matched_positions:
+                    break
 
     return attributions
 

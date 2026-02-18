@@ -25,6 +25,8 @@ from morpho_semantic_bridge import (
     cross_language_inference,
     get_language_family,
     get_sibling_languages,
+    normalize_eo_x_notation,
+    classify_structural_text,
     IRREGULAR_VERBS,
     VERB_SUFFIXES,
     LATIN_ROOTS,
@@ -511,6 +513,258 @@ class TestCoverageImprovement(unittest.TestCase):
             n = int(lines[1])
             self.assertGreaterEqual(n, 2000,
                 f"Attributions {n} should be ≥ 2000 (baseline 1085)")
+
+
+class TestEoXNotation(unittest.TestCase):
+    """Test Section 0: EO X-notation normalizer."""
+
+    def test_basic_x_replacements(self):
+        self.assertEqual(normalize_eo_x_notation("cxu"), "ĉu")
+        self.assertEqual(normalize_eo_x_notation("gxardeno"), "ĝardeno")
+        self.assertEqual(normalize_eo_x_notation("sxajni"), "ŝajni")
+        self.assertEqual(normalize_eo_x_notation("aux"), "aŭ")
+        self.assertEqual(normalize_eo_x_notation("jxus"), "ĵus")
+        self.assertEqual(normalize_eo_x_notation("hxoro"), "ĥoro")
+
+    def test_multiple_x_in_word(self):
+        self.assertEqual(normalize_eo_x_notation("sxercxas"), "ŝerĉas")
+
+    def test_uppercase_x(self):
+        result = normalize_eo_x_notation("ILUSTRAJXOJ")
+        self.assertIn("ĵ", result.lower())
+
+    def test_no_x_unchanged(self):
+        self.assertEqual(normalize_eo_x_notation("hello"), "hello")
+        self.assertEqual(normalize_eo_x_notation("amiko"), "amiko")
+
+    def test_real_orphan_words(self):
+        self.assertEqual(normalize_eo_x_notation("reeligxos"), "reeliĝos")
+        self.assertEqual(normalize_eo_x_notation("fusxregas"), "fuŝregas")
+        self.assertEqual(normalize_eo_x_notation("sxia"), "ŝia")
+
+
+class TestStructuralTextClassification(unittest.TestCase):
+    """Test Section 0b: Structural text analyzer."""
+
+    def test_illustration_en(self):
+        result = classify_structural_text("[Illustration]", "en")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("PERCEPTION", atoms)
+        self.assertIn("CREATION", atoms)
+
+    def test_illustration_it(self):
+        result = classify_structural_text("[Illustrazione]", "it")
+        self.assertTrue(result)
+
+    def test_chapter_heading_fr(self):
+        result = classify_structural_text("CHAPITRE V.", "fr")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("COMMUNICATION", atoms)
+
+    def test_chapter_heading_de(self):
+        result = classify_structural_text("Fünftes Kapitel.", "de")
+        self.assertTrue(result)
+
+    def test_chapter_heading_fi(self):
+        result = classify_structural_text("VIIDES LUKU.", "fi")
+        self.assertTrue(result)
+
+    def test_german_descriptive_heading(self):
+        result = classify_structural_text("Guter Rath von einer Raupe.", "de")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("COMMUNICATION", atoms)
+
+    def test_toc_entry_roman_numeral(self):
+        result = classify_structural_text("IV. L'HABITATION DU LAPIN BLANC. 41", "fr")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("COMMUNICATION", atoms)
+
+    def test_toc_entry_dot_leaders(self):
+        result = classify_structural_text("LA DUKINA KUIREJO . . . . . . 53", "eo")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("COMMUNICATION", atoms)
+        self.assertIn("CREATION", atoms)
+
+    def test_edition_meta(self):
+        result = classify_structural_text("by Lewis Carroll", "en")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("CREATION", atoms)
+
+    def test_all_caps_short_heading(self):
+        result = classify_structural_text("ILUSTRAJXOJ", "eo")
+        self.assertTrue(result)
+
+    def test_non_structural_returns_empty(self):
+        result = classify_structural_text(
+            "Alice was beginning to get very tired of sitting", "en")
+        self.assertEqual(result, [])
+
+    def test_thematic_keywords_detected(self):
+        result = classify_structural_text("X. LA OMARA KVADRILO...101", "eo")
+        self.assertTrue(result)
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("PLAY", atoms)
+
+
+class TestEoPrefixStripping(unittest.TestCase):
+    """Test EO prefix stripping in lemmatize()."""
+
+    def test_postkuris(self):
+        results = resolve_word_full("postkuris", "eo", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "MOUVEMENT")
+
+    def test_reeligxos(self):
+        results = resolve_word_full("reeligxos", "eo", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "DOMINATION")
+
+    def test_konsiderinte(self):
+        results = resolve_word_full("konsiderinte", "eo", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "COGNITION")
+
+    def test_senkapigu(self):
+        results = resolve_word_full("senkapigu", "eo", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "DOMINATION")
+
+    def test_fusxregas(self):
+        results = resolve_word_full("fusxregas", "eo", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "DOMINATION")
+
+
+class TestFiCompoundSplitting(unittest.TestCase):
+    """Test Finnish compound word splitting."""
+
+    def test_lapsenleikkia_via_engine(self):
+        from seven_layers_engine import align_words_to_atoms
+        result = align_words_to_atoms("Se on lapsenleikkiä", "fi")
+        atoms = {d["atom_id"] for d in result}
+        self.assertIn("PLAY", atoms)
+
+    def test_maanjaristys(self):
+        results = resolve_word_full("maanjäristys", "fi", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "DESTRUCTION")
+
+    def test_haaksirikko(self):
+        results = resolve_word_full("haaksirikko", "fi", ATOM_KEYWORDS)
+        self.assertTrue(results)
+        self.assertEqual(results[0]["atom_id"], "DESTRUCTION")
+
+
+class TestOrphanCoverage(unittest.TestCase):
+    """Test that all former orphan word categories are now covered."""
+
+    def test_eo_content_words_resolve(self):
+        eo_words = {
+            "postkuris": "MOUVEMENT", "kriegis": "COMMUNICATION",
+            "prezentas": "COMMUNICATION", "argumentas": "COMMUNICATION",
+            "ricevas": "COMMUNICATION", "glitas": "MOUVEMENT",
+            "uzas": "POSSESSION", "celas": "POSSESSION",
+            "konsiderinte": "COGNITION", "senkapigu": "DOMINATION",
+            "rifuzas": "DOMINATION", "indulgis": "CARE",
+        }
+        for word, expected_atom in eo_words.items():
+            results = resolve_word_full(word, "eo", ATOM_KEYWORDS)
+            self.assertTrue(results, f"EO word '{word}' not resolved")
+            self.assertEqual(results[0]["atom_id"], expected_atom,
+                f"EO '{word}': expected {expected_atom}, got {results[0]['atom_id']}")
+
+    def test_fi_content_words_resolve(self):
+        fi_words = {
+            "mietti": "COGNITION", "hymähti": "COMMUNICATION",
+            "alkoi": "CREATION", "kertoi": "COMMUNICATION",
+            "voisitte": "COGNITION", "kävi": "EXISTENCE",
+            "pani": "CREATION", "myrsky": "DESTRUCTION",
+        }
+        for word, expected_atom in fi_words.items():
+            results = resolve_word_full(word, "fi", ATOM_KEYWORDS)
+            self.assertTrue(results, f"FI word '{word}' not resolved")
+            self.assertEqual(results[0]["atom_id"], expected_atom,
+                f"FI '{word}': expected {expected_atom}, got {results[0]['atom_id']}")
+
+    def test_fr_content_words_resolve(self):
+        fr_words = {
+            "ramena": "MOUVEMENT", "commencement": "CREATION",
+            "conversation": "COMMUNICATION", "question": "COMMUNICATION",
+        }
+        for word, expected_atom in fr_words.items():
+            results = resolve_word_full(word, "fr", ATOM_KEYWORDS)
+            self.assertTrue(results, f"FR word '{word}' not resolved")
+            self.assertEqual(results[0]["atom_id"], expected_atom,
+                f"FR '{word}': expected {expected_atom}, got {results[0]['atom_id']}")
+
+
+class TestZeroOrphansInDolt(unittest.TestCase):
+    """Integration test: verify 0 orphan paragraphs in Dolt DB."""
+
+    def test_no_orphan_paragraphs(self):
+        import subprocess
+        DB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "panini-unified-db")
+        r = subprocess.run(
+            ["dolt", "sql", "-q",
+             "SELECT COUNT(*) FROM paragraph_units pu "
+             "WHERE NOT EXISTS ("
+             "  SELECT 1 FROM paragraph_word_atoms pwa "
+             "  WHERE pwa.paragraph_id = pu.id"
+             ")",
+             "-r", "csv"],
+            capture_output=True, text=True, cwd=DB
+        )
+        lines = r.stdout.strip().split('\n')
+        if len(lines) >= 2:
+            orphan_count = int(lines[1])
+            self.assertEqual(orphan_count, 0,
+                f"Expected 0 orphan paragraphs, found {orphan_count}")
+
+    def test_all_445_paragraphs_covered(self):
+        import subprocess
+        DB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "panini-unified-db")
+        r = subprocess.run(
+            ["dolt", "sql", "-q",
+             "SELECT COUNT(DISTINCT pu.id) FROM paragraph_units pu "
+             "JOIN paragraph_word_atoms pwa ON pwa.paragraph_id = pu.id",
+             "-r", "csv"],
+            capture_output=True, text=True, cwd=DB
+        )
+        lines = r.stdout.strip().split('\n')
+        if len(lines) >= 2:
+            covered = int(lines[1])
+            self.assertEqual(covered, 445,
+                f"Expected 445 covered paragraphs, got {covered}")
+
+    def test_100pct_coverage_all_languages(self):
+        import subprocess
+        DB = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                          "panini-unified-db")
+        r = subprocess.run(
+            ["dolt", "sql", "-q",
+             "SELECT pu.lang, COUNT(DISTINCT pu.id) as total, "
+             "COUNT(DISTINCT CASE WHEN pwa.id IS NOT NULL THEN pu.id END) as covered "
+             "FROM paragraph_units pu "
+             "LEFT JOIN paragraph_word_atoms pwa ON pwa.paragraph_id = pu.id "
+             "GROUP BY pu.lang",
+             "-r", "csv"],
+            capture_output=True, text=True, cwd=DB
+        )
+        lines = r.stdout.strip().split('\n')
+        for line in lines[1:]:
+            parts = line.split(',')
+            if len(parts) == 3:
+                lang, total, covered = parts[0], int(parts[1]), int(parts[2])
+                self.assertEqual(total, covered,
+                    f"Language {lang}: {covered}/{total} covered (not 100%)")
 
 
 if __name__ == "__main__":

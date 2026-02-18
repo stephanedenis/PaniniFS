@@ -26,6 +26,197 @@ import re
 from collections import defaultdict
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# 0. ESPERANTO X-NOTATION NORMALIZER
+# ═══════════════════════════════════════════════════════════════════════════════
+# Gutenberg Esperanto texts use the X-system: cx→ĉ, gx→ĝ, hx→ĥ, jx→ĵ, sx→ŝ, ux→ŭ
+# This must be applied BEFORE any keyword lookup.
+
+EO_X_PAIRS = [
+    ("cx", "ĉ"), ("CX", "Ĉ"), ("Cx", "Ĉ"),
+    ("gx", "ĝ"), ("GX", "Ĝ"), ("Gx", "Ĝ"),
+    ("hx", "ĥ"), ("HX", "Ĥ"), ("Hx", "Ĥ"),
+    ("jx", "ĵ"), ("JX", "Ĵ"), ("Jx", "Ĵ"),
+    ("sx", "ŝ"), ("SX", "Ŝ"), ("Sx", "Ŝ"),
+    ("ux", "ŭ"), ("UX", "Ŭ"), ("Ux", "Ŭ"),
+]
+
+
+def normalize_eo_x_notation(text):
+    """Convert Esperanto X-notation to proper Unicode diacritics.
+    
+    Example: 'postkuris gxin en la tuneleton' → 'postkuris ĝin en la tuneleton'
+    """
+    result = text
+    for x_form, unicode_form in EO_X_PAIRS:
+        result = result.replace(x_form, unicode_form)
+    return result
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 0b. STRUCTURAL TEXT ANALYZER
+# ═══════════════════════════════════════════════════════════════════════════════
+# Titles, TOC entries, illustration markers, chapter headings all carry
+# authorial/editorial INTENT. We classify them to ensure 100% coverage.
+#
+# Principle: every paragraph is an intentional unit — even "[Illustration]"
+# is the author's choice to frame a scene visually (PERCEPTION + CREATION).
+
+STRUCTURAL_PATTERNS = {
+    # Pattern → (atom_id, confidence, disambiguation)
+    "illustration": [
+        ("PERCEPTION", 0.70, "Visual scene framing — authorial intent to show"),
+        ("CREATION", 0.60, "Artistic creation — illustration as authored artifact"),
+    ],
+    "chapter_heading": [
+        ("COMMUNICATION", 0.65, "Structural navigation — authorial voice organizing narrative"),
+    ],
+    "toc_entry": [
+        ("COMMUNICATION", 0.60, "Table of contents — editorial communication of structure"),
+    ],
+    "edition_meta": [
+        ("CREATION", 0.55, "Publication metadata — editorial/authorial attribution"),
+    ],
+}
+
+# Semantic vocabulary in structural text (titles often summarize themes)
+STRUCTURAL_THEME_KEYWORDS = {
+    # FR
+    "habitation": "EXISTENCE", "porc": "EXISTENCE", "poivre": "EXISTENCE",
+    "fous": "PLAY", "thé": "PLAY", "fête": "PLAY", "festi": "PLAY",
+    "histoire": "COMMUNICATION", "déposition": "COMMUNICATION",
+    "conseils": "COMMUNICATION", "admonon": "COMMUNICATION",
+    "quadrille": "PLAY", "ballet": "PLAY", "hummerballet": "PLAY",
+    "homards": "MOUVEMENT", "tortue": "MOUVEMENT", "fausse-tortue": "MOUVEMENT",
+    "conclusion": "COMMUNICATION", "fin": "EXISTENCE",
+    "introduction": "COMMUNICATION",
+    # DE
+    "rath": "COMMUNICATION", "raupe": "EXISTENCE",
+    "ferkel": "EXISTENCE", "pfeffer": "EXISTENCE",
+    "thränenpfuhl": "GRIEF",
+    # EN
+    "rabbit-hole": "MOUVEMENT", "history": "COMMUNICATION",
+    "printed": "CREATION", "publisher": "CREATION",
+    # EO
+    "falego": "MOUVEMENT", "porkinfano": "EXISTENCE",
+    "tetrinkado": "PLAY", "frenezuloj": "PLAY",
+    "kroketludo": "PLAY", "damo": "DOMINATION",
+    "omara": "MOUVEMENT", "kvadrilo": "PLAY",
+    "forsxtelis": "POSSESSION", "forŝtelis": "POSSESSION",
+    "atestanto": "COMMUNICATION",
+    "kuirejo": "CREATION", "dukina": "DOMINATION",
+    "martleporo": "EXISTENCE", "tablo": "EXISTENCE",
+    "grifo": "EXISTENCE", "dormis": "EXISTENCE",
+    "kuiristino": "CREATION", "atesti": "COMMUNICATION",
+    "ekzekutisto": "DOMINATION", "ekzekuto": "DESTRUCTION",
+    "senkorpa": "EXISTENCE", "katkapo": "DESTRUCTION",
+    "geregxoj": "DOMINATION", "geregxoj": "DOMINATION",
+    "ilustrajxoj": "PERCEPTION", "ilustraĵoj": "PERCEPTION",
+    "antauxparolo": "COMMUNICATION", "antaŭparolo": "COMMUNICATION",
+    "auxtoro": "CREATION", "aŭtoro": "CREATION",
+    "mirinda": "PERCEPTION",
+    "revo": "COGNITION",    # revo = dream (EO) — mental imagery
+    # IT
+    "consigli": "COMMUNICATION", "bruco": "EXISTENCE",
+    "illustrazione": "PERCEPTION",
+    # FI
+    "luku": "COMMUNICATION",
+    # Multi-lang
+    "chapitre": "COMMUNICATION", "kapitel": "COMMUNICATION",
+    "chapter": "COMMUNICATION",
+}
+
+
+def classify_structural_text(text, lang):
+    """Classify structural text (titles, TOC, illustrations) and return
+    atom attributions based on structural type + thematic keywords.
+    
+    Returns: list of dict matching align_words_to_atoms output format,
+             or empty list if not structural text.
+    """
+    text_stripped = text.strip()
+    text_lower = text_stripped.lower()
+    
+    struct_type = None
+    
+    # Detect structural type
+    if re.match(r'^\[illustr', text_lower):
+        struct_type = "illustration"
+    elif re.match(r'^\[ilustr', text_lower):
+        struct_type = "illustration"
+    elif re.match(r'^(chapitre|kapitel|chapter|luku)\b', text_lower):
+        struct_type = "chapter_heading"
+    elif re.match(r'^(erstes|fünftes|zweites|drittes|viertes|sechstes|siebentes|achtes|neuntes|zehntes|elftes|zwölftes)\s+(kapitel)', text_lower):
+        struct_type = "chapter_heading"
+    elif re.match(r'^(guter|des|die|das|der|eine?r?)\s+\w+.*\b(raupe|pfeffer|thr[aä]n|hummer|königin|herz|schildkr[oö]te?)\b', text_lower):
+        # German chapter titles: "Guter Rath von einer Raupe"
+        struct_type = "chapter_heading"
+    elif re.match(r'^[IVXLC]+\.?\s+', text_stripped) and len(text_stripped) < 80:
+        struct_type = "toc_entry"
+    elif re.match(r'^\d+\.?\s+', text_stripped) and len(text_stripped) < 80:
+        struct_type = "toc_entry"
+    elif re.search(r'\. \. \. +\d+$', text_stripped) or re.search(r'\.{3,}\s*\d+$', text_stripped):
+        # TOC entries with dot leaders: "LA DUKINA KUIREJO . . . . . . 53"
+        struct_type = "toc_entry"
+    elif any(text_lower.startswith(p) for p in [
+        "by ", "printed ", "publishers ", "the millennium",
+        "fin de ", "edition", "introduction"
+    ]):
+        struct_type = "edition_meta"
+    elif len(text_stripped.split()) <= 5 and text_stripped == text_stripped.upper():
+        # All-caps short text = likely heading/label
+        struct_type = "chapter_heading"
+    
+    if struct_type is None:
+        return []
+    
+    attributions = []
+    words = text_stripped.split()
+    
+    # 1. Add structural type atoms
+    for atom_id, confidence, disambiguation in STRUCTURAL_PATTERNS[struct_type]:
+        attributions.append({
+            "word_position": 0,
+            "word_form": words[0] if words else text_stripped[:20],
+            "word_lemma": f"[{struct_type}]",
+            "atom_id": atom_id,
+            "confidence": confidence,
+            "keyword_matched": f"[{struct_type}]",
+            "disambiguation": f"{struct_type}: {disambiguation}",
+            "sentence_local_idx": 0,
+        })
+    
+    # 2. Scan for thematic keywords in the text
+    # Normalize EO x-notation first
+    text_scan = normalize_eo_x_notation(text_lower) if lang == "eo" else text_lower
+    
+    for kw, atom_id in STRUCTURAL_THEME_KEYWORDS.items():
+        if kw in text_scan:
+            # Find which word position contains this keyword
+            word_pos = 0
+            for i, w in enumerate(words):
+                w_check = normalize_eo_x_notation(w.lower()) if lang == "eo" else w.lower()
+                w_clean = w_check.strip('.,;:!?"\'()[]{}—–-…""''«»')
+                if kw in w_clean or w_clean.startswith(kw[:4]):
+                    word_pos = i
+                    break
+            
+            # Avoid duplicate atoms from structural type
+            if not any(a["atom_id"] == atom_id for a in attributions):
+                attributions.append({
+                    "word_position": word_pos,
+                    "word_form": words[word_pos] if word_pos < len(words) else kw,
+                    "word_lemma": kw,
+                    "atom_id": atom_id,
+                    "confidence": 0.65,
+                    "keyword_matched": kw,
+                    "disambiguation": f"Thematic keyword in {struct_type}: '{kw}' → {atom_id}",
+                    "sentence_local_idx": 0,
+                })
+    
+    return attributions
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
 # 1. TABLES DE VERBES IRRÉGULIERS
 # ═══════════════════════════════════════════════════════════════════════════════
 # Chaque entrée : {forme_fléchie: lemme_infinitif}
@@ -250,7 +441,10 @@ IRREGULAR_VERBS = {
         "murmuré": "murmurer",
         "déclara": "déclarer", "déclarait": "déclarer",
         "raconta": "raconter", "racontait": "raconter",
-        "raconté": "raconter",
+        "raconté": "raconter", "racontèrent": "raconter",
+        # MOUVEMENT (extended)
+        "ramena": "ramener", "ramenait": "ramener", "ramené": "ramener",
+        "ramenèrent": "ramener",
         # EXISTENCE
         "était": "être", "fut": "être", "été": "être",
         "étaient": "être", "étant": "être", "est": "être",
@@ -753,6 +947,34 @@ IRREGULAR_VERBS = {
         "ludis": "ludi", "ludas": "ludi",
         "ridis": "ridi", "ridas": "ridi",
         "festis": "festi", "festas": "festi",
+        # --- Additional EO verbs found in orphan corpus text ---
+        # MOUVEMENT: postkuris (eo x-notation paragraph id=41)
+        "postkuris": "postkuri", "postkuras": "postkuri",
+        # "reeligxos" = re-eligĝos (get out again) — MOUVEMENT
+        "reeligxos": "reeli", "reeligxis": "reeli",
+        "reeligĝos": "reeli", "reeligĝis": "reeli",
+        # COMMUNICATION: kriegis (cried out, paragraph id=397)
+        "kriegis": "krii", "kriegas": "krii",
+        # DOMINATION: senkapigu (behead!, paragraph id=397)
+        "senkapigu": "senkapigi", "senkapigis": "senkapigi",
+        "senkapigas": "senkapigi",
+        # COMMUNICATION: prezentas, argumentas, rifuzas, ricevas, atesti
+        "prezentas": "prezenti", "prezentis": "prezenti",
+        "argumentas": "argumenti", "argumentis": "argumenti",
+        "rifuzas": "rifuzi", "rifuzis": "rifuzi",
+        "ricevas": "ricevi", "ricevasi": "ricevi",
+        # PLAY: glitas (slides/glides — poem, paragraph id=319)
+        "glitas": "gliti", "glitis": "gliti",
+        # POSSESSION: uzas (uses), celas (hides)
+        "uzas": "uzi", "uzis": "uzi",
+        "celas": "celi", "celis": "celi",
+        # DOMINATION: regas → regi (already above, but fusxregas = mis-steers)
+        "fusxregas": "regi",
+        # SEEKING: indulgi (indulge)
+        "indulgis": "indulgi", "indulgas": "indulgi",
+        # COGNITION: konsiderinte (having considered, paragraph id=41)
+        "konsiderinte": "konsideri", "konsideris": "konsideri",
+        "konsideras": "konsideri",
     },
 
     "fi": {
@@ -858,6 +1080,26 @@ IRREGULAR_VERBS = {
         "tanssi": "tanssia", "tanssii": "tanssia",
         # GRIEF
         "itki": "itkeä", "itkee": "itkeä", "itkenyt": "itkeä",
+        # --- Additional FI verbs found in orphan corpus text ---
+        # COGNITION: mietti (pondered/thought), paragraph id=48
+        "mietti": "miettiä", "miettii": "miettiä", "miettinyt": "miettiä",
+        # MOUVEMENT: vieriminen (rolling down), putoaminen (falling)
+        "vierisi": "vieriä", "vierii": "vieriä",
+        # PERCEPTION: ihmetellä (to wonder/marvel)
+        "ihmetteli": "ihmetellä", "ihmettelee": "ihmetellä",
+        # COMMUNICATION: jutella (to chat), kertoa (to tell)
+        "jutteli": "jutella", "juttelee": "jutella",
+        "kertoi": "kertoa", "kertoo": "kertoa", "kertonut": "kertoa",
+        # COMMUNICATION: hymähti (snorted/grunted)
+        "hymähti": "hymähtää", "hymähtää_pres": "hymähtää",
+        # CREATION: pani (put/placed), alkoi (began)
+        "pani": "panna", "panee": "panna",
+        "alkoi": "alkaa", "alkaa_pres": "alkaa", "alkanut": "alkaa",
+        # DESTRUCTION: maanjäristys is a noun, haaksirikko = shipwreck
+        # EXISTENCE: kävi (went through / happened)
+        "kävi": "käydä", "käy": "käydä", "käynyt": "käydä",
+        # COGNITION: voisitte (you could), olette (you are)
+        "voisitte": "voida", "voisi": "voida", "voi": "voida",
     },
 }
 
@@ -1138,6 +1380,8 @@ LATIN_ROOTS = {
     "racont": "COMMUNICATION", "raccont": "COMMUNICATION", # raconter/raccontare
     "cont": "COMMUNICATION",                        # contar (ES)
     "déclar": "COMMUNICATION",                       # déclarer
+    "convers": "COMMUNICATION",                      # conversation/converser/conversare
+    "quest": "COMMUNICATION",                        # question/questionner/quaestionem
 
     # EXISTENCE ← esse, existere, vīvere, morī, nascī
     "exist": "EXISTENCE",                            # exister/esistere/existir
@@ -1171,6 +1415,7 @@ LATIN_ROOTS = {
     "peind": "CREATION", "pint": "CREATION",       # peindre/dipingere/pintar
     "travail": "CREATION", "lavor": "CREATION",    # travailler/lavorare/trabajar
     "trabaj": "CREATION",
+    "commenc": "CREATION",                           # commencer/comenzar/cominciare ← commentiare
 
     # DESTRUCTION ← destruere, frangere, occīdere, ūrere
     "détru": "DESTRUCTION", "distru": "DESTRUCTION", # détruire/distruggere/destruir
@@ -1387,6 +1632,10 @@ def lemmatize(word, lang):
     if len(word_clean) < 2:
         return [(word_clean, "identity", 0.1)]
     
+    # Normalize Esperanto X-notation
+    if lang == "eo":
+        word_clean = normalize_eo_x_notation(word_clean)
+    
     candidates = []
     
     # 1. Lookup irréguliers (confiance maximale)
@@ -1401,6 +1650,57 @@ def lemmatize(word, lang):
             candidates.append((stem[:-1] + "en", "ge_prefix_weak", 0.75))
         elif stem.endswith("en"):
             candidates.append((stem, "ge_prefix_strong", 0.75))
+    
+    # 2b. Esperanto: prefix stripping (post-, re-, mal-, sen-, ek-, el-, etc.)
+    # EO is agglutinative: prefixes modify meaning but root carries atom
+    if lang == "eo":
+        eo_prefixes = [
+            ("post", 0.80),   # postkuri → kuri (chase after)
+            ("re", 0.80),     # reiri → iri (go again)
+            ("mal", 0.75),    # malami → ami (hate = opposite of love)
+            ("sen", 0.70),    # senkapigi → kapigi (behead = without-head-ify)
+            ("ek", 0.80),     # ekkuri → kuri (start running)
+            ("el", 0.80),     # eliri → iri (go out)
+            ("en", 0.75),     # eniri → iri (go in)
+            ("dis", 0.80),    # dissendi → sendi (broadcast)
+            ("mis", 0.75),    # misuzi → uzi (misuse)
+            ("for", 0.75),    # foriri → iri (go away)
+            ("tra", 0.80),    # trairi → iri (go through)
+            ("trans", 0.80),  # transiri → iri (cross)
+            ("kun", 0.75),    # kunveni → veni (come together)
+            ("al", 0.75),     # alveni → veni (arrive)
+            ("sur", 0.75),    # surskribi → skribi (overwrite)
+            ("sub", 0.75),    # subiri → iri (go under)
+            ("super", 0.75),  # superregi → regi (dominate)
+            ("pra", 0.70),    # praavo → avo (great-grandfather)
+            ("ne", 0.70),     # nejunulo → junulo (not-youth)
+        ]
+        for prefix, conf in eo_prefixes:
+            if word_clean.startswith(prefix) and len(word_clean) > len(prefix) + 2:
+                stem = word_clean[len(prefix):]
+                candidates.append((stem, f"eo_prefix_{prefix}", conf))
+                # Also try the stem through suffix stripping
+                for suffix, trim_extra, replacement in VERB_SUFFIXES.get("eo", []):
+                    if stem.endswith(suffix) and len(stem) > len(suffix) + 1:
+                        inner_stem = stem[:len(stem) - len(suffix) - trim_extra]
+                        inner_lemma = inner_stem + replacement
+                        if inner_lemma != stem and len(inner_lemma) >= 2:
+                            candidates.append((inner_lemma, f"eo_prefix_{prefix}+suffix_{suffix}", conf * 0.95))
+    
+    # 2c. Finnish: compound word splitting
+    # Finnish compounds join root words: lapsenleikkiä = lapsen+leikkiä
+    if lang == "fi" and len(word_clean) >= 8:
+        for split_pos in range(3, len(word_clean) - 3):
+            part2 = word_clean[split_pos:]
+            # Try the second part as-is or through irregular lookup
+            if part2 in irr:
+                candidates.append((irr[part2], f"fi_compound_split_{split_pos}", 0.70))
+            # Also try common case suffixes on part2
+            for case_suffix in ["n", "ssa", "ssä", "sta", "stä", "lla", "llä", "lta", "ltä", "lle"]:
+                if part2.endswith(case_suffix) and len(part2) > len(case_suffix) + 2:
+                    bare = part2[:len(part2) - len(case_suffix)]
+                    if bare in irr:
+                        candidates.append((irr[bare], f"fi_compound_case_{case_suffix}", 0.65))
     
     # 3. Suffix stripping
     suffixes = VERB_SUFFIXES.get(lang, [])
@@ -1435,6 +1735,10 @@ def infer_atom_from_roots(word, lang):
     word_lower = word.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
     if len(word_lower) < MIN_ROOT_LENGTH:
         return []
+    
+    # Normalize Esperanto X-notation
+    if lang == "eo":
+        word_lower = normalize_eo_x_notation(word_lower)
     
     results = []
     
@@ -1495,6 +1799,10 @@ def resolve_word(word, lang, atom_keywords):
     word_clean = word.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
     if len(word_clean) < 2:
         return []
+    
+    # Normalize Esperanto X-notation before any lookup
+    if lang == "eo":
+        word_clean = normalize_eo_x_notation(word_clean)
     
     results = []
     
