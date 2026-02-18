@@ -1,6 +1,6 @@
 # Dolt Concept Store pour PaniniFS
 
-**Proof of Concept v2.2 + v3-alpha** : Architecture universelle 3 couches + axes émotionnels pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références, **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 6 langues, 46 segments), enrichie de **8 sous-primitifs émotionnels neurophysiologiques** (Panksepp/Ekman/Plutchik/Damasio), et complétée par une **analyse des gaps de reconstruction** avec un POC phrase-level (122 phrases, 176 attributions mot→atome, profils stylistiques par traducteur).
+**Proof of Concept v2.2 + v3** : Architecture universelle 3 couches + axes émotionnels pour les primitifs sémantiques de PaniniFS, fondée sur une revue interdisciplinaire de 72 références, **validée empiriquement** sur un corpus multilingue Gutenberg (10 traductions, 7 langues, 46 segments), enrichie de **8 sous-primitifs émotionnels neurophysiologiques** (Panksepp/Ekman/Plutchik/Damasio), et complétée par un **moteur d'analyse à 7 couches au niveau paragraphe** (445 paragraphes, ~1515 choix de traducteur documentés, 12 tables + 3 vues).
 
 ## 🎯 Vision
 
@@ -100,6 +100,11 @@ SANDBOX/dolt-concept-store/
 ├── schema_v3_reconstruction.sql       # Schéma v3 (4 tables + 2 vues)
 ├── poc_reconstruction_phrases.py      # POC phrase-level (7 étapes)
 │
+├── # ═══ v3 (Moteur 7 couches — niveau paragraphe) ═
+├── schema_v3_seven_layers.sql         # Schéma 7 couches (12 tables + 3 vues)
+├── seven_layers_engine.py             # Moteur d'analyse multilingue (1300+ lignes)
+├── test_seven_layers.py               # Tests 7 couches (72/72)
+│
 ├── # ═══ v2.1 (Validation Gutenberg) ═
 ├── schema_gutenberg_provenance.sql    # Schéma provenance (5 tables + 3 views)
 ├── gutenberg_multilingual_validator.py # Pipeline validation 8 étapes
@@ -120,7 +125,65 @@ SANDBOX/dolt-concept-store/
 └── panini-unified-db/                 # Base Dolt v2 (ignorée par git)
 ```
 
-## 🚀 Quick Start — Architecture v2
+## � Architecture v3 : Moteur 7 Couches Multilingue
+
+Le moteur v3 analyse les textes au **niveau paragraphe** (et non phrase) car les langues ont des préférences de longueur de phrase différentes. L'objectif n'est pas l'équivalence parfaite mais d'**expliquer en détail les choix d'interprétation du traducteur**.
+
+### Les 7 couches d'analyse
+
+| # | Couche | Description | Exemples de détection |
+|---|--------|-------------|----------------------|
+| 1 | **Syntaxe** | POS tagging, dépendances, rôles sémantiques | DET, VERB, AGENT/PATIENT |
+| 2 | **Alignement mot→atome** | Attribution ciblée via ATOM_KEYWORDS (15 atomes × 7 langues) | "tomba" → MOUVEMENT (conf=0.95) |
+| 3 | **Morphologie** | Temps, aspect, cas, genre, nombre, voix | passé_simple, accusatif (EO -n), inessif (FI -ssa) |
+| 4 | **Registre/Style** | Marqueurs formels, archaïques, littéraires | passé simple (FR), passato remoto (IT), "thou" (EN) |
+| 5 | **Discours** | Connecteurs, anaphore, relations rhétoriques | temporel/causal/adversatif, pronoms 3ᵉ pers. |
+| 6 | **Prosodie** | Rythme, syllabes, figures rhétoriques, cadence | staccato/flowing, exclamation, parallélisme |
+| 7 | **Référents culturels** | Domestication/étrangéisation, adaptation de noms | Alice→Alicio (EO), Alice→Liisa (FI) |
+
+### Profils linguistiques (7 langues)
+
+| Langue | Ordre | Morpho. | Cas | Genre | Long. phrase | Particularités |
+|--------|-------|---------|-----|-------|-------------|----------------|
+| EN | SVO | Faible | Non | Non | 18 mots | Analytique, registre via lexique |
+| FR | SVO | Moyenne | Non | Oui | 22 mots | Passé simple = registre littéraire |
+| DE | **SOV** | Élevée | Oui | Oui | **25 mots** | Phrases longues, subordonnées |
+| IT | SVO | Élevée | Non | Oui | 20 mots | Passato remoto = registre |
+| ES | SVO | Élevée | Non | Oui | 20 mots | Pro-drop, subjonctif fréquent |
+| EO | SVO | Moyenne | **Oui** (-n) | Non | 16 mots | Agglutination légère, noms adaptés |
+| FI | SVO | **Très élevée** | **15 cas** | Non | **14 mots** | Agglutinant, phrases courtes |
+
+### Résultats clés
+
+- **445 paragraphes** analysés (10 éditions × segments)
+- **~1515 choix de traducteur** documentés (699 longueur_phrase, 399 encodage_morphologique, 110 ordre_mots, 105 domestication, 104 archaïsme, 88 sélection_temps)
+- **Convergence conceptuelle** : 15 concepts détectés dans 7 langues (COMPRENDRE : 34 détections, confiance=0.834)
+- **Registre** : FR passé simple=70 marqueurs, DE archaïsme=20, IT passato remoto=18
+- **Adaptation culturelle** : EO domestication (Alicio)=48, FI domestication (Liisa)=57
+- **Readiness reconstruction** : ≥ 0.994 pour toutes les langues
+
+### Tables de la base (12 nouvelles + 3 vues)
+
+```
+paragraph_units          → Unité de granularité (id, edition, segment, texte)
+syntax_analysis          → Couche 1 : POS, dépendances, rôles sémantiques
+paragraph_word_atoms     → Couche 2 : Alignement mot→atome avec confiance
+morphology_features      → Couche 3 : Temps, aspect, cas, genre, nombre
+register_markers         → Couche 4 : Marqueurs de registre (formel/archaïque/littéraire)
+discourse_relations      → Couche 5 : Connecteurs et relations de discours
+prosody_rhythm           → Couche 6 : Rythme, figures rhétoriques, cadence
+cultural_referents       → Couche 7 : Référents culturels et stratégies de traduction
+translator_choices       → Transversal : Choix d'interprétation du traducteur
+language_profiles        → Transversal : Paramétrage par langue
+paragraph_concepts       → Transversal : Concepts détectés au niveau paragraphe
+paragraph_analysis_summary → Transversal : Résumé multicouche
+
+v_paragraph_alignment        → Vue : Alignement inter-langues par paragraphe
+v_translator_choices_compared → Vue : Comparaison des choix par traducteur
+v_paragraph_multilayer       → Vue : Synthèse multicouche par paragraphe
+```
+
+## �🚀 Quick Start — Architecture v2
 
 ### Étape 1 : Installer Dolt
 
@@ -433,9 +496,11 @@ Voir : `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` (justification émotionnelle,
 - [x] Analyse des gaps de reconstruction (ANALYSE_GAPS_RECONSTRUCTION.md)
 - [x] POC v3-alpha : phrase-level avec attribution mot→atome ciblée
 - [x] Profils stylistiques par traducteur (TTR, hapax, ponctuation)
+- [x] **v3 : Moteur 7 couches multilingue au niveau paragraphe (445 paragraphes, 7 langues, ~1515 choix de traducteur, 72/72 tests)**
 
 ### Court terme (à faire)
 - [ ] Enrichir les dictionnaires de mots-clés (DE, IT, ES, EO, FI) pour réduire le biais français
+- [ ] Ajouter des formes conjuguées/irrégulières aux ATOM_KEYWORDS (fell→fall, juoksi→juosta)
 - [ ] Ajouter des œuvres supplémentaires (Pinocchio, Grimm, Divine Comédie)
 - [ ] Intégrer les 50 NSM primes manquants (logiques, déictiques, substantifs)
 - [ ] Étendre le POC v3 à tous les segments (pas seulement ch01_falling)
@@ -466,6 +531,7 @@ Voir : `PROPOSITION_SOUS_PRIMITIFS_EMOTIONNELS.md` (justification émotionnelle,
 | v2.1    | 2025-02    | Validation Gutenberg : 10 traductions, 6 langues, 46 segments | 82/82 ✅     |
 | **v2.2**| **2025-02**| **Axes émotionnels : 8 sous-primitifs neurophysiologiques (Panksepp/Ekman/Plutchik/Damasio), EMOTION → couche 3c, 30 primitifs** | **87/87 ✅** |
 | v3-alpha| 2026-02 | Analyse gaps reconstruction + POC phrase-level (122 phrases, 176 attributions mot→atome, profils stylistiques, 4 tables + 2 vues) | 87/87 ✅ |
+| **v3**  | **2026-02** | **Moteur 7 couches multilingue : syntaxe, alignement mot-atome, morphologie, registre, discours, prosodie, référents culturels — niveau paragraphe (445 paragraphes, 7 langues, ~1515 choix de traducteur, 12 tables + 3 vues)** | **159/159 ✅** |
 
 ## 📄 Licence
 
@@ -475,6 +541,6 @@ Voir `LICENSE` à la racine du projet.
 ---
 
 **Auteur:** PaniniFS Core Team  
-**Version:** 2.2.0 + v3-alpha  
+**Version:** 3.0.0  
 **Date:** 2026-02-17  
-**Status:** Proof of Concept (empirically validated + neurophysiological grounding + reconstruction gap analysis)
+**Status:** Proof of Concept (empirically validated + neurophysiological grounding + 7-layer multilingual reconstruction engine)
