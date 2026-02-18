@@ -18,6 +18,8 @@ Entrée :  corpus Gutenberg (2 œuvres, 10 éditions, 6+4 langues, 46 segments)
 Sortie :  tables Dolt remplies + choix traducteur documentés
 
 Granularité : PARAGRAPHE (pas phrase) car les langues ont des préférences
+
+Dépendance : morpho_semantic_bridge.py (pont morphologie ↔ sémantique)
 de longueur de phrases différentes.
 
 Usage :
@@ -896,10 +898,25 @@ def analyze_syntax(text, lang):
 
 def align_words_to_atoms(text, lang):
     """Attribute each word to its atom(s). Reuses ATOM_KEYWORDS with
-    paragraph-level context for disambiguation."""
+    paragraph-level context for disambiguation.
+    
+    Cascade de résolution (v2 — pont morpho-sémantique) :
+      1. Match direct/prefix dans ATOM_KEYWORDS (original)
+      2. Lemmatisation → ATOM_KEYWORDS (irréguliers + suffixes)
+      3. Racines étymologiques (latines, germaniques)
+      4. Inférence inter-langues (langues parentes)
+    """
+    # Import conditionnel pour ne pas casser si le module est absent
+    try:
+        from morpho_semantic_bridge import resolve_word_full
+        has_bridge = True
+    except ImportError:
+        has_bridge = False
+
     words = text.split()
     attributions = []
     sentences = split_into_sentences(text, lang)
+    matched_positions = set()  # Track positions already matched
     
     # Map word positions to sentence index
     word_to_sent = {}
@@ -910,6 +927,7 @@ def align_words_to_atoms(text, lang):
             word_to_sent[offset + j] = si
         offset += len(sent_words)
 
+    # --- Pass 1: Original match (direct + prefix) ---
     for word_pos, word_raw in enumerate(words):
         word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
         if len(word_lower) < 2:
@@ -952,7 +970,34 @@ def align_words_to_atoms(text, lang):
                         "disambiguation": disambiguation,
                         "sentence_local_idx": word_to_sent.get(word_pos, 0),
                     })
+                    matched_positions.add(word_pos)
                     break
+
+    # --- Pass 2: Morpho-semantic bridge (lemmatisation + racines + inter-langues) ---
+    if has_bridge:
+        for word_pos, word_raw in enumerate(words):
+            if word_pos in matched_positions:
+                continue  # Déjà résolu en pass 1
+
+            word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
+            if len(word_lower) < 3:  # Seuil plus strict pour le bridge
+                continue
+
+            bridge_results = resolve_word_full(word_lower, lang, ATOM_KEYWORDS)
+            for r in bridge_results:
+                if r["confidence"] >= 0.45:  # Seuil minimum
+                    attributions.append({
+                        "word_position": word_pos,
+                        "word_form": word_raw,
+                        "word_lemma": r["lemma"],
+                        "atom_id": r["atom_id"],
+                        "confidence": r["confidence"],
+                        "keyword_matched": r["lemma"],
+                        "disambiguation": r["disambiguation"],
+                        "sentence_local_idx": word_to_sent.get(word_pos, 0),
+                    })
+                    matched_positions.add(word_pos)
+                    break  # Best match only per word
 
     return attributions
 
