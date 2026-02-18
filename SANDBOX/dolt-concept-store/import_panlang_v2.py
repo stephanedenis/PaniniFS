@@ -84,8 +84,19 @@ ATOMS_EMOTIONAL = {
     "RAGE", "DISGUST", "PLAY", "TEDIUM",
 }
 
-# All valid atoms (predicates + emotional)
-ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | {"EMOTION"}  # Keep EMOTION for legacy parsing
+# v2.3: 7 abstract atoms (category ABS) — mathematics, physics, formal structures
+ATOMS_ABSTRACT = {
+    "RELATION",     # correspondance entre éléments : →, ↦, ∼, =
+    "STRUCTURE",    # organisation qui survit aux transformations
+    "INVARIANCE",   # ce qui ne change pas sous transformation
+    "RÉCURRENCE",   # auto-référence, induction, itération
+    "DUALITÉ",      # opposition productive : ∀/∃, ∧/∨, espace/co-espace
+    "MESURE",       # quantité continue, taille, norme, distance
+    "ORDRE",        # relation antisymétrique transitive : ≤, ⊂, ≺
+}
+
+# All valid atoms (predicates + emotional + abstract)
+ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | ATOMS_ABSTRACT | {"EMOTION"}  # Keep EMOTION for legacy parsing
 
 # Atom → dimension mapping (from the literature review § 11.3)
 # v2.2: EMOTION replaced by 8 emotional sub-primitives
@@ -111,6 +122,14 @@ ATOM_DIMENSIONS = {
     "TEDIUM":         {"QUALITÉ": 0.9, "PROCESSUS": 0.1},
     # Legacy — kept for parsing old formulas, remapped to SEEKING+FEAR avg
     "EMOTION":        {"QUALITÉ": 0.7, "PROCESSUS": 0.3},
+    # Layer 4 — Abstract atoms (v2.3) — ABS-dominant
+    "RELATION":       {"RELATION": 1.0},
+    "STRUCTURE":      {"STRUCTURE": 0.8, "RELATION": 0.2},
+    "INVARIANCE":     {"QUALITÉ": 0.5, "STRUCTURE": 0.5},
+    "RÉCURRENCE":     {"PROCESSUS": 0.4, "STRUCTURE": 0.6},
+    "DUALITÉ":        {"RELATION": 0.5, "MODALITÉ": 0.5},
+    "MESURE":         {"QUALITÉ": 0.7, "RELATION": 0.3},
+    "ORDRE":          {"RELATION": 0.6, "STRUCTURE": 0.4},
 }
 
 # Atom → NSM prime mapping (v2.2: emotional sub-primitives)
@@ -135,6 +154,14 @@ ATOM_NSM = {
     "TEDIUM":         ["FEEL", "BAD"],
     # Legacy
     "EMOTION":        ["FEEL"],
+    # Abstract atoms (v2.3)
+    "RELATION":       ["LIKE", "OF", "WITH"],
+    "STRUCTURE":      ["PART", "KIND"],
+    "INVARIANCE":     ["SAME"],
+    "RÉCURRENCE":     ["AGAIN", "MORE"],
+    "DUALITÉ":        ["OTHER", "NOT", "IF"],
+    "MESURE":         ["BIG", "SMALL", "MUCH"],
+    "ORDRE":          ["BEFORE", "AFTER", "ABOVE"],
 }
 
 # Atom → Jackendoff mapping (v2.2: emotional sub-primitives)
@@ -158,6 +185,14 @@ ATOM_JACKENDOFF = {
     "PLAY":           None,
     "TEDIUM":         None,
     "EMOTION":        None,
+    # Abstract atoms (v2.3)
+    "RELATION":       None,
+    "STRUCTURE":      None,
+    "INVARIANCE":     None,
+    "RÉCURRENCE":     None,
+    "DUALITÉ":        None,
+    "MESURE":         None,
+    "ORDRE":          None,
 }
 
 # Atom → Pustejovsky quale (v2.2: emotional sub-primitives)
@@ -181,6 +216,14 @@ ATOM_PUSTEJOVSKY = {
     "PLAY":           "FORMAL",
     "TEDIUM":         "FORMAL",
     "EMOTION":        "FORMAL",
+    # Abstract atoms (v2.3) — all FORMAL (they characterize abstract structures)
+    "RELATION":       "FORMAL",
+    "STRUCTURE":      "CONSTITUTIVE",
+    "INVARIANCE":     "FORMAL",
+    "RÉCURRENCE":     "AGENTIVE",
+    "DUALITÉ":        "FORMAL",
+    "MESURE":         "FORMAL",
+    "ORDRE":          "FORMAL",
 }
 
 # Atom → Dhātu sanskrit (v2.2: emotional sub-primitives)
@@ -205,6 +248,14 @@ ATOM_DHATU = {
     "TEDIUM":         "√glai",
     # Legacy
     "EMOTION":        "√hṛd",
+    # Abstract atoms (v2.3)
+    "RELATION":       "√bandh",    # lier
+    "STRUCTURE":      "√dhā",      # poser, établir
+    "INVARIANCE":     "√sthā",     # se tenir, rester stable
+    "RÉCURRENCE":     "√vṛt",      # tourner, revenir
+    "DUALITÉ":        "√dvā",      # deux, diviser
+    "MESURE":         "√mā",       # mesurer
+    "ORDRE":          "√kram",     # marcher en ordre, séquencer
 }
 
 # Duplicate formulas (same formule_simple for different concepts)
@@ -717,9 +768,29 @@ def classify_quality(concept_name, atoms, validity, formule_simple):
 
 
 def compute_primary_category(atoms):
-    """Determine the primary ontological category based on atoms."""
-    # All current atoms are PROC. If we had nonverbal atoms they'd differ.
-    return "PROC"
+    """Determine the primary ontological category based on atoms.
+    
+    v2.3: Actual computation based on dimension dominance.
+    - PROC if PROCESSUS is the dominant dimension
+    - ABS if STRUCTURE + RELATION dominate (abstract/formal atoms)
+    - QUAL if QUALITÉ dominates (emotional/evaluative atoms)
+    - ENT if ENTITÉ dominates (entity atoms, future)
+    """
+    dim_scores = {"ENTITÉ": 0, "PROCESSUS": 0, "QUALITÉ": 0, "RELATION": 0,
+                  "STRUCTURE": 0, "SITUATION": 0, "MODALITÉ": 0}
+    for atom in atoms:
+        if atom in ATOM_DIMENSIONS:
+            for dim, score in ATOM_DIMENSIONS[atom].items():
+                dim_scores[dim] = dim_scores.get(dim, 0) + score
+    
+    # Determine dominant category
+    proc_score = dim_scores["PROCESSUS"]
+    abs_score = dim_scores["STRUCTURE"] + dim_scores["RELATION"]
+    qual_score = dim_scores["QUALITÉ"]
+    ent_score = dim_scores["ENTITÉ"]
+    
+    scores = {"PROC": proc_score, "ABS": abs_score, "QUAL": qual_score, "ENT": ent_score}
+    return max(scores, key=scores.get)
 
 
 def compute_dimension_coverage(atoms):
