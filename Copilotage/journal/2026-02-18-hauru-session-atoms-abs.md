@@ -83,6 +83,16 @@ de Noether, et le lien Curry-Howard-Lambek.
 - Instruction dans `.github/copilot-instructions.md`
 - Git hook `pre-commit` qui refuse le commit sans entrée journal du jour
 
+## Fichiers modifiés
+
+| Fichier | Modification |
+|---------|-------------|
+| `import_panlang_v2.py` | ATOMS_ABSTRACT, 6 dictionnaires, compute_primary_category(), seed_abstract_atoms() |
+| `gutenberg_multilingual_validator.py` | +608 mots-clés (7 atomes × 7 langues) dans ATOM_KEYWORDS |
+| `.github/copilot-instructions.md` | Nouveau — règles Copilot repo-wide (journal, ontologie) |
+| `Copilotage/AGENT_CONVENTION.md` | Section journal obligatoire ajoutée |
+| `scripts/hooks/pre-commit` | Nouveau — hook bloquant sans entrée journal |
+
 ## Tests effectués
 
 - ✅ 25 atomes chargés (17 PROC + 1 EMOTION + 7 ABS)
@@ -90,11 +100,15 @@ de Noether, et le lien Curry-Howard-Lambek.
 - ✅ Classification catégorielle correcte pour les 4 catégories
 - ✅ Texte mathématique classifié ABS avec 10 atomes détectés
 - ✅ Imports Python validés sans erreur
+- ✅ 7/7 atomes ABS seedés dans Dolt (semantic_predicates, ontological_category='ABS')
+- ✅ 162/162 tests passent (90 bridge + 72 engine), 0 régressions
+- ✅ Hook pre-commit fonctionnel (refuse commit sans journal)
 
 ## Prochaines étapes
 
-- [ ] Git commit des changements
-- [ ] Re-run `import_panlang_v2.py` pour seeder les nouveaux atomes dans Dolt
+- [x] Git commit des changements
+- [x] Re-run `import_panlang_v2.py` pour seeder les nouveaux atomes dans Dolt
+- [x] Corriger: seed_abstract_atoms() manquant → ajouté Step 4c
 - [ ] Créer un mini-corpus mathématique (Euclide, Euler, Noether) pour valider
 - [ ] Ajouter les atomes ENT et QUAL manquants (phase suivante)
 - [ ] Configurer DoltHub remote pour backup

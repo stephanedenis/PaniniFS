@@ -695,6 +695,60 @@ def seed_emotional_axes():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Step 4c: Seed abstract atoms (v2.3)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def seed_abstract_atoms():
+    """Insert the 7 abstract atoms (category ABS) — mathematics, physics, formal structures."""
+    print("\n" + "=" * 70)
+    print("STEP 4c: Seed abstract atoms — 7 ABS primitives (layer 4)")
+    print("=" * 70)
+
+    abstract_atoms = [
+        ("RELATION", "REL", "Relation", "Relation", "√bandh",
+         "Correspondance entre éléments : →, ↦, ∼, =",
+         "ABS", ["LIKE", "OF", "WITH"], None, None, "state"),
+        ("STRUCTURE", "STR", "Structure", "Structure", "√dhā",
+         "Organisation qui survit aux transformations",
+         "ABS", ["PART", "KIND"], None, None, "state"),
+        ("INVARIANCE", "INV", "Invariance", "Invariance", "√sthā",
+         "Ce qui ne change pas sous transformation",
+         "ABS", ["SAME"], None, None, "state"),
+        ("RÉCURRENCE", "REC", "Récurrence", "Recurrence", "√vṛt",
+         "Auto-référence, induction, itération",
+         "ABS", ["AGAIN", "MORE"], None, None, "activity"),
+        ("DUALITÉ", "DUA", "Dualité", "Duality", "√dvā",
+         "Opposition productive : ∀/∃, ∧/∨, espace/co-espace",
+         "ABS", ["OTHER", "NOT", "IF"], None, None, "state"),
+        ("MESURE", "MES", "Mesure", "Measure", "√mā",
+         "Quantité continue, taille, norme, distance",
+         "ABS", ["BIG", "SMALL", "MUCH"], None, None, "state"),
+        ("ORDRE", "ORD", "Ordre", "Order", "√kram",
+         "Relation antisymétrique transitive : ≤, ⊂, ≺",
+         "ABS", ["BEFORE", "AFTER", "ABOVE"], None, None, "state"),
+    ]
+
+    queries = []
+    for pid, code, fr, en, dhatu, desc, cat, nsm, jack, levin, vendler in abstract_atoms:
+        queries.append(
+            f"REPLACE INTO semantic_predicates "
+            f"(id, code, name_fr, name_en, dhatu_sa, description, "
+            f"ontological_category, nsm_mapping, jackendoff_mapping, "
+            f"levin_classes, pustejovsky_quale, vendler_aspect) "
+            f"VALUES ({escape_sql(pid)}, {escape_sql(code)}, {escape_sql(fr)}, "
+            f"{escape_sql(en)}, {escape_sql(dhatu)}, {escape_sql(desc)}, "
+            f"{escape_sql(cat)}, {json_sql(nsm)}, {escape_sql(jack)}, "
+            f"{json_sql(levin)}, {escape_sql(ATOM_PUSTEJOVSKY.get(pid))}, "
+            f"{escape_sql(vendler)});"
+        )
+
+    if dolt_sql_batch(queries):
+        print(f"  ✅ Inserted 7 abstract atoms (layer 4 — ABS)")
+        print(f"     RELATION, STRUCTURE, INVARIANCE, RÉCURRENCE, DUALITÉ, MESURE, ORDRE")
+    return True
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Step 5: Load, clean, classify, import concepts
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -1067,19 +1121,20 @@ def verify():
 def main():
     print("╔══════════════════════════════════════════════════════════════════╗")
     print("║  PanLang v2.2 Import — 3-Layer + Emotional Axes Architecture      ║")
-    print("║  30 primitives: 4+5+9+4+8 (Panksepp/Ekman/Plutchik/Damasio)      ║")
+    print("║  37 primitives: 4+5+9+4+8+7 (+ ABS: maths/physics)             ║")
     print("╚══════════════════════════════════════════════════════════════════╝")
     print()
 
     # Step 0
     init_dolt_db()
 
-    # Step 1-4b: Seed reference data
+    # Step 1-4c: Seed reference data
     seed_ontological_categories()
     seed_structural_operations()
     seed_semantic_predicates()
     seed_nonverbal_extensions()
     seed_emotional_axes()
+    seed_abstract_atoms()
 
     # Step 5: Import concepts
     concept_count = load_and_import_concepts()
@@ -1094,7 +1149,7 @@ def main():
     verify()
 
     print(f"\n" + "=" * 70)
-    print(f"✅ DONE — {concept_count} concepts imported with v2.2 schema (30 primitives)")
+    print(f"✅ DONE — {concept_count} concepts imported with v2.3 schema (37 primitives)")
     print("=" * 70)
 
 
