@@ -1,0 +1,151 @@
+{
+  "languages": [
+    "de",
+    "en",
+    "es",
+    "fr",
+    "it"
+  ],
+  "matrix": {
+    "de": {
+      "de": 1.0,
+      "en": 0.93,
+      "es": 0.782,
+      "fr": 0.8535,
+      "it": 0.6901
+    },
+    "en": {
+      "de": 0.93,
+      "en": 1.0,
+      "es": 0.877,
+      "fr": 0.9049,
+      "it": 0.8293
+    },
+    "es": {
+      "de": 0.782,
+      "en": 0.877,
+      "es": 1.0,
+      "fr": 0.9002,
+      "it": 0.878
+    },
+    "fr": {
+      "de": 0.8535,
+      "en": 0.9049,
+      "es": 0.9002,
+      "fr": 1.0,
+      "it": 0.8884
+    },
+    "it": {
+      "de": 0.6901,
+      "en": 0.8293,
+      "es": 0.878,
+      "fr": 0.8884,
+      "it": 1.0
+    }
+  },
+  "universal_atoms": [
+    "AGENT",
+    "BON",
+    "CHOSE",
+    "COGNITION",
+    "COMMUNICATION",
+    "CORPS",
+    "CREATION",
+    "EXISTENCE",
+    "LIEU",
+    "MOUVEMENT",
+    "PERCEPTION",
+    "POSSESSION",
+    "SEEKING"
+  ],
+  "universal_count": 13,
+  "total_atoms": 28,
+  "universality_rate": 0.4643,
+  "lang_profiles": {
+    "it": {
+      "PERCEPTION": 0.1376,
+      "MOUVEMENT": 0.1362,
+      "POSSESSION": 0.095,
+      "COMMUNICATION": 0.0932,
+      "EXISTENCE": 0.0711,
+      "COGNITION": 0.0699,
+      "LIEU": 0.0637,
+      "CHOSE": 0.0579,
+      "SEEKING": 0.0474,
+      "CREATION": 0.0365,
+      "BON": 0.03,
+      "AGENT": 0.0248,
+      "MATIÈRE": 0.0233,
+      "CORPS": 0.0195,
+      "CARE": 0.0179
+    },
+    "en": {
+      "EXISTENCE": 0.1578,
+      "CHOSE": 0.1545,
+      "POSSESSION": 0.1234,
+      "COMMUNICATION": 0.0753,
+      "PERCEPTION": 0.0712,
+      "MOUVEMENT": 0.0689,
+      "LIEU": 0.0627,
+      "COGNITION": 0.0521,
+      "AGENT": 0.049,
+      "SEEKING": 0.0331,
+      "CORPS": 0.0311,
+      "ORDRE": 0.0303,
+      "CREATION": 0.0302,
+      "BON": 0.0159,
+      "INTENSE": 0.0146
+    },
+    "fr": {
+      "EXISTENCE": 0.1227,
+      "MOUVEMENT": 0.0969,
+      "COMMUNICATION": 0.0897,
+      "PERCEPTION": 0.0896,
+      "AGENT": 0.0893,
+      "POSSESSION": 0.088,
+      "CHOSE": 0.0735,
+      "LIEU": 0.0655,
+      "PLAY": 0.0571,
+      "COGNITION": 0.0539,
+      "CREATION": 0.0448,
+      "BON": 0.0316,
+      "CORPS": 0.0251,
+      "GRAND": 0.0211,
+      "ORDRE": 0.0197
+    },
+    "es": {
+      "POSSESSION": 0.1525,
+      "MOUVEMENT": 0.1346,
+      "COMMUNICATION": 0.1199,
+      "EXISTENCE": 0.1147,
+      "CHOSE": 0.0671,
+      "PERCEPTION": 0.0639,
+      "LIEU": 0.0529,
+      "AGENT": 0.0472,
+      "TEDIUM": 0.0471,
+      "CREATION": 0.0415,
+      "CORPS": 0.0405,
+      "BON": 0.0329,
+      "COGNITION": 0.0303,
+      "VRAI": 0.0228,
+      "INTENSE": 0.022
+    },
+    "de": {
+      "EXISTENCE": 0.2184,
+      "CHOSE": 0.173,
+      "MOUVEMENT": 0.0836,
+      "AGENT": 0.0712,
+      "POSSESSION": 0.0636,
+      "COMMUNICATION": 0.0626,
+      "LIEU": 0.0489,
+      "ORDRE": 0.0406,
+      "PERCEPTION": 0.0394,
+      "VRAI": 0.0336,
+      "BON": 0.0311,
+      "CORPS": 0.0305,
+      "MATIÈRE": 0.028,
+      "PLAY": 0.0226,
+      "COGNITION": 0.0193
+    }
+  }
+}

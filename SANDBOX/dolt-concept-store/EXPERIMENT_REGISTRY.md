@@ -553,6 +553,50 @@ Résultats de la comparaison Alice EN ↔ FR :
 - 13 atomes universels couvrent **79.6%** des détections
 - E2 readiness : ≥15 atomes universels recommandés pour reconstruction
 
+---
+
+### Gutenberg Corpus Ingestion (post-v4.2) ✅
+
+**Objectif** : Valider l'universalité du système d'atomes à grande échelle,
+sur un corpus multilingue curé de littérature classique.
+
+| Paramètre | Valeur |
+|---|---|
+| **Date** | 2026-02-19 |
+| **Script** | `gutenberg_ingest.py` (~400 lignes) |
+| **Corpus** | 37 textes, 7 langues (EN=15, FR=10, DE=5, ES=2, IT=2, PT=2, NL=1) |
+| **Taille** | 2 992 194 mots (3M), 20 Mo texte brut |
+| **Temps** | 45.2 min (2711.3s), 1104 mots/s |
+| **Atomes moyens/texte** | 33.6 / 35 (96%) |
+| **Concepts moyens/texte** | 114.3 / 120 |
+
+**Matrice de similarité cosine cross-langue (profils atomiques agrégés) :**
+
+|     | DE    | EN    | ES    | FR    | IT    |
+|-----|-------|-------|-------|-------|-------|
+| DE  | 1.000 | 0.930 | 0.782 | 0.854 | 0.690 |
+| EN  | 0.930 | 1.000 | 0.877 | 0.905 | 0.829 |
+| ES  | 0.782 | 0.877 | 1.000 | 0.900 | 0.878 |
+| FR  | 0.854 | 0.905 | 0.900 | 1.000 | 0.888 |
+| IT  | 0.690 | 0.829 | 0.878 | 0.888 | 1.000 |
+
+**13 atomes universels** (présents dans les 5 langues, 46.4% du vocabulaire atomique) :
+AGENT, BON, CHOSE, COGNITION, COMMUNICATION, CORPS, CREATION,
+EXISTENCE, LIEU, MOUVEMENT, PERCEPTION, POSSESSION, SEEKING
+
+**Atomes les plus stables (CV = coefficient de variation)** :
+- LIEU (0.112) — ~5.9% du profil dans toute langue
+- COMMUNICATION (0.218) — ~8.8%
+- BON (0.222) — ~2.8%
+- MOUVEMENT (0.261) — ~10.4%
+
+**Limitations identifiées** :
+- `langdetect` misclassifie NL→DE et PT→DE/EN (textes anciens)
+- Textes très courts (<3K mots) n'activent que 27-32 atomes sur 35
+- E2 strict (par document) : seulement 3 atomes universels (trop exigeant)
+
+---
+
 **Critère de succès Priorité 2** : ✅ ATTEINT
 - ✅ `python document_analyzer.py mon.pdf` → rapport avec atomes, concepts, tiers
 - ✅ Support PDF, EPUB, HTML, Markdown, texte brut, DOCX (6 formats)
@@ -627,6 +671,10 @@ FAIT ✅        v4.1 (document_analyzer.py) ← 310 lignes, pipeline E2E validé
 FAIT ✅        v4.2 (semantic_serializer)  ← universality 0.87, E2 spec prête
      │
      │     Roadmap NA-004 COMPLET ✅
+     │
+FAIT ✅        Gutenberg corpus (37 textes, 7 langues, 3M mots)
+     │         → 13 atomes universels cross-langue (46.4%)
+     │         → cosine 0.69–0.93, LIEU le plus stable (CV=0.112)
      │
 PROCHAIN       E2 (reconstruction bit-perfect) ← hypothèse formelle
 ```

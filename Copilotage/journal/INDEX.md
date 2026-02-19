@@ -1,11 +1,12 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-02-18T15:30:00-05:00
+Généré: 2026-02-19T17:32:00-05:00
 
 ## Entrées
 
 ### 2026
 
+- [2026-02-19-hauru-gutenberg-corpus-ingestion.md](2026-02-19-hauru-gutenberg-corpus-ingestion.md) — 🌍 Gutenberg corpus complet : **37 textes, 7 langues, 3M mots**, 45 min. Matrice cross-langue : **13 atomes universels** (46.4%), cosine 0.69–0.93. LIEU le plus stable (CV=0.112).
 - [2026-02-19-hauru-v42-semantic-serializer.md](2026-02-19-hauru-v42-semantic-serializer.md) — v4.2 : Sérialisation JSON, comparaison Alice EN↔FR universality score **0.8671 EXCELLENT**, spec E2 reconstruction, **roadmap NA-004 COMPLET** ✅
 - [2026-02-19-hauru-v40-v41-text-media-bridge.md](2026-02-19-hauru-v40-v41-text-media-bridge.md) — v4.0–v4.1 : Pont texte multi-format (6 formats) ↔ moteur d'atomes, document_analyzer pipeline E2E, Alice 814¶ en 20.4s, stockage Dolt validé
 - [2026-02-19-hauru-v27-wsd-structural-ops.md](2026-02-19-hauru-v27-wsd-structural-ops.md) — v2.7 : WSD POS-aware (3.6% mots désambiguïsés), opérations structurelles NEG/QUANT/MOD (71 détections/50 para), Jackendoff 5→11/35, score 0.667 (+0.017)

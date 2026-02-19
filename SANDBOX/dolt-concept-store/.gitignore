@@ -14,6 +14,9 @@ __pycache__/
 # Ignorer les logs
 *.log
 
+# Ignorer le corpus Gutenberg brut (reconstructible via gutenberg_ingest.py --download)
+gutenberg_corpus/
+
 # Ignorer les fichiers temporaires
 *.tmp
 *.temp
