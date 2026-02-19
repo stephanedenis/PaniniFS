@@ -95,8 +95,21 @@ ATOMS_ABSTRACT = {
     "ORDRE",        # relation antisymétrique transitive : ≤, ⊂, ≺
 }
 
-# All valid atoms (predicates + emotional + abstract)
-ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | ATOMS_ABSTRACT | {"EMOTION"}  # Keep EMOTION for legacy parsing
+# v2.5: 5 entity atoms (category ENT) — objects, agents, bodies, places, substances
+# Fills the ENT gap in the 4-category ontology (ENT, PROC, QUAL, ABS)
+# Sources: NSM substantive primes (Wierzbicka), Jackendoff THING/PLACE,
+#          Pustejovsky FORMAL/CONSTITUTIVE qualia, BFO/DOLCE endurants,
+#          Core knowledge (Spelke & Kinzler 2007)
+ATOMS_ENTITY = {
+    "CHOSE",        # entité générique individuable — the "what" (NSM: SOMETHING)
+    "AGENT",        # être animé capable d'action intentionnelle (NSM: SOMEONE)
+    "CORPS",        # substrat physique matériel, volume borné (NSM: BODY)
+    "LIEU",         # entité spatiale contenant/localisant (Jackendoff: PLACE)
+    "MATIÈRE",      # substance non-comptable, matériau constitutif (Pustejovsky: CONSTITUTIVE)
+}
+
+# All valid atoms (predicates + emotional + abstract + entity)
+ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | ATOMS_ABSTRACT | ATOMS_ENTITY | {"EMOTION"}  # Keep EMOTION for legacy parsing
 
 # Atom → dimension mapping (from the literature review § 11.3)
 # v2.2: EMOTION replaced by 8 emotional sub-primitives
@@ -130,6 +143,14 @@ ATOM_DIMENSIONS = {
     "DUALITÉ":        {"RELATION": 0.5, "MODALITÉ": 0.5},
     "MESURE":         {"QUALITÉ": 0.7, "RELATION": 0.3},
     "ORDRE":          {"RELATION": 0.6, "STRUCTURE": 0.4},
+    # Layer 5 — Entity atoms (v2.5) — ENT-dominant
+    # NSM: SOMETHING, SOMEONE, BODY; Jackendoff: THING, PLACE
+    # Pustejovsky: FORMAL, CONSTITUTIVE; BFO: Independent Continuant, Site
+    "CHOSE":          {"ENTITÉ": 1.0},
+    "AGENT":          {"ENTITÉ": 0.6, "PROCESSUS": 0.3, "MODALITÉ": 0.1},
+    "CORPS":          {"ENTITÉ": 0.7, "STRUCTURE": 0.3},
+    "LIEU":           {"ENTITÉ": 0.6, "STRUCTURE": 0.2, "RELATION": 0.2},
+    "MATIÈRE":        {"ENTITÉ": 0.7, "QUALITÉ": 0.3},
 }
 
 # Atom → NSM prime mapping (v2.2: emotional sub-primitives)
@@ -162,6 +183,12 @@ ATOM_NSM = {
     "DUALITÉ":        ["OTHER", "NOT", "IF"],
     "MESURE":         ["BIG", "SMALL", "MUCH"],
     "ORDRE":          ["BEFORE", "AFTER", "ABOVE"],
+    # Entity atoms (v2.5)
+    "CHOSE":          ["SOMETHING", "THING"],
+    "AGENT":          ["SOMEONE", "PEOPLE", "I", "YOU"],
+    "CORPS":          ["BODY"],
+    "LIEU":           ["WHERE", "PLACE", "HERE"],
+    "MATIÈRE":        ["PART"],
 }
 
 # Atom → Jackendoff mapping (v2.2: emotional sub-primitives)
@@ -193,6 +220,12 @@ ATOM_JACKENDOFF = {
     "DUALITÉ":        None,
     "MESURE":         None,
     "ORDRE":          None,
+    # Entity atoms (v2.5) — Jackendoff has THING and PLACE as primitives
+    "CHOSE":          "THING",
+    "AGENT":          None,
+    "CORPS":          None,
+    "LIEU":           "PLACE",
+    "MATIÈRE":        None,
 }
 
 # Atom → Pustejovsky quale (v2.2: emotional sub-primitives)
@@ -224,6 +257,12 @@ ATOM_PUSTEJOVSKY = {
     "DUALITÉ":        "FORMAL",
     "MESURE":         "FORMAL",
     "ORDRE":          "FORMAL",
+    # Entity atoms (v2.5) — FORMAL ("what is it?") or CONSTITUTIVE ("what is it made of?")
+    "CHOSE":          "FORMAL",
+    "AGENT":          "FORMAL",
+    "CORPS":          "CONSTITUTIVE",
+    "LIEU":           "FORMAL",
+    "MATIÈRE":        "CONSTITUTIVE",
 }
 
 # Atom → Dhātu sanskrit (v2.2: emotional sub-primitives)
@@ -256,6 +295,12 @@ ATOM_DHATU = {
     "DUALITÉ":        "√dvā",      # deux, diviser
     "MESURE":         "√mā",       # mesurer
     "ORDRE":          "√kram",     # marcher en ordre, séquencer
+    # Entity atoms (v2.5)
+    "CHOSE":          "√dhṛ",      # tenir, supporter → dravya (substance, chose)
+    "AGENT":          "√jan",      # naître, engendrer → jana (personne)
+    "CORPS":          "√tan",      # étendre → tanu (corps), tantra (trame)
+    "LIEU":           "√vas",      # habiter, résider → vāsa (demeure)
+    "MATIÈRE":        "√bhū",      # être, devenir, terre → bhūmi (sol), bhūta (élément)
 }
 
 # Duplicate formulas — v2.3: most resolved via FORMULA_OVERRIDES_V23

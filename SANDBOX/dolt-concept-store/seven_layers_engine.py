@@ -103,7 +103,7 @@ CONCEPT_MAPPINGS = {
     "COMMANDER": {"COMMUNICATION", "DOMINATION"},
     "EXPLIQUER": {"COGNITION", "COMMUNICATION"},
     "PARTAGER": {"POSSESSION", "COMMUNICATION"},
-    "AMI": {"CARE", "COMMUNICATION", "PERCEPTION"},
+    "AMI": {"AGENT", "CARE", "COMMUNICATION"},  # v2.5: friend = agent who cares and communicates
     "PAIX": {"COMMUNICATION", "CARE", "CREATION"},
     "ENSEIGNER": {"COGNITION", "COMMUNICATION", "CREATION"},
     "GOUVERNER": {"DOMINATION", "COMMUNICATION", "CREATION"},
@@ -126,15 +126,15 @@ CONCEPT_MAPPINGS = {
     "ORGANISER": {"DOMINATION", "CREATION", "STRUCTURE"},  # v2.4: organize = structured creative control
 
     # ── Conflict/dominance concepts ──────────────────────────────────────
-    "GUERRE": {"MOUVEMENT", "DOMINATION", "DESTRUCTION"},
+    "GUERRE": {"AGENT", "MOUVEMENT", "DOMINATION", "DESTRUCTION"},  # v2.5: war = agents in destructive dominance
     "LIBERTÉ": {"MOUVEMENT", "DOMINATION", "EXISTENCE"},
     "SOUFFRIR": {"DESTRUCTION", "GRIEF", "EXISTENCE"},  # suffering = enduring destruction
     "HAIR": {"DISGUST", "DESTRUCTION", "DOMINATION"},
-    "ENNEMI": {"RAGE", "DOMINATION", "DESTRUCTION"},
+    "ENNEMI": {"AGENT", "RAGE", "DESTRUCTION"},  # v2.5: enemy = agent driven by rage toward destruction
     "INTIMIDER": {"DOMINATION", "FEAR"},
     "OBÉIR": {"PERCEPTION", "DOMINATION", "EXISTENCE"},
     "DETRUIRE": {"MOUVEMENT", "DESTRUCTION"},
-    "MUR": {"EXISTENCE", "STRUCTURE", "DESTRUCTION"},  # v2.4: wall = structural boundary
+    "MUR": {"CHOSE", "STRUCTURE", "LIEU"},  # v2.5: wall = thing structuring a place
 
     # ── Existence/desire concepts ────────────────────────────────────────
     "CAUSE": {"CREATION", "MOUVEMENT", "COGNITION"},
@@ -148,30 +148,42 @@ CONCEPT_MAPPINGS = {
     "ÉTERNITÉ": {"EXISTENCE", "INVARIANCE"},  # v2.4: eternity = invariant existence
     "TEMPS": {"EXISTENCE", "MOUVEMENT", "MESURE", "ORDRE"},  # v2.4: time = ordered measured becoming
     "DURÉE": {"EXISTENCE", "MESURE", "ORDRE"},  # v2.4: duration = measured ordered existence
-    "LIEU": {"EXISTENCE", "STRUCTURE"},  # v2.4: place = structured existence
+    "LIEU": {"LIEU", "STRUCTURE"},  # v2.5: place = structured location (uses LIEU atom)
 
     # ── Entity/nature concepts ───────────────────────────────────────────
-    "DORMIR": {"EXISTENCE", "PERCEPTION", "DESTRUCTION"},
-    "MANGER": {"DESTRUCTION", "EXISTENCE", "POSSESSION"},
-    "PARENT": {"CREATION", "CARE", "EXISTENCE"},  # parent = creator who nurtures
+    "DORMIR": {"CORPS", "PERCEPTION", "DESTRUCTION"},  # v2.5: sleeping = bodily perception cessation
+    "MANGER": {"CORPS", "DESTRUCTION", "POSSESSION"},  # v2.5: eating = bodily destructive possession
+    "PARENT": {"AGENT", "CREATION", "CARE"},  # v2.5: parent = agent who creates and nurtures
     "POISSON": {"DESTRUCTION", "POSSESSION", "CREATION"},
-    "LUNE": {"DESTRUCTION", "MOUVEMENT", "POSSESSION"},
-    "SOLEIL": {"COMMUNICATION", "POSSESSION", "EXISTENCE"},
-    "FEU": {"MOUVEMENT", "DESTRUCTION", "CREATION"},  # fire = transformative energy
-    "ANIMAL": {"EXISTENCE", "MOUVEMENT", "SEEKING"},  # animal = existing moving seeking being
+    "LUNE": {"CHOSE", "MOUVEMENT", "RÉCURRENCE"},  # v2.5: moon = thing in recurring motion
+    "SOLEIL": {"MATIÈRE", "MOUVEMENT", "EXISTENCE"},  # v2.5: sun = radiating material existence
+    "FEU": {"MATIÈRE", "MOUVEMENT", "DESTRUCTION"},  # v2.5: fire = substance in destructive motion
+    "ANIMAL": {"AGENT", "CORPS", "MOUVEMENT", "SEEKING"},  # v2.5: animal = embodied agent that moves and seeks
     "SE_SOUVENIR": {"MOUVEMENT", "POSSESSION", "EXISTENCE"},
 
     # ── Complex/multi-atom concepts ──────────────────────────────────────
     "BUT": {"MOUVEMENT", "EXISTENCE", "POSSESSION", "DOMINATION"},
     "JUSTICE": {"COGNITION", "DOMINATION", "EXISTENCE", "SEEKING"},
-    "ARCHITECTURE": {"MOUVEMENT", "EXISTENCE", "DESTRUCTION", "POSSESSION"},
-    "COMMUNAUTÉ": {"EXISTENCE", "COMMUNICATION", "CREATION", "POSSESSION"},
-    "FAMILLE": {"EXISTENCE", "CARE", "POSSESSION", "CREATION"},
-    "INSTRUMENT": {"EXISTENCE", "MOUVEMENT", "DESTRUCTION", "CREATION"},
-    "RACINE": {"EXISTENCE", "CREATION", "POSSESSION"},  # root = origin that persists
+    "ARCHITECTURE": {"CHOSE", "LIEU", "STRUCTURE", "CREATION"},  # v2.5: architecture = creating structured things in place
+    "COMMUNAUTÉ": {"AGENT", "COMMUNICATION", "CREATION", "LIEU"},  # v2.5: community = agents creating together in a place
+    "FAMILLE": {"AGENT", "CARE", "LIEU", "CREATION"},  # v2.5: family = agents caring in a shared place
+    "INSTRUMENT": {"CHOSE", "MOUVEMENT", "CREATION"},  # v2.5: instrument = thing enabling creative movement
+    "RACINE": {"LIEU", "CREATION", "POSSESSION"},  # v2.5: root = origin anchored in place
     "MORAL": {"DESTRUCTION", "EXISTENCE", "COGNITION", "COMMUNICATION"},
-    "NATION": {"DESTRUCTION", "EXISTENCE", "MOUVEMENT", "COMMUNICATION"},
-    "GROUPE": {"EXISTENCE", "RELATION", "STRUCTURE"},  # v2.4: group = relational structured existence
+    "NATION": {"AGENT", "LIEU", "DOMINATION", "COMMUNICATION"},  # v2.5: nation = agents governing a place
+    "GROUPE": {"AGENT", "RELATION", "STRUCTURE"},  # v2.5: group = agents in relational structure
+
+    # ── v2.5: New ENT-dependent concepts ─────────────────────────────────
+    "NOURRITURE": {"MATIÈRE", "CORPS", "EXISTENCE"},    # food = matter sustaining body
+    "VÊTEMENT": {"CHOSE", "CORPS", "POSSESSION"},       # clothing = thing possessed on body
+    "ARME": {"CHOSE", "DESTRUCTION", "DOMINATION"},      # weapon = thing for destructive domination
+    "FOYER": {"LIEU", "CARE", "MATIÈRE"},                # hearth = place of care with substance (fire)
+    "TOMBE": {"LIEU", "DESTRUCTION", "CORPS"},            # tomb = place where body meets destruction
+    "VOYAGE": {"MOUVEMENT", "LIEU", "SEEKING"},           # journey = moving between places seeking
+    "PEUPLE": {"AGENT", "LIEU", "COMMUNICATION"},         # people = agents communicating in a place
+    "CORPS_CONCEPT": {"CORPS", "EXISTENCE", "STRUCTURE"}, # body-as-concept = structured bodily existence
+    "NATURE": {"MATIÈRE", "LIEU", "EXISTENCE"},           # nature = material place of existence
+    "MAISON": {"CHOSE", "LIEU", "CARE"},                  # house = thing-place of care
 }
 
 

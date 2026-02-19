@@ -391,6 +391,195 @@ Les 3 axes convergent vers la même cible : **remplacer les mappings déterminis
 manuels par un système appris et probabiliste**, tout en gardant la transparence
 symbolique (explicabilité des décisions = avantage majeur vs pure deep learning).
 
+### NA-004 — Roadmap priorisé : Linguistique → Médias texte (2026-02-19)
+
+| Champ | Valeur |
+|-------|--------|
+| **Question** | Quel ordre d'exécution pour maximiser la valeur du pipeline sémantique ? |
+| **Verdict** | ✅ Priorité 1 : compléter le modèle linguistique. Priorité 2 : connecter les médias texte. |
+| **Journal** | [2026-02-19-hauru-experiment-registry.md](../../Copilotage/journal/2026-02-19-hauru-experiment-registry.md) §13 |
+
+**Constat de l'audit du 2026-02-19** :
+
+Le pipeline sémantique est coupé en deux moitiés déconnectées :
+
+```
+MOITIÉ A — Le moteur linguistique (fonctionne) :
+  Texte brut (.txt) → seven_layers_engine.py → 7 couches → atomes → Dolt
+  • 24 atomes (PROC=9, ABS=7, émotion=8)
+  • 95 concepts, 1831 keywords, 7 langues
+  • 105 concepts en Dolt : A=78, B=25, C=2
+
+MOITIÉ B — Le chunker binaire (fonctionne séparément) :
+  Fichier binaire → semantic_chunker.py → chunks binaires (PNG, JPEG, MP4, PDF…)
+  • 13 grammaires de format
+  • PDF : magic number + split obj/endobj (pas d'extraction de texte)
+  • EPUB, DOCX, ODT : rien du tout
+
+LE PONT MANQUANT :
+  PDF → [??? extraction texte ???] → texte brut → seven_layers_engine → atomes
+```
+
+#### Priorité 1 — Compléter le modèle linguistique (v2.5 → v2.7)
+
+L'ontologie déclare 4 catégories mais seules 2 ont des atomes :
+
+| Catégorie | Atomes actuels | Manque | Impact |
+|-----------|---------------|--------|--------|
+| **PROC** | 9 + 8 émotions = 17 | — | ✅ Couvert |
+| **ABS** | 7 | — | ✅ Couvert |
+| **ENT** | 0 | 🔴 Critique | Pas de primitifs pour les entités (objets, substances, lieux) |
+| **QUAL** | 0 | 🔴 Critique | Pas de primitifs pour les qualités (couleur, taille, température) |
+
+Sans ENT et QUAL, les concepts comme POISSON, BEAU, GRAND, FEU sont approximés
+avec des atomes PROC/ABS — une béquille, pas une solution.
+
+**v2.5 — Atomes ENT (entités)** — ✅ IMPLÉMENTÉ (2026-02-19)
+
+| Sous-étape | Contenu | Statut |
+|------------|---------|--------|
+| 2.5a | Identifier 5 primitifs ENT : CHOSE (√dhṛ), AGENT (√jan), CORPS (√tan), LIEU (√vas), MATIÈRE (√bhū) | ✅ |
+| 2.5b | Mappés dans les 6 dictionnaires (DIMENSIONS, NSM, JACKENDOFF, PUSTEJOVSKY, DHATU) | ✅ |
+| 2.5c | Keywords ENT dans `gutenberg_multilingual_validator.py` (×7 langues, ~100 mots/atome) | ✅ |
+| 2.5d | CONCEPT_MAPPINGS : 18 re-décompositions + 10 nouveaux concepts (95→105) | ✅ |
+| 2.5e | Validation croisée 3 fichiers : syntaxe + imports + compute_primary_category → ENT | ✅ |
+| 2.5f | Relancer le pipeline sur le corpus Gutenberg, vérifier les tiers | 🔲 À faire |
+
+**v2.6 — Atomes QUAL (qualités)**
+
+| Sous-étape | Contenu | Effort |
+|------------|---------|--------|
+| 2.6a | Identifier 5-8 primitifs QUAL candidats (TAILLE, COULEUR, INTENSITÉ, TEMPÉRATURE, VALENCE…) | Recherche 2-3h |
+| 2.6b | Mapper dans les 6 dictionnaires | Code 2-3h |
+| 2.6c | Keywords QUAL ×7 langues | Code 3-4h |
+| 2.6d | CONCEPT_MAPPINGS QUAL-dépendants | Code 2h |
+| 2.6e | Validation corpus | Validation 1-2h |
+
+**v2.7 — Opérations structurelles + WSD**
+
+| Sous-étape | Contenu | Effort |
+|------------|---------|--------|
+| 2.7a | Implémenter les 5 opérations structurelles (COMP, ID, NEG, QUANT, MOD) — mentionnées en docstring mais absentes du code | Code 3-4h |
+| 2.7b | WSD basique : fenêtre contextuelle pour désambiguïser polysémie (ex : "fall" = MOUVEMENT physique vs automne) | Code 4-6h |
+| 2.7c | Remplir les mappings Jackendoff (22/25 sont `None`) | Recherche + code 2h |
+| 2.7d | Relancer pipeline complet, vérifier que aucun concept ne régresse | Validation 2h |
+
+**Critère de succès Priorité 1** :
+- 4 catégories ontologiques couvertes (ENT, PROC, QUAL, ABS ≥ 5 atomes chacune)
+- ≥120 concepts (vs 105 actuels)
+- WSD contextuel sur les 10 mots les plus ambigus
+- 0 mappings Jackendoff à `None`
+
+#### Priorité 2 — Médias texte : connecter le pont (v4.0 → v4.2)
+
+Objectif : qu'un fichier PDF ou EPUB entre d'un côté, et que des atomes
+sémantiques sortent de l'autre.
+
+**v4.0 — Extracteur de texte multi-format**
+
+| Sous-étape | Contenu | Effort |
+|------------|---------|--------|
+| 4.0a | Ajouter `pdfminer.six` + `ebooklib` dans requirements.txt | 5 min |
+| 4.0b | Créer `text_extractor.py` : extracteur unifié PDF/EPUB/DOCX/HTML/TXT | Code 4-6h |
+| 4.0c | Pipeline PDF : `pdfminer.high_level.extract_text()` → texte brut → paragraphes | Code 2h |
+| 4.0d | Pipeline EPUB : `ebooklib` → lire chapitres XHTML → BeautifulSoup → texte | Code 2h |
+| 4.0e | Pipeline HTML : `BeautifulSoup` → extraction article/paragraphes | Code 1h |
+| 4.0f | Pipeline Markdown : parser `markdown-it-py` → texte structuré | Code 1h |
+| 4.0g | Tests : 5 PDF + 3 EPUB + 3 HTML réels, vérifier extraction fidèle | Tests 2-3h |
+
+**v4.1 — Pont extracteur ↔ moteur d'atomes**
+
+| Sous-étape | Contenu | Effort |
+|------------|---------|--------|
+| 4.1a | Créer `document_analyzer.py` : orchestrateur `fichier → text_extractor → seven_layers_engine` | Code 3-4h |
+| 4.1b | Détection automatique de langue (via trigrams ou `langdetect`) | Code 1h |
+| 4.1c | Chunking textuel intelligent : paragraphes → phrases → fenêtres de contexte | Code 3h |
+| 4.1d | Stockage Dolt des résultats d'analyse (nouvelle table `document_analyses`) | Code 2h |
+| 4.1e | CLI : `python document_analyzer.py mon_fichier.pdf` → rapport d'analyse | Code 1h |
+
+**v4.2 — Reconstruction et round-trip**
+
+| Sous-étape | Contenu | Effort |
+|------------|---------|--------|
+| 4.2a | Sérialiser les atomes extraits d'un document dans un format portable (JSON/CBOR) | Code 2h |
+| 4.2b | Comparer les atomes extraits de traductions d'un même texte (ex : même PDF en FR/EN) | Code 3h |
+| 4.2c | Dashboard de résultats : quels atomes sont universels dans les traductions ? | Code 2h |
+| 4.2d | Préparer l'expérience E2 (reconstruction bit-perfect) avec des documents réels | Spec 2h |
+
+**Critère de succès Priorité 2** :
+- `python document_analyzer.py mon.pdf` → rapport avec atomes, concepts, tiers
+- Support PDF, EPUB, HTML, Markdown, texte brut
+- Détection automatique de langue
+- Résultats stockés en Dolt
+- ≥95% du texte extrait fidèlement (mesuré par échantillonnage humain)
+
+#### Diagramme du pipeline cible
+
+```
+                     ┌──────────────┐
+                     │  Fichier     │
+                     │  d'entrée    │
+                     └──────┬───────┘
+                            │
+                     ┌──────▼───────┐
+                     │ Format       │ PDF? EPUB? HTML? TXT? MD?
+                     │ Detection    │ (magic number + heuristique)
+                     └──────┬───────┘
+                            │
+              ┌─────────────┼──────────────┐
+              │             │              │
+        ┌─────▼──┐   ┌─────▼──┐    ┌──────▼─────┐
+        │pdfminer│   │ebooklib│    │ BeautifulSoup│
+        │  .six  │   │ + BS4  │    │ / markdown  │
+        └───┬────┘   └───┬────┘    └──────┬──────┘
+            │             │               │
+            └─────────────┼───────────────┘
+                          │
+                   ┌──────▼───────┐
+                   │  Texte brut  │
+                   │  structuré   │ paragraphes, chapitres
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │  Détection   │ langdetect / trigrams
+                   │  de langue   │
+                   └──────┬───────┘
+                          │
+                   ┌──────▼───────┐
+                   │  seven_      │
+                   │  layers_     │ 7 couches × N paragraphes
+                   │  engine      │
+                   └──────┬───────┘
+                          │
+              ┌───────────┼──────────┐
+              │           │          │
+        ┌─────▼──┐  ┌─────▼──┐ ┌────▼─────┐
+        │ Atomes │  │Concepts│ │ Rapport  │
+        │détectés│  │ mappés │ │ 7 couches│
+        └───┬────┘  └───┬────┘ └────┬─────┘
+            │           │           │
+            └───────────┼───────────┘
+                        │
+                 ┌──────▼───────┐
+                 │  Dolt DB     │
+                 │ (stockage)   │
+                 └──────────────┘
+```
+
+#### Ordre d'exécution recommandé
+
+```
+MAINTENANT        v2.5 (atomes ENT)          ← Priorité 1a
+     │            v2.6 (atomes QUAL)          ← Priorité 1b
+     │            v2.7 (struct ops + WSD)     ← Priorité 1c
+     │
+     │     Le modèle linguistique est complet (4 catégories, WSD, ≥120 concepts)
+     │
+     ▼            v4.0 (text_extractor.py)    ← Priorité 2a
+                  v4.1 (document_analyzer.py) ← Priorité 2b
+                  v4.2 (round-trip, E2 prep)  ← Priorité 2c
+```
+
 ---
 
 ## 🗺️ Chronologie complète

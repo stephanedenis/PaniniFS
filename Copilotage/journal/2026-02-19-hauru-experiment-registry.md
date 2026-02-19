@@ -310,7 +310,135 @@ la table correcte est `concepts`.
 1. ~~Attendre la fin de v2.4b~~ ✅ FAIT
 2. ~~Vérifier les résultats step4b~~ ✅ FAIT — A=78, B=25, C=2
 3. **Mettre à jour le README.md** du concept store avec v2.3, v2.4, v2.4b
-4. **Commit consolidé** de tous les changements des sessions 18+19 février
-5. **Rebâtir le roadmap** sur la base de l'inventaire des 133 idées
+4. ~~Commit consolidé~~ ✅ FAIT — `8691188` (16 fichiers, +2229 lignes)
+5. ~~Rebâtir le roadmap~~ ✅ FAIT — NA-004 priorisé (linguistique → médias)
 6. **Archiver les 7 repos coquilles vides** (après récolte des specs utiles)
-7. **Prioriser les 10 idées impactantes** identifiées dans l'inventaire
+7. ~~Prioriser les idées impactantes~~ ✅ FAIT — v2.5→v2.7 (linguistique) puis v4.0→v4.2 (médias texte)
+
+## §13 — Priorisation du roadmap (NA-004) : Linguistique → Médias texte
+
+### Constat — Audit code du 2026-02-19
+
+Audit complet du code linguistique et des extracteurs de médias texte.
+
+**Côté linguistique** (fonctionnel mais incomplet) :
+- 24 atomes dans 2 catégories seulement (PROC=17, ABS=7)
+- **ENT = 0 atomes, QUAL = 0 atomes** — 2 catégories vides sur 4
+- 95 concepts, 1831 keywords, 7 langues
+- 22/25 mappings Jackendoff à `None`
+- Pas de désambiguïsation sémantique (WSD)
+- 5 opérations structurelles (COMP, ID, NEG, QUANT, MOD) en docstring mais pas en code
+
+**Côté médias texte** (quasi inexistant) :
+- PDF : magic number + split grossier sur `obj`/`endobj`, pas d'extraction de texte
+- EPUB, DOCX, ODT, LaTeX : rien du tout
+- Le chunker `semantic_chunker.py` est un parser binaire, pas textuel
+- Aucune lib d'extraction (PyPDF2, pdfminer, ebooklib) dans requirements.txt
+- **Le pont entre le chunker binaire et le moteur d'atomes n'existe pas**
+
+### Décision — Direction donnée par l'humain
+
+> « La priorité va d'abord aller sur les modèles linguistiques,
+> puis médias supportant les textes (PDF, EPUB, ...) »
+
+### Plan d'exécution (NA-004)
+
+**Priorité 1 — Modèle linguistique** :
+- v2.5 : Atomes ENT (5-8 primitifs entités : SUBSTANCE, OBJET, LIEU…)
+- v2.6 : Atomes QUAL (5-8 primitifs qualités : TAILLE, COULEUR, INTENSITÉ…)
+- v2.7 : Opérations structurelles + WSD basique + Jackendoff complet
+- Critère : 4 catégories couvertes, ≥120 concepts, WSD sur les 10 mots les plus ambigus
+
+**Priorité 2 — Médias texte** :
+- v4.0 : `text_extractor.py` — extracteur unifié PDF/EPUB/HTML/MD/TXT
+- v4.1 : `document_analyzer.py` — pont extracteur↔seven_layers_engine + détection langue
+- v4.2 : Round-trip et préparation E2 avec documents réels
+- Critère : `python document_analyzer.py mon.pdf` → atomes + stockage Dolt
+
+### Impact
+- NA-004 ajouté au registre d'expérimentations
+- Ordre d'exécution clairement défini
+- v2.5 (atomes ENT) = prochaine étape immédiate
+
+### Fichiers modifiés
+| Fichier | Action | Raison |
+|---------|--------|--------|
+| `SANDBOX/dolt-concept-store/EXPERIMENT_REGISTRY.md` | Mis à jour | NA-004 ajouté (~180 lignes) |
+| `Copilotage/journal/2026-02-19-hauru-experiment-registry.md` | Mis à jour | §13 ajouté |
+
+---
+
+## §14 — Implémentation v2.5 : Atomes ENT (CHOSE, AGENT, CORPS, LIEU, MATIÈRE)
+
+**Horodatage** : 2026-02-19 ~22:00 UTC
+**Session** : Continuation directe après priorisation NA-004
+
+### Constat
+- L'ontologie PaniniFS avait 24 atomes couvrant 3/4 catégories : PROC (9+8), ABS (7), mais ENT = 0 et QUAL = 0
+- Aucun atome ne pouvait capturer les noms concrets (personnes, lieux, objets, substances)
+- Les CONCEPT_MAPPINGS utilisaient EXISTENCE comme proxy pour les entités
+
+### Recherche théorique
+Sous-agent de recherche mobilisé, croisant 6 cadres théoriques :
+- **NSM** (Wierzbicka) : SOMETHING, SOMEONE, BODY, PART, WHERE/PLACE
+- **Jackendoff** : THING, PLACE comme primitifs ontologiques
+- **Pustejovsky** : Qualia FORMAL (identité) vs CONSTITUTIVE (matière)
+- **BFO/DOLCE** : Distinction endurant/perdurant
+- **Spelke** : Core knowledge — objets bornés, agents, lieux, substances
+- **Dhātu** : √dhṛ (porter/soutenir), √jan (naître/produire), √tan (étendre), √vas (habiter), √bhū (devenir/matière)
+
+### 5 atomes choisis
+
+| Atome | NSM | Jackendoff | Pustejovsky | Dhātu | Dim. dominante |
+|-------|-----|------------|-------------|-------|----------------|
+| CHOSE | SOMETHING | THING | FORMAL | √dhṛ | ENTITÉ: 1.0 |
+| AGENT | SOMEONE | — | FORMAL | √jan | ENTITÉ: 0.6 |
+| CORPS | BODY | — | CONSTITUTIVE | √tan | ENTITÉ: 0.7 |
+| LIEU | WHERE/PLACE | PLACE | FORMAL | √vas | ENTITÉ: 0.6 |
+| MATIÈRE | PART | — | CONSTITUTIVE | √bhū | ENTITÉ: 0.7 |
+
+**Candidats rejetés** : ANIMAL (=AGENT+CORPS+MOUVEMENT), EAU/FEU (instances de MATIÈRE), OBJET (redondant avec CHOSE), ÂME (non testable empiriquement), ARTEFACT (=CHOSE+CREATION)
+
+### Modifications effectuées
+
+**1. `import_panlang_v2.py`** — 6 sections modifiées :
+- `ATOMS_ENTITY` set créé (5 atomes)
+- `ATOMS` union mise à jour
+- `ATOM_DIMENSIONS` : 5 entrées avec vecteurs dimensionnels
+- `ATOM_NSM` : 5 entrées avec primes NSM
+- `ATOM_JACKENDOFF` : 5 entrées (CHOSE→THING, LIEU→PLACE, autres→None)
+- `ATOM_PUSTEJOVSKY` : 5 entrées (FORMAL/CONSTITUTIVE)
+- `ATOM_DHATU` : 5 entrées avec racines sanskrites
+
+**2. `gutenberg_multilingual_validator.py`** — ATOM_KEYWORDS :
+- 5 blocs ENT ajoutés (CHOSE, AGENT, CORPS, LIEU, MATIÈRE)
+- Chaque bloc × 7 langues (EN, FR, DE, IT, ES, EO, FI)
+- ~100 mots-clés par atome ENT
+
+**3. `seven_layers_engine.py`** — CONCEPT_MAPPINGS :
+- 18 concepts re-décomposés avec atomes ENT (ANIMAL, FEU, PARENT, AMI, MANGER, DORMIR, MUR, LIEU, INSTRUMENT, NATION, FAMILLE, COMMUNAUTÉ, ARCHITECTURE, SOLEIL, LUNE, ENNEMI, GUERRE, RACINE)
+- 10 nouveaux concepts ajoutés (NOURRITURE, VÊTEMENT, ARME, FOYER, TOMBE, VOYAGE, PEUPLE, CORPS_CONCEPT, NATURE, MAISON)
+- Total : 95 → 105 concepts
+
+### Validation
+```
+v2.5 VALIDATION COMPLETE ✅
+  30 atoms (29 + EMOTION legacy)
+  5 ENT atoms: CHOSE, AGENT, CORPS, LIEU, MATIÈRE
+  105 concept mappings (29 use ENT atoms)
+  All 7 languages covered in keyword dicts
+  All atoms in CONCEPT_MAPPINGS are defined in ATOMS
+  compute_primary_category: all ENT atoms → ENT
+```
+
+### Fichiers modifiés
+| Fichier | Action | Raison |
+|---------|--------|--------|
+| `SANDBOX/dolt-concept-store/import_panlang_v2.py` | Modifié | +ATOMS_ENTITY, 6 dictionnaires |
+| `SANDBOX/dolt-concept-store/gutenberg_multilingual_validator.py` | Modifié | +5 blocs keywords ENT ×7 langues |
+| `SANDBOX/dolt-concept-store/seven_layers_engine.py` | Modifié | 18 re-décompositions + 10 nouveaux concepts |
+
+### Prochaines étapes
+- [ ] Re-run pipeline complet sur corpus Gutenberg (10 textes ×7 langues)
+- [ ] Vérifier distribution des tiers (A/B/C) avec ENT
+- [ ] v2.6 : Atomes QUAL (candidats : BON, GRAND, VRAI, BEAU, VIEUX)
