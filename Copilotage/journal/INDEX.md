@@ -6,6 +6,7 @@ Généré: 2026-02-18T15:30:00-05:00
 
 ### 2026
 
+- [2026-02-19-hauru-v26-qual-atoms.md](2026-02-19-hauru-v26-qual-atoms.md) — v2.6 : 5 atomes QUAL (BON/GRAND/VRAI/INTENSE/ANCIEN), 24 concepts QUAL-dépendants, 120 concepts total, 4/4 catégories
 - [2026-02-19-hauru-doltdb-optimization.md](2026-02-19-hauru-doltdb-optimization.md) — ⚡ Optimisation DoltDB : de 3.9h à 16s (×877). Classe DoltDB avec MySQL protocol, batch executemany, CALL dolt_commit
 - [2026-02-19-hauru-experiment-registry.md](2026-02-19-hauru-experiment-registry.md) — Registre des expérimentations, audit 3 systèmes « Phase », NA-004 roadmap, v2.5 atomes ENT (CHOSE/AGENT/CORPS/LIEU/MATIÈRE)
 - [2026-02-18-hauru-v24-abs-activation.md](2026-02-18-hauru-v24-abs-activation.md) — v2.4 ABS Activation: 17 nouveaux concepts ABS, 76→92 concepts activés (+21%), MÉLANCOLIE fix

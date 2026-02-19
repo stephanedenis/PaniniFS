@@ -443,17 +443,17 @@ avec des atomes PROC/ABS — une béquille, pas une solution.
 | 2.5c | Keywords ENT dans `gutenberg_multilingual_validator.py` (×7 langues, ~100 mots/atome) | ✅ |
 | 2.5d | CONCEPT_MAPPINGS : 18 re-décompositions + 10 nouveaux concepts (95→105) | ✅ |
 | 2.5e | Validation croisée 3 fichiers : syntaxe + imports + compute_primary_category → ENT | ✅ |
-| 2.5f | Relancer le pipeline sur le corpus Gutenberg, vérifier les tiers | 🔲 À faire |
+| 2.5f | Relancer le pipeline sur le corpus Gutenberg, vérifier les tiers | ✅ (18.3s, BEAU B→A) |
 
-**v2.6 — Atomes QUAL (qualités)**
+**v2.6 — Atomes QUAL (qualités)** ✅ IMPLÉMENTÉ
 
-| Sous-étape | Contenu | Effort |
+| Sous-étape | Contenu | Statut |
 |------------|---------|--------|
-| 2.6a | Identifier 5-8 primitifs QUAL candidats (TAILLE, COULEUR, INTENSITÉ, TEMPÉRATURE, VALENCE…) | Recherche 2-3h |
-| 2.6b | Mapper dans les 6 dictionnaires | Code 2-3h |
-| 2.6c | Keywords QUAL ×7 langues | Code 3-4h |
-| 2.6d | CONCEPT_MAPPINGS QUAL-dépendants | Code 2h |
-| 2.6e | Validation corpus | Validation 1-2h |
+| 2.6a | 5 primitifs QUAL : BON (√śubh), GRAND (√bṛh), VRAI (√sat), INTENSE (√tīv), ANCIEN (√pur) | ✅ |
+| 2.6b | Mappés dans les 6 dictionnaires (DIMENSIONS, NSM, JACKENDOFF, PUSTEJOVSKY, DHATU) | ✅ |
+| 2.6c | Keywords QUAL dans `gutenberg_multilingual_validator.py` (×7 langues, ~20 mots/atome = 700 mots) | ✅ |
+| 2.6d | CONCEPT_MAPPINGS : 9 concepts améliorés + 15 nouveaux = 120 concepts total | ✅ |
+| 2.6e | Validation corpus : 18.3s, 445/445 para, BON=159, INTENSE=114, GRAND=96, VRAI=80, ANCIEN=46 | ✅ |
 
 **v2.7 — Opérations structurelles + WSD**
 
@@ -465,10 +465,10 @@ avec des atomes PROC/ABS — une béquille, pas une solution.
 | 2.7d | Relancer pipeline complet, vérifier que aucun concept ne régresse | Validation 2h |
 
 **Critère de succès Priorité 1** :
-- 4 catégories ontologiques couvertes (ENT, PROC, QUAL, ABS ≥ 5 atomes chacune)
-- ≥120 concepts (vs 105 actuels)
-- WSD contextuel sur les 10 mots les plus ambigus
-- 0 mappings Jackendoff à `None`
+- ✅ 4 catégories ontologiques couvertes (ENT=5, PROC=9+8, QUAL=5, ABS=7 — 35 atomes total)
+- ✅ ≥120 concepts (120 atteints en v2.6)
+- 🔲 WSD contextuel sur les 10 mots les plus ambigus
+- 🔲 0 mappings Jackendoff à `None`
 
 #### Priorité 2 — Médias texte : connecter le pont (v4.0 → v4.2)
 

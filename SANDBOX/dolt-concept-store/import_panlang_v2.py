@@ -108,8 +108,20 @@ ATOMS_ENTITY = {
     "MATIÈRE",      # substance non-comptable, matériau constitutif (Pustejovsky: CONSTITUTIVE)
 }
 
-# All valid atoms (predicates + emotional + abstract + entity)
-ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | ATOMS_ABSTRACT | ATOMS_ENTITY | {"EMOTION"}  # Keep EMOTION for legacy parsing
+# v2.6: 5 quality atoms (category QUAL) — evaluative, dimensional, truth, intensity, age
+# Fills the QUAL gap in the 4-category ontology (ENT, PROC, QUAL, ABS)
+# Sources: NSM evaluator/descriptor primes (Wierzbicka), Pustejovsky FORMAL qualia,
+#          Aristotle's categories of quality, Sanskrit guṇa (quality/attribute)
+ATOMS_QUALITY = {
+    "BON",          # valence positive évaluative — goodness (NSM: GOOD)
+    "GRAND",        # qualité dimensionnelle de taille/magnitude (NSM: BIG)
+    "VRAI",         # qualité de vérité, authenticité, exactitude (NSM: TRUE)
+    "INTENSE",      # qualité de degré, intensité, force (NSM: VERY, MUCH)
+    "ANCIEN",       # qualité d'âge, ancienneté, temporalité (NSM: BEFORE, A LONG TIME)
+}
+
+# All valid atoms (predicates + emotional + abstract + entity + quality)
+ATOMS = ATOMS_PREDICATES | ATOMS_EMOTIONAL | ATOMS_ABSTRACT | ATOMS_ENTITY | ATOMS_QUALITY | {"EMOTION"}  # Keep EMOTION for legacy parsing
 
 # Atom → dimension mapping (from the literature review § 11.3)
 # v2.2: EMOTION replaced by 8 emotional sub-primitives
@@ -151,6 +163,13 @@ ATOM_DIMENSIONS = {
     "CORPS":          {"ENTITÉ": 0.7, "STRUCTURE": 0.3},
     "LIEU":           {"ENTITÉ": 0.6, "STRUCTURE": 0.2, "RELATION": 0.2},
     "MATIÈRE":        {"ENTITÉ": 0.7, "QUALITÉ": 0.3},
+    # Layer 6 — Quality atoms (v2.6) — QUALITÉ-dominant
+    # NSM: GOOD, BIG, TRUE; Aristotle: ποιότης (poiotēs); Sanskrit: guṇa
+    "BON":            {"QUALITÉ": 1.0},
+    "GRAND":          {"QUALITÉ": 0.8, "ENTITÉ": 0.2},
+    "VRAI":           {"QUALITÉ": 0.7, "MODALITÉ": 0.3},
+    "INTENSE":        {"QUALITÉ": 0.9, "PROCESSUS": 0.1},
+    "ANCIEN":         {"QUALITÉ": 0.6, "PROCESSUS": 0.2, "ENTITÉ": 0.2},
 }
 
 # Atom → NSM prime mapping (v2.2: emotional sub-primitives)
@@ -189,6 +208,12 @@ ATOM_NSM = {
     "CORPS":          ["BODY"],
     "LIEU":           ["WHERE", "PLACE", "HERE"],
     "MATIÈRE":        ["PART"],
+    # Quality atoms (v2.6)
+    "BON":            ["GOOD"],
+    "GRAND":          ["BIG"],
+    "VRAI":           ["TRUE"],
+    "INTENSE":        ["VERY", "MUCH"],
+    "ANCIEN":         ["BEFORE", "A LONG TIME"],
 }
 
 # Atom → Jackendoff mapping (v2.2: emotional sub-primitives)
@@ -226,6 +251,12 @@ ATOM_JACKENDOFF = {
     "CORPS":          None,
     "LIEU":           "PLACE",
     "MATIÈRE":        None,
+    # Quality atoms (v2.6) — Jackendoff has no quality primitives
+    "BON":            None,
+    "GRAND":          None,
+    "VRAI":           None,
+    "INTENSE":        None,
+    "ANCIEN":         None,
 }
 
 # Atom → Pustejovsky quale (v2.2: emotional sub-primitives)
@@ -263,6 +294,12 @@ ATOM_PUSTEJOVSKY = {
     "CORPS":          "CONSTITUTIVE",
     "LIEU":           "FORMAL",
     "MATIÈRE":        "CONSTITUTIVE",
+    # Quality atoms (v2.6) — all FORMAL (they characterize properties/states)
+    "BON":            "FORMAL",
+    "GRAND":          "FORMAL",
+    "VRAI":           "FORMAL",
+    "INTENSE":        "FORMAL",
+    "ANCIEN":         "FORMAL",
 }
 
 # Atom → Dhātu sanskrit (v2.2: emotional sub-primitives)
@@ -301,6 +338,12 @@ ATOM_DHATU = {
     "CORPS":          "√tan",      # étendre → tanu (corps), tantra (trame)
     "LIEU":           "√vas",      # habiter, résider → vāsa (demeure)
     "MATIÈRE":        "√bhū",      # être, devenir, terre → bhūmi (sol), bhūta (élément)
+    # Quality atoms (v2.6)
+    "BON":            "√śubh",     # briller, être de bon augure → śubha (auspicieux, bon)
+    "GRAND":          "√bṛh",      # grandir, être grand → bṛhat (grand, vaste)
+    "VRAI":           "√sat",      # être vrai, exister réellement → satya (vérité)
+    "INTENSE":        "√tīv",      # être aigu, intense → tīvra (intense, vif)
+    "ANCIEN":         "√pur",      # avant, devant → purāṇa (ancien, antique)
 }
 
 # Duplicate formulas — v2.3: most resolved via FORMULA_OVERRIDES_V23
@@ -400,6 +443,18 @@ FORMULA_OVERRIDES_V23 = {
     # LIEU stays EXISTENCE + STRUCTURE (pure structural space)
     # MÉLANCOLIE = chronic sadness (TEDIUM, not DESTRUCTION — ennui component)
     "MÉLANCOLIE":   ("GRIEF + COGNITION + TEDIUM", ["GRIEF", "COGNITION", "TEDIUM"]),
+
+    # ── v2.6: QUAL atom enrichments ─────────────────────────────────────
+    # Concepts improved by replacing workarounds with proper QUAL atoms
+    "BEAU":         ("BON + PERCEPTION + CREATION", ["BON", "PERCEPTION", "CREATION"]),
+    "BEAUTÉ":       ("BON + PERCEPTION + INVARIANCE", ["BON", "PERCEPTION", "INVARIANCE"]),
+    "VÉRITÉ":       ("VRAI + COGNITION + COMMUNICATION", ["VRAI", "COGNITION", "COMMUNICATION"]),
+    "SATISFACTION": ("BON + SEEKING", ["BON", "SEEKING"]),
+    "MORAL":        ("BON + COGNITION + COMMUNICATION", ["BON", "COGNITION", "COMMUNICATION"]),
+    "JUSTICE":      ("BON + VRAI + DOMINATION", ["BON", "VRAI", "DOMINATION"]),
+    "LÉGENDE":      ("ANCIEN + COMMUNICATION + RÉCURRENCE", ["ANCIEN", "COMMUNICATION", "RÉCURRENCE"]),
+    "ÉTERNITÉ":     ("ANCIEN + EXISTENCE + INVARIANCE", ["ANCIEN", "EXISTENCE", "INVARIANCE"]),
+    "EUPHORIE":     ("INTENSE + PLAY + CREATION", ["INTENSE", "PLAY", "CREATION"]),
 }
 
 # Concepts to quarantine (quality tier Q) — v2.3: most former Q concepts now have proper overrides

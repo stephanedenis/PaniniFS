@@ -82,7 +82,7 @@ CONCEPT_MAPPINGS = {
     "DÉGOÛT": {"DISGUST", "PERCEPTION"},
     "ENNUI": {"TEDIUM", "COGNITION"},           # = ENNUI (same as v2.2)
     "NOSTALGIE": {"GRIEF", "COGNITION", "POSSESSION"},
-    "EUPHORIE": {"PLAY", "CREATION", "MOUVEMENT"},
+    "EUPHORIE": {"INTENSE", "PLAY", "CREATION"},  # v2.6: euphoria = intense playful creation
     "AFFECTION": {"CARE", "POSSESSION"},
     "EMOTION": {"SEEKING", "CARE"},
     "INQUIÉTUDE": {"FEAR", "COGNITION", "RÉCURRENCE"},  # v2.4: worry = recurring fearful cognition
@@ -94,8 +94,8 @@ CONCEPT_MAPPINGS = {
     "SENTIR": {"PERCEPTION", "COGNITION"},  # sensing = perceiving + processing mentally
     "OBSERVER": {"PERCEPTION", "COGNITION", "EXISTENCE"},  # v2.4: observing = perceiving what exists (override)
     "TOUCHER": {"PERCEPTION", "MOUVEMENT", "EXISTENCE"},  # touching = physical contact perception
-    "BEAU": {"PERCEPTION", "SEEKING", "CREATION"},  # v2.3 override
-    "BEAUTÉ": {"PERCEPTION", "SEEKING", "INVARIANCE"},  # v2.4: beauty = perceived invariant ideal
+    "BEAU": {"BON", "PERCEPTION", "CREATION"},  # v2.6: beauty = good perceived creation
+    "BEAUTÉ": {"BON", "PERCEPTION", "INVARIANCE"},  # v2.6: beauty-concept = good perceived invariant
     "GOÛTER": {"PERCEPTION", "MESURE"},  # v2.4: tasting = measured perception
 
     # ── Movement/action concepts ─────────────────────────────────────────
@@ -121,7 +121,7 @@ CONCEPT_MAPPINGS = {
     "ENSEIGNER": {"COGNITION", "COMMUNICATION", "CREATION"},
     "GOUVERNER": {"DOMINATION", "COMMUNICATION", "CREATION"},
     "RÉCIT": {"COMMUNICATION", "COGNITION", "STRUCTURE"},  # v2.4: narrative = structured communicative cognition
-    "LÉGENDE": {"COMMUNICATION", "COGNITION", "RÉCURRENCE"},  # v2.4: legend = recurring cognitive narrative
+    "LÉGENDE": {"ANCIEN", "COMMUNICATION", "RÉCURRENCE"},  # v2.6: legend = ancient recurring narrative
     "LITTÉRATURE": {"COMMUNICATION", "CREATION", "STRUCTURE"},  # v2.4: literature = structured creative communication
 
     # ── Creation/knowledge concepts ──────────────────────────────────────
@@ -151,14 +151,14 @@ CONCEPT_MAPPINGS = {
 
     # ── Existence/desire concepts ────────────────────────────────────────
     "CAUSE": {"CREATION", "MOUVEMENT", "COGNITION"},
-    "VÉRITÉ": {"COGNITION", "EXISTENCE", "COMMUNICATION"},  # truth = known reality communicated
-    "SATISFACTION": {"SEEKING", "EXISTENCE"},
+    "VÉRITÉ": {"VRAI", "COGNITION", "COMMUNICATION"},  # v2.6: truth = true cognitive communication
+    "SATISFACTION": {"BON", "SEEKING"},  # v2.6: satisfaction = good seeking-result
     "DESIRER": {"POSSESSION", "SEEKING"},
     "RESSENTIR": {"COGNITION", "SEEKING"},
     "VIVRE": {"EXISTENCE", "SEEKING", "CARE"},  # living = existing + seeking + caring
     "SAISIR": {"POSSESSION", "MOUVEMENT"},
     "ILLUSION": {"MOUVEMENT", "CREATION", "EXISTENCE"},
-    "ÉTERNITÉ": {"EXISTENCE", "INVARIANCE"},  # v2.4: eternity = invariant existence
+    "ÉTERNITÉ": {"ANCIEN", "EXISTENCE", "INVARIANCE"},  # v2.6: eternity = ancient invariant existence
     "TEMPS": {"EXISTENCE", "MOUVEMENT", "MESURE", "ORDRE"},  # v2.4: time = ordered measured becoming
     "DURÉE": {"EXISTENCE", "MESURE", "ORDRE"},  # v2.4: duration = measured ordered existence
     "LIEU": {"LIEU", "STRUCTURE"},  # v2.5: place = structured location (uses LIEU atom)
@@ -176,13 +176,13 @@ CONCEPT_MAPPINGS = {
 
     # ── Complex/multi-atom concepts ──────────────────────────────────────
     "BUT": {"MOUVEMENT", "EXISTENCE", "POSSESSION", "DOMINATION"},
-    "JUSTICE": {"COGNITION", "DOMINATION", "EXISTENCE", "SEEKING"},
+    "JUSTICE": {"BON", "VRAI", "DOMINATION"},  # v2.6: justice = true good governance
     "ARCHITECTURE": {"CHOSE", "LIEU", "STRUCTURE", "CREATION"},  # v2.5: architecture = creating structured things in place
     "COMMUNAUTÉ": {"AGENT", "COMMUNICATION", "CREATION", "LIEU"},  # v2.5: community = agents creating together in a place
     "FAMILLE": {"AGENT", "CARE", "LIEU", "CREATION"},  # v2.5: family = agents caring in a shared place
     "INSTRUMENT": {"CHOSE", "MOUVEMENT", "CREATION"},  # v2.5: instrument = thing enabling creative movement
     "RACINE": {"LIEU", "CREATION", "POSSESSION"},  # v2.5: root = origin anchored in place
-    "MORAL": {"DESTRUCTION", "EXISTENCE", "COGNITION", "COMMUNICATION"},
+    "MORAL": {"BON", "COGNITION", "COMMUNICATION"},  # v2.6: morality = good cognitive communication
     "NATION": {"AGENT", "LIEU", "DOMINATION", "COMMUNICATION"},  # v2.5: nation = agents governing a place
     "GROUPE": {"AGENT", "RELATION", "STRUCTURE"},  # v2.5: group = agents in relational structure
 
@@ -197,6 +197,23 @@ CONCEPT_MAPPINGS = {
     "CORPS_CONCEPT": {"CORPS", "EXISTENCE", "STRUCTURE"}, # body-as-concept = structured bodily existence
     "NATURE": {"MATIÈRE", "LIEU", "EXISTENCE"},           # nature = material place of existence
     "MAISON": {"CHOSE", "LIEU", "CARE"},                  # house = thing-place of care
+
+    # ── v2.6: New QUAL-dependent concepts ────────────────────────────────
+    "SAGESSE": {"BON", "ANCIEN", "COGNITION"},               # wisdom = old good knowledge
+    "GLOIRE": {"GRAND", "BON", "COMMUNICATION"},              # glory = great good communicated
+    "PUISSANCE": {"GRAND", "DOMINATION", "MOUVEMENT"},        # power = great domination in motion
+    "COURAGE": {"BON", "FEAR", "DOMINATION"},                 # courage = good mastery of fear
+    "CRUAUTÉ": {"INTENSE", "DESTRUCTION", "DOMINATION"},      # cruelty = intense destructive domination
+    "MAGNIFICENCE": {"GRAND", "BON", "CREATION"},             # magnificence = great good creation
+    "VIEILLESSE": {"ANCIEN", "CORPS", "EXISTENCE"},           # old age = ancient bodily existence
+    "HÉRITAGE": {"ANCIEN", "POSSESSION", "COMMUNICATION"},    # heritage = old communicated possession
+    "SINCÉRITÉ": {"VRAI", "COMMUNICATION", "CARE"},           # sincerity = true caring communication
+    "FIDÉLITÉ": {"VRAI", "CARE", "INVARIANCE"},               # fidelity = true invariant care
+    "GRANDEUR": {"GRAND", "EXISTENCE", "MESURE"},             # greatness = great measured existence
+    "PASSION": {"INTENSE", "SEEKING", "CARE"},                # passion = intense seeking care
+    "TRADITION": {"ANCIEN", "COMMUNICATION", "STRUCTURE"},    # tradition = ancient structured communication
+    "VERTU": {"BON", "VRAI", "EXISTENCE"},                    # virtue = true good existence
+    "TERREUR": {"INTENSE", "FEAR", "DESTRUCTION"},            # terror = intense fearful destruction
 }
 
 
