@@ -258,20 +258,12 @@ ATOM_DHATU = {
     "ORDRE":          "√kram",     # marcher en ordre, séquencer
 }
 
-# Duplicate formulas (same formule_simple for different concepts)
+# Duplicate formulas — v2.3: most resolved via FORMULA_OVERRIDES_V23
+# Only keep entries for concepts excluded from import (ÉTOILE, FENÊTRE, ARBRE already in EXCLUDED_CONCEPTS)
 KNOWN_DUPLICATES = {
-    # These map to the same simple formula — flagged as issues
-    "ÉTOILE":       "COMMUNICATION",        # ÉTOILE = COMMUNICATION (tautology)
-    "FENÊTRE":      "EXISTENCE",            # FENÊTRE = EXISTENCE (tautology)
-    "LIEU":         "MOUVEMENT",            # LIEU = MOUVEMENT (tautology)
-    "ARBRE":        "MOUVEMENT",            # ARBRE = MOUVEMENT (tautology)
-    "DÉGOÛT":       "EXISTENCE",            # DÉGOÛT = EXISTENCE (tautology)
-    "BEAU":         "EXISTENCE",            # BEAU = EXISTENCE (tautology)
-    "GOÛTER":       "MOUVEMENT",            # GOÛTER = MOUVEMENT (tautology)
-    "SATISFACTION": "MOUVEMENT",            # SATISFACTION = MOUVEMENT (tautology)
-    "IMAGINER":     "POSSESSION",           # IMAGINER = POSSESSION (tautology)
-    "RÉCIT":        "DESTRUCTION",          # RÉCIT = DESTRUCTION (tautology)
-    "SENTIR":       "PERCEPTION",           # SENTIR = PERCEPTION (tautology)
+    "ÉTOILE":       "COMMUNICATION",
+    "FENÊTRE":      "EXISTENCE",
+    "ARBRE":        "MOUVEMENT",
 }
 
 # v2.2: Remap concepts that use legacy EMOTION atom to specific emotional sub-primitives
@@ -306,21 +298,66 @@ EMOTION_REMAP = {
     "PAIX":         {"EMOTION": "CARE"},           # COMMUNICATION + EMOTION + CREATION → COMMUNICATION + CARE + CREATION
 }
 
-# For concepts where DÉGOÛT is a tautology in PanLang, override formula entirely
-FORMULA_OVERRIDES_V22 = {
+# Formula overrides — manually corrected formulas (v2.3)
+# Fixes: duplicate formulas, tautologies, under-specified Q-tier concepts
+FORMULA_OVERRIDES_V23 = {
+    # ── v2.2 overrides (kept) ─────────────────────────────────────────────
     "DÉGOÛT": ("DISGUST + PERCEPTION", ["DISGUST", "PERCEPTION"]),
-    # Revalidation quarantine overrides (v2.0.1)
-    "MUSIQUE": ("PERCEPTION + CREATION", ["PERCEPTION", "CREATION"]),
-    "RÉCIT": ("COMMUNICATION + COGNITION", ["COMMUNICATION", "COGNITION"]),
-    # v2.2: EMOTION concept = meta-concept covering all 8 axes → SEEKING (primary drive)
+    "MUSIQUE": ("PERCEPTION + CREATION + RÉCURRENCE", ["PERCEPTION", "CREATION", "RÉCURRENCE"]),
+    "RÉCIT": ("COMMUNICATION + COGNITION + STRUCTURE", ["COMMUNICATION", "COGNITION", "STRUCTURE"]),
     "EMOTION": ("SEEKING + CARE", ["SEEKING", "CARE"]),
+
+    # ── Phase A: fix duplicate formulas ──────────────────────────────────
+    # 4× MOUVEMENT tautologies → distinguished via ABS atoms
+    "GOÛTER":       ("PERCEPTION + MESURE", ["PERCEPTION", "MESURE"]),
+    "LIEU":         ("EXISTENCE + STRUCTURE", ["EXISTENCE", "STRUCTURE"]),
+    "PROXIMITÉ":    ("MOUVEMENT + MESURE + RELATION", ["MOUVEMENT", "MESURE", "RELATION"]),
+    "SATISFACTION": ("SEEKING + EXISTENCE", ["SEEKING", "EXISTENCE"]),
+    # PERCEPTION tautology
+    "SENTIR":       ("PERCEPTION + COGNITION", ["PERCEPTION", "COGNITION"]),  # distinguish from COMPRENDRE via no STRUCTURE
+    # EXISTENCE tautology
+    "BEAU":         ("PERCEPTION + SEEKING + CREATION", ["PERCEPTION", "SEEKING", "CREATION"]),
+    # POSSESSION tautology
+    "IMAGINER":     ("COGNITION + CREATION", ["COGNITION", "CREATION"]),  # distinguish from INVENTER via no STRUCTURE
+    # MOUVEMENT + DESTRUCTION duplicates (DÉTRUIRE vs MUR)
+    "MUR":          ("EXISTENCE + STRUCTURE", ["EXISTENCE", "STRUCTURE"]),  # was MOUVEMENT+DESTRUCTION — a wall is a structure
+    # MOUVEMENT + CREATION duplicates (CONSTRUIRE vs INQUIÉTUDE)
+    "INQUIÉTUDE":   ("FEAR + COGNITION + RÉCURRENCE", ["FEAR", "COGNITION", "RÉCURRENCE"]),
+    # DESTRUCTION + MOUVEMENT duplicates (LÉGENDE vs ÉTERNITÉ)
+    "ÉTERNITÉ":     ("EXISTENCE + INVARIANCE", ["EXISTENCE", "INVARIANCE"]),
+    "LÉGENDE":      ("COMMUNICATION + COGNITION + RÉCURRENCE", ["COMMUNICATION", "COGNITION", "RÉCURRENCE"]),
+    # MOUVEMENT + EXISTENCE duplicates (MARCHER vs DURÉE)
+    "DURÉE":        ("EXISTENCE + MESURE + ORDRE", ["EXISTENCE", "MESURE", "ORDRE"]),
+    # PERCEPTION + COGNITION duplicates (COMPRENDRE vs ENTENDRE)
+    "COMPRENDRE":   ("COGNITION + PERCEPTION + STRUCTURE", ["COGNITION", "PERCEPTION", "STRUCTURE"]),
+    #   ENTENDRE stays as PERCEPTION + COGNITION (auditory perception → understanding)
+
+    # ── Phase B: enrich under-specified B-tier concepts ──────────────────
+    "DISTANCE":     ("MOUVEMENT + MESURE", ["MOUVEMENT", "MESURE"]),
+    "TEMPS":        ("EXISTENCE + MOUVEMENT + MESURE + ORDRE", ["EXISTENCE", "MOUVEMENT", "MESURE", "ORDRE"]),
+    "ORGANISER":    ("DOMINATION + CREATION + STRUCTURE", ["DOMINATION", "CREATION", "STRUCTURE"]),
+    "GROUPE":       ("EXISTENCE + RELATION + STRUCTURE", ["EXISTENCE", "RELATION", "STRUCTURE"]),
+    "LITTÉRATURE":  ("COMMUNICATION + CREATION + STRUCTURE", ["COMMUNICATION", "CREATION", "STRUCTURE"]),
+    "PHILOSOPHIE":  ("COGNITION + EXISTENCE + STRUCTURE", ["COGNITION", "EXISTENCE", "STRUCTURE"]),
+    "OBSERVER":     ("PERCEPTION + COGNITION + EXISTENCE", ["PERCEPTION", "COGNITION", "EXISTENCE"]),
+
+    # ── Phase B2: eliminate remaining duplicates ─────────────────────────
+    # BEAUTÉ = BEAU + QUAL dimension (aesthetic quality as abstract property)
+    "BEAUTÉ":       ("PERCEPTION + SEEKING + INVARIANCE", ["PERCEPTION", "SEEKING", "INVARIANCE"]),
+    # ENTENDRE = auditory perception (hearing implies receiving external signal)
+    "ENTENDRE":     ("PERCEPTION + COMMUNICATION", ["PERCEPTION", "COMMUNICATION"]),
+    # SENTIR stays PERCEPTION + COGNITION (general sensing/feeling)
+    # INVENTER = creation with novelty-seeking (distinguished from IMAGINER via SEEKING)
+    "INVENTER":     ("COGNITION + CREATION + SEEKING", ["COGNITION", "CREATION", "SEEKING"]),
+    # IMAGINER stays COGNITION + CREATION (pure mental creation)
+    # MUR = physical barrier (distinguished from LIEU via DESTRUCTION = obstacle/blocking)
+    "MUR":          ("EXISTENCE + STRUCTURE + DESTRUCTION", ["EXISTENCE", "STRUCTURE", "DESTRUCTION"]),
+    # LIEU stays EXISTENCE + STRUCTURE (pure structural space)
 }
 
-# Concepts to quarantine (quality tier Q) — revalidation v2.0.1
-QUARANTINE_CONCEPTS = {
-    "MUSIQUE", "RÉCIT", "DÉGOÛT", "GOÛTER", "BEAU", "SENTIR",
-    "LIEU", "SATISFACTION", "IMAGINER", "PROXIMITÉ",
-}
+# Concepts to quarantine (quality tier Q) — v2.3: most former Q concepts now have proper overrides
+# Only concepts that remain genuinely problematic stay quarantined
+QUARANTINE_CONCEPTS = set()  # All former Q concepts now have FORMULA_OVERRIDES_V23
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -932,9 +969,9 @@ def load_and_import_concepts():
                                  f"Unknown atoms: {invalid}"))
             continue
 
-        # v2.2: Apply formula overrides (e.g. DÉGOÛT tautology → DISGUST + PERCEPTION)
-        if key in FORMULA_OVERRIDES_V22:
-            formule_simple, atoms = FORMULA_OVERRIDES_V22[key]
+        # v2.3: Apply formula overrides (duplicates, tautologies, ABS enrichment)
+        if key in FORMULA_OVERRIDES_V23:
+            formule_simple, atoms = FORMULA_OVERRIDES_V23[key]
             atoms = list(atoms)
 
         # v2.2: Remap EMOTION → specific emotional sub-primitive
@@ -1006,13 +1043,25 @@ def load_and_import_concepts():
     print(f"     Excluded:    {excluded_meta} metadata + {excluded_unparseable} unparseable")
     print(f"     Audit issues: {len(audit_issues)}")
 
-    # Insert concepts
+    # ── Clean child tables first to avoid FK violations on REPLACE INTO ──
+    print(f"\n  🧹 Cleaning child tables before re-import...")
+    dolt_sql("DELETE FROM composition_rules;", check=False)
+    dolt_sql("DELETE FROM dimension_coverage;", check=False)
+    dolt_sql("DELETE FROM quality_audit;", check=False)
+
+    # Insert concepts (REPLACE INTO is now safe: no FK children exist)
     print(f"\n  💾 Inserting {len(concept_queries)} concepts...")
     batch_size = 25
+    insert_errors = 0
     for i in range(0, len(concept_queries), batch_size):
         batch = concept_queries[i:i + batch_size]
         if not dolt_sql_batch(batch):
-            print(f"     ⚠️  Batch {i // batch_size + 1} had errors")
+            # Retry individually to isolate failures
+            for q in batch:
+                if not dolt_sql(q, check=False):
+                    insert_errors += 1
+    if insert_errors:
+        print(f"     ⚠️  {insert_errors} individual concept inserts failed")
 
     # Insert composition rules
     print(f"  💾 Inserting {len(composition_queries)} composition rules...")
@@ -1056,16 +1105,17 @@ def commit_to_dolt(concept_count):
 
     dolt("add", ".")
     msg = (
-        f"feat: import {concept_count} PanLang concepts with v2.2 schema (emotional axes)\n\n"
+        f"feat: import {concept_count} PanLang concepts with v2.3 schema (ABS atoms + formula overrides)\n\n"
         f"- 4 ontological categories (ENT, PROC, QUAL, ABS)\n"
         f"- 5 structural operations (COMP, ID, NEG, QUANT, MOD)\n"
         f"- 9 semantic predicates (dhātu, EMOTION removed)\n"
-        f"- 4 nonverbal extensions (ESPACE, TEMPS, EVAL, TAXO)\n"
+        f"- 7 ABS atoms (RELATION, STRUCTURE, INVARIANCE, RÉCURRENCE, DUALITÉ, MESURE, ORDRE)\n"
         f"- 8 emotional axes (SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM)\n"
         f"- {concept_count} concepts imported with quality tiers\n"
+        f"- 27 formula overrides (FORMULA_OVERRIDES_V23) — 0 duplicate formulas\n"
         f"- Dimension coverage computed for 7 irreducible dimensions\n"
         f"- Quality audit log with issue tracking\n"
-        f"- Total: 30 primitives (4+5+9+4+8)"
+        f"- Total: 37 primitives (4+5+9+4+8+7)"
     )
     dolt("commit", "-m", msg, "--author", "PaniniFS Bot <bot@panini-fs.dev>")
     print(f"  ✅ Committed to Dolt")

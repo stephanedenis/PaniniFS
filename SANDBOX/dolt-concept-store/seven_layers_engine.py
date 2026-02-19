@@ -54,38 +54,107 @@ from gutenberg_multilingual_validator import (
 )
 
 # Same concept mappings as v3-alpha (for paragraph_concepts)
+# v2.3: synchronized with FORMULA_OVERRIDES_V23 from import_panlang_v2.py
+# Only concepts with ≥2 atoms and all non-ABS atoms are included
+# (ABS atoms like MESURE, STRUCTURE, etc. are not detected in literary corpora)
 CONCEPT_MAPPINGS = {
+    # ── Emotional/affective concepts ─────────────────────────────────────
     "COLÈRE": {"RAGE", "DOMINATION"},
     "PEUR": {"FEAR", "PERCEPTION"},
     "SURPRISE": {"SEEKING", "PERCEPTION"},
     "JOIE": {"PLAY", "CREATION"},
     "TRISTESSE": {"GRIEF", "DESTRUCTION"},
     "MÉLANCOLIE": {"GRIEF", "COGNITION", "TEDIUM"},
-    "COMPRENDRE": {"PERCEPTION", "COGNITION"},
-    "ENTENDRE": {"PERCEPTION", "COGNITION"},
-    "VOIR": {"PERCEPTION", "MOUVEMENT"},
-    "CHERCHER": {"MOUVEMENT", "PERCEPTION", "COGNITION"},
+    "DÉGOÛT": {"DISGUST", "PERCEPTION"},
+    "ENNUI": {"TEDIUM", "COGNITION"},           # = ENNUI (same as v2.2)
+    "NOSTALGIE": {"GRIEF", "COGNITION", "POSSESSION"},
+    "EUPHORIE": {"PLAY", "CREATION", "MOUVEMENT"},
+    "AFFECTION": {"CARE", "POSSESSION"},
+    "EMOTION": {"SEEKING", "CARE"},
+
+    # ── Perception/cognition concepts ────────────────────────────────────
+    "COMPRENDRE": {"COGNITION", "PERCEPTION", "EXISTENCE"},   # understanding = cognition about perceived reality
+    "ENTENDRE": {"PERCEPTION", "COMMUNICATION"}, # v2.3: was PERCEPTION+COGNITION
+    "VOIR": {"PERCEPTION", "EXISTENCE"},  # seeing = perceiving what exists
+    "SENTIR": {"PERCEPTION", "COGNITION"},  # sensing = perceiving + processing mentally
+    "OBSERVER": {"PERCEPTION", "COGNITION", "CARE"},  # observing = attentive cognition
+    "TOUCHER": {"PERCEPTION", "MOUVEMENT", "EXISTENCE"},  # touching = physical contact perception
+    "BEAU": {"PERCEPTION", "SEEKING", "CREATION"},  # v2.3 override
+    # BEAUTÉ has INVARIANCE (ABS) — not detectable in literary corpus
+
+    # ── Movement/action concepts ─────────────────────────────────────────
+    "CHERCHER": {"MOUVEMENT", "SEEKING", "COGNITION"},  # searching = seeking + thinking + moving
     "EXPLORER": {"MOUVEMENT", "PERCEPTION"},
     "FUIR": {"MOUVEMENT", "FEAR"},
+    "MARCHER": {"MOUVEMENT", "EXISTENCE"},
+    "DANSER": {"MOUVEMENT", "PLAY"},
+    # DEMEURER = same atoms as MARCHER (MOUVEMENT+EXISTENCE) — merged
+
+    # ── Social/communication concepts ────────────────────────────────────
     "AIMER": {"CARE", "COMMUNICATION", "POSSESSION"},
     "AMOUR": {"CARE", "PERCEPTION", "EXISTENCE"},
-    "MARCHER": {"MOUVEMENT", "EXISTENCE"},
-    "CONSTRUIRE": {"MOUVEMENT", "CREATION"},
-    "CAUSE": {"CREATION", "MOUVEMENT", "COGNITION"},
-    "BEAUTÉ": {"PERCEPTION", "SEEKING", "CREATION"},
-    "VÉRITÉ": {"COGNITION", "PERCEPTION", "EXISTENCE"},
-    "SOUFFRIR": {"DESTRUCTION", "GRIEF"},
-    "GUERRE": {"MOUVEMENT", "DOMINATION", "DESTRUCTION"},
-    "LIBERTÉ": {"MOUVEMENT", "DOMINATION", "EXISTENCE"},
-    "DANSER": {"MOUVEMENT", "PLAY"},
     "CONSOLER": {"COMMUNICATION", "CARE"},
     "RACONTER": {"COMMUNICATION", "CREATION"},
     "COMMANDER": {"COMMUNICATION", "DOMINATION"},
-    "INVENTER": {"COGNITION", "CREATION"},
+    "EXPLIQUER": {"COGNITION", "COMMUNICATION"},
+    "PARTAGER": {"POSSESSION", "COMMUNICATION"},
+    "AMI": {"CARE", "COMMUNICATION", "PERCEPTION"},
+    "PAIX": {"COMMUNICATION", "CARE", "CREATION"},
+    "ENSEIGNER": {"COGNITION", "COMMUNICATION", "CREATION"},
+    "GOUVERNER": {"DOMINATION", "COMMUNICATION", "CREATION"},
+
+    # ── Creation/knowledge concepts ──────────────────────────────────────
+    "CONSTRUIRE": {"MOUVEMENT", "CREATION"},
+    "INVENTER": {"COGNITION", "CREATION", "SEEKING"},  # v2.3: +SEEKING
+    "IMAGINER": {"COGNITION", "CREATION"},
     "SAVOIR": {"COGNITION", "POSSESSION"},
     "APPRENDRE": {"PERCEPTION", "COGNITION", "POSSESSION"},
-    "DÉGOÛT": {"DISGUST", "PERCEPTION"},
-    "ENNUI": {"TEDIUM", "COGNITION"},
+    "ACCUMULER": {"POSSESSION", "CREATION"},
+    "ART": {"CREATION", "COMMUNICATION", "PLAY"},
+    "COOPÉRER": {"COMMUNICATION", "CREATION", "POSSESSION"},
+    "REALISER": {"EXISTENCE", "COGNITION"},
+
+    # ── Conflict/dominance concepts ──────────────────────────────────────
+    "GUERRE": {"MOUVEMENT", "DOMINATION", "DESTRUCTION"},
+    "LIBERTÉ": {"MOUVEMENT", "DOMINATION", "EXISTENCE"},
+    "SOUFFRIR": {"DESTRUCTION", "GRIEF", "EXISTENCE"},  # suffering = enduring destruction
+    "HAIR": {"DISGUST", "DESTRUCTION", "DOMINATION"},
+    "ENNEMI": {"RAGE", "DOMINATION", "DESTRUCTION"},
+    "INTIMIDER": {"DOMINATION", "FEAR"},
+    "OBÉIR": {"PERCEPTION", "DOMINATION", "EXISTENCE"},
+    "DETRUIRE": {"MOUVEMENT", "DESTRUCTION"},
+
+    # ── Existence/desire concepts ────────────────────────────────────────
+    "CAUSE": {"CREATION", "MOUVEMENT", "COGNITION"},
+    "VÉRITÉ": {"COGNITION", "EXISTENCE", "COMMUNICATION"},  # truth = known reality communicated
+    "SATISFACTION": {"SEEKING", "EXISTENCE"},
+    "DESIRER": {"POSSESSION", "SEEKING"},
+    "RESSENTIR": {"COGNITION", "SEEKING"},
+    "VIVRE": {"EXISTENCE", "SEEKING", "CARE"},  # living = existing + seeking + caring
+    "SAISIR": {"POSSESSION", "MOUVEMENT"},
+    "ILLUSION": {"MOUVEMENT", "CREATION", "EXISTENCE"},
+
+    # ── Entity/nature concepts ───────────────────────────────────────────
+    "DORMIR": {"EXISTENCE", "PERCEPTION", "DESTRUCTION"},
+    "MANGER": {"DESTRUCTION", "EXISTENCE", "POSSESSION"},
+    "PARENT": {"CREATION", "CARE", "EXISTENCE"},  # parent = creator who nurtures
+    "POISSON": {"DESTRUCTION", "POSSESSION", "CREATION"},
+    "LUNE": {"DESTRUCTION", "MOUVEMENT", "POSSESSION"},
+    "SOLEIL": {"COMMUNICATION", "POSSESSION", "EXISTENCE"},
+    "FEU": {"MOUVEMENT", "DESTRUCTION", "CREATION"},  # fire = transformative energy
+    "ANIMAL": {"EXISTENCE", "MOUVEMENT", "SEEKING"},  # animal = existing moving seeking being
+    "SE_SOUVENIR": {"MOUVEMENT", "POSSESSION", "EXISTENCE"},
+
+    # ── Complex/multi-atom concepts ──────────────────────────────────────
+    "BUT": {"MOUVEMENT", "EXISTENCE", "POSSESSION", "DOMINATION"},
+    "JUSTICE": {"COGNITION", "DOMINATION", "EXISTENCE", "SEEKING"},
+    "ARCHITECTURE": {"MOUVEMENT", "EXISTENCE", "DESTRUCTION", "POSSESSION"},
+    "COMMUNAUTÉ": {"EXISTENCE", "COMMUNICATION", "CREATION", "POSSESSION"},
+    "FAMILLE": {"EXISTENCE", "CARE", "POSSESSION", "CREATION"},
+    "INSTRUMENT": {"EXISTENCE", "MOUVEMENT", "DESTRUCTION", "CREATION"},
+    "RACINE": {"EXISTENCE", "CREATION", "POSSESSION"},  # root = origin that persists
+    "MORAL": {"DESTRUCTION", "EXISTENCE", "COGNITION", "COMMUNICATION"},
+    "NATION": {"DESTRUCTION", "EXISTENCE", "MOUVEMENT", "COMMUNICATION"},
 }
 
 

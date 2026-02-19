@@ -6,6 +6,7 @@ Généré: 2026-02-18T15:30:00-05:00
 
 ### 2026
 
+- [2026-02-18-hauru-v23-concept-revision.md](2026-02-18-hauru-v23-concept-revision.md) — v2.3 Concept Revision: 27 overrides, FK fix, 29→76 concepts activés (+262%)
 - [2026-02-18-hauru-session-atoms-abs.md](2026-02-18-hauru-session-atoms-abs.md) — Session Copilot : atomes ABS, journal obligatoire, pre-commit hook
 - [2026-02-18-reconstitue-seven-layers-100pct.md](2026-02-18-reconstitue-seven-layers-100pct.md) — 🔄 Moteur 7 couches, pont morpho-sémantique, 100% couverture
 - [2026-02-17-reconstitue-pipeline-semantique-complet.md](2026-02-17-reconstitue-pipeline-semantique-complet.md) — 🔄 Pipeline sémantique complet (15 commits, v2→v3-alpha)
