@@ -54,9 +54,10 @@ from gutenberg_multilingual_validator import (
 )
 
 # Same concept mappings as v3-alpha (for paragraph_concepts)
-# v2.3: synchronized with FORMULA_OVERRIDES_V23 from import_panlang_v2.py
-# Only concepts with ≥2 atoms and all non-ABS atoms are included
-# (ABS atoms like MESURE, STRUCTURE, etc. are not detected in literary corpora)
+# v2.4: all 95 multi-atom concepts including ABS-dependent ones
+# ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)
+# ARE detected in literary corpora via keywords like "encore", "même",
+# "avant", "forme", "entre", "taille", "order", "same", "again", etc.
 CONCEPT_MAPPINGS = {
     # ── Emotional/affective concepts ─────────────────────────────────────
     "COLÈRE": {"RAGE", "DOMINATION"},
@@ -71,16 +72,18 @@ CONCEPT_MAPPINGS = {
     "EUPHORIE": {"PLAY", "CREATION", "MOUVEMENT"},
     "AFFECTION": {"CARE", "POSSESSION"},
     "EMOTION": {"SEEKING", "CARE"},
+    "INQUIÉTUDE": {"FEAR", "COGNITION", "RÉCURRENCE"},  # v2.4: worry = recurring fearful cognition
 
     # ── Perception/cognition concepts ────────────────────────────────────
-    "COMPRENDRE": {"COGNITION", "PERCEPTION", "EXISTENCE"},   # understanding = cognition about perceived reality
+    "COMPRENDRE": {"COGNITION", "PERCEPTION", "STRUCTURE"},   # v2.4: understanding = perceiving structure (override)
     "ENTENDRE": {"PERCEPTION", "COMMUNICATION"}, # v2.3: was PERCEPTION+COGNITION
     "VOIR": {"PERCEPTION", "EXISTENCE"},  # seeing = perceiving what exists
     "SENTIR": {"PERCEPTION", "COGNITION"},  # sensing = perceiving + processing mentally
-    "OBSERVER": {"PERCEPTION", "COGNITION", "CARE"},  # observing = attentive cognition
+    "OBSERVER": {"PERCEPTION", "COGNITION", "EXISTENCE"},  # v2.4: observing = perceiving what exists (override)
     "TOUCHER": {"PERCEPTION", "MOUVEMENT", "EXISTENCE"},  # touching = physical contact perception
     "BEAU": {"PERCEPTION", "SEEKING", "CREATION"},  # v2.3 override
-    # BEAUTÉ has INVARIANCE (ABS) — not detectable in literary corpus
+    "BEAUTÉ": {"PERCEPTION", "SEEKING", "INVARIANCE"},  # v2.4: beauty = perceived invariant ideal
+    "GOÛTER": {"PERCEPTION", "MESURE"},  # v2.4: tasting = measured perception
 
     # ── Movement/action concepts ─────────────────────────────────────────
     "CHERCHER": {"MOUVEMENT", "SEEKING", "COGNITION"},  # searching = seeking + thinking + moving
@@ -88,6 +91,8 @@ CONCEPT_MAPPINGS = {
     "FUIR": {"MOUVEMENT", "FEAR"},
     "MARCHER": {"MOUVEMENT", "EXISTENCE"},
     "DANSER": {"MOUVEMENT", "PLAY"},
+    "DISTANCE": {"MOUVEMENT", "MESURE"},  # v2.4: distance = measured movement
+    "PROXIMITÉ": {"MOUVEMENT", "MESURE", "RELATION"},  # v2.4: proximity = relational nearness
     # DEMEURER = same atoms as MARCHER (MOUVEMENT+EXISTENCE) — merged
 
     # ── Social/communication concepts ────────────────────────────────────
@@ -102,6 +107,9 @@ CONCEPT_MAPPINGS = {
     "PAIX": {"COMMUNICATION", "CARE", "CREATION"},
     "ENSEIGNER": {"COGNITION", "COMMUNICATION", "CREATION"},
     "GOUVERNER": {"DOMINATION", "COMMUNICATION", "CREATION"},
+    "RÉCIT": {"COMMUNICATION", "COGNITION", "STRUCTURE"},  # v2.4: narrative = structured communicative cognition
+    "LÉGENDE": {"COMMUNICATION", "COGNITION", "RÉCURRENCE"},  # v2.4: legend = recurring cognitive narrative
+    "LITTÉRATURE": {"COMMUNICATION", "CREATION", "STRUCTURE"},  # v2.4: literature = structured creative communication
 
     # ── Creation/knowledge concepts ──────────────────────────────────────
     "CONSTRUIRE": {"MOUVEMENT", "CREATION"},
@@ -113,6 +121,9 @@ CONCEPT_MAPPINGS = {
     "ART": {"CREATION", "COMMUNICATION", "PLAY"},
     "COOPÉRER": {"COMMUNICATION", "CREATION", "POSSESSION"},
     "REALISER": {"EXISTENCE", "COGNITION"},
+    "PHILOSOPHIE": {"COGNITION", "EXISTENCE", "STRUCTURE"},  # v2.4: philosophy = structured existential cognition
+    "MUSIQUE": {"PERCEPTION", "CREATION", "RÉCURRENCE"},  # v2.4: music = recurring creative perception
+    "ORGANISER": {"DOMINATION", "CREATION", "STRUCTURE"},  # v2.4: organize = structured creative control
 
     # ── Conflict/dominance concepts ──────────────────────────────────────
     "GUERRE": {"MOUVEMENT", "DOMINATION", "DESTRUCTION"},
@@ -123,6 +134,7 @@ CONCEPT_MAPPINGS = {
     "INTIMIDER": {"DOMINATION", "FEAR"},
     "OBÉIR": {"PERCEPTION", "DOMINATION", "EXISTENCE"},
     "DETRUIRE": {"MOUVEMENT", "DESTRUCTION"},
+    "MUR": {"EXISTENCE", "STRUCTURE", "DESTRUCTION"},  # v2.4: wall = structural boundary
 
     # ── Existence/desire concepts ────────────────────────────────────────
     "CAUSE": {"CREATION", "MOUVEMENT", "COGNITION"},
@@ -133,6 +145,10 @@ CONCEPT_MAPPINGS = {
     "VIVRE": {"EXISTENCE", "SEEKING", "CARE"},  # living = existing + seeking + caring
     "SAISIR": {"POSSESSION", "MOUVEMENT"},
     "ILLUSION": {"MOUVEMENT", "CREATION", "EXISTENCE"},
+    "ÉTERNITÉ": {"EXISTENCE", "INVARIANCE"},  # v2.4: eternity = invariant existence
+    "TEMPS": {"EXISTENCE", "MOUVEMENT", "MESURE", "ORDRE"},  # v2.4: time = ordered measured becoming
+    "DURÉE": {"EXISTENCE", "MESURE", "ORDRE"},  # v2.4: duration = measured ordered existence
+    "LIEU": {"EXISTENCE", "STRUCTURE"},  # v2.4: place = structured existence
 
     # ── Entity/nature concepts ───────────────────────────────────────────
     "DORMIR": {"EXISTENCE", "PERCEPTION", "DESTRUCTION"},
@@ -155,6 +171,7 @@ CONCEPT_MAPPINGS = {
     "RACINE": {"EXISTENCE", "CREATION", "POSSESSION"},  # root = origin that persists
     "MORAL": {"DESTRUCTION", "EXISTENCE", "COGNITION", "COMMUNICATION"},
     "NATION": {"DESTRUCTION", "EXISTENCE", "MOUVEMENT", "COMMUNICATION"},
+    "GROUPE": {"EXISTENCE", "RELATION", "STRUCTURE"},  # v2.4: group = relational structured existence
 }
 
 

@@ -353,6 +353,8 @@ FORMULA_OVERRIDES_V23 = {
     # MUR = physical barrier (distinguished from LIEU via DESTRUCTION = obstacle/blocking)
     "MUR":          ("EXISTENCE + STRUCTURE + DESTRUCTION", ["EXISTENCE", "STRUCTURE", "DESTRUCTION"]),
     # LIEU stays EXISTENCE + STRUCTURE (pure structural space)
+    # MÉLANCOLIE = chronic sadness (TEDIUM, not DESTRUCTION — ennui component)
+    "MÉLANCOLIE":   ("GRIEF + COGNITION + TEDIUM", ["GRIEF", "COGNITION", "TEDIUM"]),
 }
 
 # Concepts to quarantine (quality tier Q) — v2.3: most former Q concepts now have proper overrides
@@ -1112,7 +1114,7 @@ def commit_to_dolt(concept_count):
         f"- 7 ABS atoms (RELATION, STRUCTURE, INVARIANCE, RÉCURRENCE, DUALITÉ, MESURE, ORDRE)\n"
         f"- 8 emotional axes (SEEKING, FEAR, CARE, GRIEF, RAGE, DISGUST, PLAY, TEDIUM)\n"
         f"- {concept_count} concepts imported with quality tiers\n"
-        f"- 27 formula overrides (FORMULA_OVERRIDES_V23) — 0 duplicate formulas\n"
+        f"- 29 formula overrides (FORMULA_OVERRIDES_V23) — 0 duplicate formulas\n"
         f"- Dimension coverage computed for 7 irreducible dimensions\n"
         f"- Quality audit log with issue tracking\n"
         f"- Total: 37 primitives (4+5+9+4+8+7)"
