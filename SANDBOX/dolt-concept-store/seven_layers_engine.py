@@ -2306,8 +2306,88 @@ def step4_comparative_report():
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 5: DOLT COMMIT
+# STEP 4b: POST-VALIDATION — Corpus-based quality tier upgrade
 # ═══════════════════════════════════════════════════════════════════════════════
+
+def step4b_corpus_quality_upgrade():
+    """Upgrade quality tiers based on actual corpus detection counts.
+    
+    A concept with many detections has proven its validity empirically,
+    regardless of the formula-based validity_score from import.
+    
+    Thresholds:
+    - ≥20 detections → A-tier (well-validated by corpus)
+    - ≥5 detections  → B-tier (corpus-confirmed)
+    - <5 detections  → keep original tier
+    """
+    print("\n" + "=" * 70)
+    print("STEP 4b: Corpus-based quality tier upgrade")
+    print("=" * 70)
+
+    # Get current C-tier and B-tier concepts with their detection counts
+    query = (
+        "SELECT c.id, c.quality_tier, c.validity_score, "
+        "COALESCE(pc.detections, 0) as corpus_detections "
+        "FROM concepts c "
+        "LEFT JOIN (SELECT concept_id, COUNT(*) as detections "
+        "           FROM paragraph_concepts GROUP BY concept_id) pc "
+        "ON c.id = pc.concept_id "
+        "WHERE c.quality_tier IN ('B', 'C') "
+        "ORDER BY COALESCE(pc.detections, 0) DESC"
+    )
+
+    result = dolt_sql(query)
+    if not result:
+        print("  ⚠️  Could not query concept detections")
+        return True
+
+    lines = result.strip().split('\n')[1:]  # skip header
+    upgrades = []
+
+    for line in lines:
+        parts = line.split(',')
+        if len(parts) < 4:
+            continue
+        concept_id = parts[0].strip()
+        current_tier = parts[1].strip()
+        validity = float(parts[2]) if parts[2].strip() != 'NULL' else None
+        detections = int(parts[3])
+
+        new_tier = current_tier
+        new_validity = validity
+
+        if detections >= 20:
+            # Strong corpus evidence → A-tier
+            new_tier = 'A'
+            # Boost validity based on detection count (capped at 0.9)
+            new_validity = min(0.9, 0.3 + detections * 0.01)
+        elif detections >= 5:
+            # Moderate corpus evidence → at least B-tier
+            if current_tier == 'C':
+                new_tier = 'B'
+                new_validity = min(0.7, 0.3 + detections * 0.01)
+
+        if new_tier != current_tier or (new_validity and new_validity != validity):
+            upgrades.append((concept_id, current_tier, new_tier, detections,
+                           validity, new_validity))
+            # Apply the upgrade
+            update_q = (
+                f"UPDATE concepts SET quality_tier = '{new_tier}', "
+                f"validity_score = {new_validity} "
+                f"WHERE id = '{concept_id}'"
+            )
+            dolt_sql(update_q)
+
+    if upgrades:
+        print(f"  📊 {len(upgrades)} concepts upgraded:")
+        for cid, old_t, new_t, det, old_v, new_v in upgrades:
+            print(f"    {cid}: {old_t}→{new_t} "
+                  f"(detections={det}, validity {old_v:.3f}→{new_v:.3f})")
+    else:
+        print("  ℹ️  No tier upgrades needed")
+
+    return True
+
 
 def step5_commit():
     """Commit all 7-layer data to Dolt."""
@@ -2356,6 +2436,7 @@ def main():
         ("Split into paragraphs",       step2_split_into_paragraphs),
         ("Process 7 layers",            step3_process_all_paragraphs),
         ("Comparative report",          step4_comparative_report),
+        ("Corpus quality upgrade",      step4b_corpus_quality_upgrade),
         ("Dolt commit",                 step5_commit),
     ]
 

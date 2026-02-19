@@ -551,14 +551,32 @@ ATOM_KEYWORDS = {
     },
     "DISGUST": {
         "en": ["disgust", "disgusting", "revolting", "repulsive", "loathe", "nausea",
-               "abhor", "vile", "foul", "repugnant"],
+               "abhor", "vile", "foul", "repugnant",
+               # v2.4: literary-register synonyms found in Alice/Candide
+               "ugly", "horrible", "hideous", "awful", "horrid", "dreadful",
+               "wretched", "monstrous", "hateful", "odious", "abominable",
+               "ghastly", "loathsome", "sickening"],
         "fr": ["dégoût", "dégoûtant", "répugnant", "écœurer", "abject", "ignoble",
-               "immonde", "nausée", "vomir"],
-        "de": ["Ekel", "ekelhaft", "widerlich", "abstoßend", "abscheulich"],
-        "it": ["disgusto", "disgustoso", "ripugnante", "nauseante", "orribile"],
-        "es": ["asco", "asqueroso", "repugnante", "nauseabundo", "repulsivo"],
-        "eo": ["naŭzo", "naŭza", "abomena"],
-        "fi": ["inho", "inhottava", "vastenmielinen", "kuvottava"],
+               "immonde", "nausée", "vomir",
+               # v2.4: literary-register
+               "affreux", "horrible", "hideux", "vilain", "laid", "odieux",
+               "abominable", "monstrueux", "atroce", "horreur", "infâme",
+               "repoussant", "misérable"],
+        "de": ["Ekel", "ekelhaft", "widerlich", "abstoßend", "abscheulich",
+               # v2.4: literary-register
+               "schrecklich", "hässlich", "grässlich", "scheußlich",
+               "furchtbar", "grauenhaft"],
+        "it": ["disgusto", "disgustoso", "ripugnante", "nauseante", "orribile",
+               # v2.4: literary-register
+               "terribile", "brutto", "mostruoso", "orrendo", "abominevole",
+               "schifoso"],
+        "es": ["asco", "asqueroso", "repugnante", "nauseabundo", "repulsivo",
+               # v2.4: literary-register
+               "espantoso", "feo", "horroroso", "monstruoso", "abominable",
+               "horrible"],
+        "eo": ["naŭzo", "naŭza", "abomena", "aĉa", "terura"],
+        "fi": ["inho", "inhottava", "vastenmielinen", "kuvottava",
+               "kauhea", "ruma", "hirveä"],
     },
     "PLAY": {
         "en": ["play", "laugh", "fun", "game", "joke", "merry", "delight", "cheerful",
@@ -578,15 +596,27 @@ ATOM_KEYWORDS = {
     },
     "TEDIUM": {
         "en": ["bore", "bored", "boring", "tedious", "tire", "tired", "weary",
-               "dull", "monotonous", "listless", "apathy"],
+               "dull", "monotonous", "listless", "apathy",
+               # v2.4: literary-register (Alice: sleepy, stupid, idle)
+               "sleepy", "drowsy", "stupid", "idle", "slow", "dreary", "tiresome"],
         "fr": ["ennui", "ennuyer", "lasse", "fatigué", "monotone", "morne",
-               "apathie", "languir"],
+               "apathie", "languir",
+               # v2.4: literary-register (Candide: ennuyeux, endormi, pesant)
+               "ennuyeux", "endormi", "pesant", "languissant", "accablé", "las"],
         "de": ["langweilig", "Langeweile", "müde", "ermüden", "eintönig",
-               "Apathie"],
-        "it": ["noia", "noioso", "stanco", "monotono", "apatia", "annoiare"],
-        "es": ["aburrimiento", "aburrido", "cansado", "monótono", "apatía"],
-        "eo": ["enui", "enuiga", "laca", "monotona"],
-        "fi": ["tylsä", "tylsistynyt", "väsynyt", "yksitoikkoinen", "apatia"],
+               "Apathie",
+               # v2.4: literary-register
+               "schläfrig", "langsam", "träge"],
+        "it": ["noia", "noioso", "stanco", "monotono", "apatia", "annoiare",
+               # v2.4: literary-register
+               "sonnolento", "pigro"],
+        "es": ["aburrimiento", "aburrido", "cansado", "monótono", "apatía",
+               # v2.4: literary-register
+               "perezoso", "soñoliento"],
+        "eo": ["enui", "enuiga", "laca", "monotona",
+               "dormema", "malrapida"],
+        "fi": ["tylsä", "tylsistynyt", "väsynyt", "yksitoikkoinen", "apatia",
+               "unelias", "laiska"],
     },
     "EXISTENCE": {
         "en": ["be", "exist", "live", "die", "become", "remain", "stay",
