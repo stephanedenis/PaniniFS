@@ -2,7 +2,7 @@
 
 > **Créé** : 2026-02-19
 > **Maintenu par** : équipe Panini (humains + agents)
-> **Dernière mise à jour** : 2026-02-19
+> **Dernière mise à jour** : 2026-02-19 (v4.1 validé)
 > **Référence journal** : [2026-02-19-hauru-experiment-registry.md](../../Copilotage/journal/2026-02-19-hauru-experiment-registry.md)
 
 ---
@@ -477,27 +477,40 @@ avec des atomes PROC/ABS — une béquille, pas une solution.
 Objectif : qu'un fichier PDF ou EPUB entre d'un côté, et que des atomes
 sémantiques sortent de l'autre.
 
-**v4.0 — Extracteur de texte multi-format**
+**v4.0 — Extracteur de texte multi-format** ✅
 
-| Sous-étape | Contenu | Effort |
+| Sous-étape | Contenu | Statut |
 |------------|---------|--------|
-| 4.0a | Ajouter `pdfminer.six` + `ebooklib` dans requirements.txt | 5 min |
-| 4.0b | Créer `text_extractor.py` : extracteur unifié PDF/EPUB/DOCX/HTML/TXT | Code 4-6h |
-| 4.0c | Pipeline PDF : `pdfminer.high_level.extract_text()` → texte brut → paragraphes | Code 2h |
-| 4.0d | Pipeline EPUB : `ebooklib` → lire chapitres XHTML → BeautifulSoup → texte | Code 2h |
-| 4.0e | Pipeline HTML : `BeautifulSoup` → extraction article/paragraphes | Code 1h |
-| 4.0f | Pipeline Markdown : parser `markdown-it-py` → texte structuré | Code 1h |
-| 4.0g | Tests : 5 PDF + 3 EPUB + 3 HTML réels, vérifier extraction fidèle | Tests 2-3h |
+| 4.0a | Installé `pdfminer.six`, `ebooklib`, `python-docx`, `langdetect` (pip3) | ✅ |
+| 4.0b | Créé `text_extractor.py` (~420 lignes) : extracteur unifié PDF/EPUB/DOCX/HTML/MD/TXT | ✅ |
+| 4.0c | Pipeline PDF : `pdfminer.six` extract_pages → page par page avec numéros | ✅ |
+| 4.0d | Pipeline EPUB : `ebooklib` → chapitres XHTML → BS4 → paragraphes avec titres h1/h2/h3 | ✅ |
+| 4.0e | Pipeline HTML : BS4 → suppression script/style/nav, préférence article/main/body | ✅ |
+| 4.0f | Pipeline Markdown : `markdown-it-py` → parsing tokens, headings, paragraphes | ✅ |
+| 4.0g | Pipeline DOCX : `python-docx` → détection headings, extraction paragraphes | ✅ |
+| 4.0h | Pipeline TXT : `chardet` encoding detection, stripping header/footer Gutenberg (case-insensitive) | ✅ |
+| 4.0i | Tests : README.md→49¶/523w ✅, CONTRIBUTING.md→35¶/346w ✅, Alice Gutenberg→814¶/26521w ✅ | ✅ |
 
-**v4.1 — Pont extracteur ↔ moteur d'atomes**
+Fonctionnalités transversales :
+- `detect_format()` : magic numbers (PDF `%PDF-`, ZIP `PK\x03\x04` → EPUB vs DOCX) + fallback extension
+- `ExtractionResult` / `ExtractedParagraph` dataclasses
+- `_clean_paragraphs()` : split `\n\n`, normalize whitespace, filtre min_length
+- CLI : `python text_extractor.py <fichier> [format]`
 
-| Sous-étape | Contenu | Effort |
+**v4.1 — Pont extracteur ↔ moteur d'atomes** ✅
+
+| Sous-étape | Contenu | Statut |
 |------------|---------|--------|
-| 4.1a | Créer `document_analyzer.py` : orchestrateur `fichier → text_extractor → seven_layers_engine` | Code 3-4h |
-| 4.1b | Détection automatique de langue (via trigrams ou `langdetect`) | Code 1h |
-| 4.1c | Chunking textuel intelligent : paragraphes → phrases → fenêtres de contexte | Code 3h |
-| 4.1d | Stockage Dolt des résultats d'analyse (nouvelle table `document_analyses`) | Code 2h |
-| 4.1e | CLI : `python document_analyzer.py mon_fichier.pdf` → rapport d'analyse | Code 1h |
+| 4.1a | Créé `document_analyzer.py` (~310 lignes) : orchestrateur fichier → text_extractor → seven_layers_engine | ✅ |
+| 4.1b | Détection automatique de langue via `langdetect` (seeded, déterministe) + fallback trigrams, 7 langues supportées | ✅ |
+| 4.1c | Analyse paragraphe par paragraphe : syntaxe → atomes (WSD) → morpho → struct_ops → concepts | ✅ |
+| 4.1d | Stockage Dolt : table `document_analyses` (14 colonnes), INSERT ON DUPLICATE KEY UPDATE | ✅ |
+| 4.1e | CLI : `python document_analyzer.py <fichier> [--lang] [--format] [--store] [--verbose] [--json]` | ✅ |
+
+Résultats de validation :
+- README.md (FR) : 49¶, 1.05s, 25 atomes uniques, 18 concepts, 3 WSD, NEG=4/QUANT=3/MOD=1
+- Alice in Wonderland 11.txt (EN) : 814¶, 20.4s (41 para/s), 34 atomes, 119 concepts, 593 WSD, NEG=304/QUANT=378/MOD=348
+- Stockage Dolt : table créée, requête SQL vérifiée ✅
 
 **v4.2 — Reconstruction et round-trip**
 
@@ -571,15 +584,16 @@ sémantiques sortent de l'autre.
 #### Ordre d'exécution recommandé
 
 ```
-MAINTENANT        v2.5 (atomes ENT)          ← Priorité 1a
-     │            v2.6 (atomes QUAL)          ← Priorité 1b
-     │            v2.7 (struct ops + WSD)     ← Priorité 1c
+FAIT ✅        v2.5 (atomes ENT)          ← commit b08f91a
+     │         v2.6 (atomes QUAL)          ← commit ff1b0df
+     │         v2.7 (struct ops + WSD)     ← commit e912f6c
      │
      │     Le modèle linguistique est complet (4 catégories, WSD, ≥120 concepts)
      │
-     ▼            v4.0 (text_extractor.py)    ← Priorité 2a
-                  v4.1 (document_analyzer.py) ← Priorité 2b
-                  v4.2 (round-trip, E2 prep)  ← Priorité 2c
+FAIT ✅        v4.0 (text_extractor.py)    ← 420 lignes, 6 formats
+FAIT ✅        v4.1 (document_analyzer.py) ← 310 lignes, pipeline E2E validé
+     │
+PROCHAIN       v4.2 (round-trip, E2 prep)  ← Priorité 2c
 ```
 
 ---
