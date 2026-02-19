@@ -216,18 +216,21 @@ ATOM_NSM = {
     "ANCIEN":         ["BEFORE", "A LONG TIME"],
 }
 
-# Atom → Jackendoff mapping (v2.2: emotional sub-primitives)
+# Atom → Jackendoff mapping (v2.7: 11/35 mapped — extended conceptual semantics)
+# Sources: Jackendoff 1990 (Semantic Structures), Jackendoff 2007 (Language, Consciousness, Culture)
+# Primitives used: GO, STAY, BE, CAUSE, LET, INCH, HAVE, AFFECT, ORIENT
+# Ontological: THING, PLACE, PATH, PROPERTY, AMOUNT, EVENT, STATE, MANNER
 ATOM_JACKENDOFF = {
-    "MOUVEMENT":      "GO",
-    "COGNITION":      None,
-    "PERCEPTION":     None,
-    "COMMUNICATION":  None,
-    "CREATION":       "CAUSE",
-    "EXISTENCE":      "BE",
-    "DESTRUCTION":    None,
-    "POSSESSION":     None,
-    "DOMINATION":     None,
-    # Emotional axes
+    "MOUVEMENT":      "GO",          # spatial motion (Jackendoff 1990 §2)
+    "COGNITION":      None,          # no Jackendoff primitive for mental processes
+    "PERCEPTION":     "ORIENT",      # perceptual orientation (Jackendoff 2007 §7.3)
+    "COMMUNICATION":  None,          # no direct primitive (EXCH is not canonical)
+    "CREATION":       "CAUSE",       # causation (Jackendoff 1990 §7)
+    "EXISTENCE":      "BE",          # stative location/identity (Jackendoff 1990 §3)
+    "DESTRUCTION":    "INCH",        # inchoative state change (Jackendoff 1990 §10)
+    "POSSESSION":     "HAVE",        # possession tier (GO_Poss implies HAVE, Jackendoff 1990 §6)
+    "DOMINATION":     "AFFECT",      # thematic/action tier (Jackendoff 2007 §5.3)
+    # Emotional axes — Jackendoff does not model emotions as primitives
     "SEEKING":        None,
     "FEAR":           None,
     "CARE":           None,
@@ -238,20 +241,20 @@ ATOM_JACKENDOFF = {
     "TEDIUM":         None,
     "EMOTION":        None,
     # Abstract atoms (v2.3)
-    "RELATION":       None,
-    "STRUCTURE":      None,
-    "INVARIANCE":     None,
-    "RÉCURRENCE":     None,
-    "DUALITÉ":        None,
-    "MESURE":         None,
-    "ORDRE":          None,
+    "RELATION":       None,          # covered by spatial functions but not as a primitive
+    "STRUCTURE":      None,          # no direct mapping
+    "INVARIANCE":     "STAY",        # spatial/temporal persistence (Jackendoff 1990 §3)
+    "RÉCURRENCE":     None,          # no primitive for iteration/recursion
+    "DUALITÉ":        None,          # no primitive for opposition
+    "MESURE":         "AMOUNT",      # ontological category (Jackendoff 1990 §2.3)
+    "ORDRE":          None,          # PATH has linear order but mapping is too loose
     # Entity atoms (v2.5) — Jackendoff has THING and PLACE as primitives
-    "CHOSE":          "THING",
-    "AGENT":          None,
-    "CORPS":          None,
-    "LIEU":           "PLACE",
-    "MATIÈRE":        None,
-    # Quality atoms (v2.6) — Jackendoff has no quality primitives
+    "CHOSE":          "THING",       # ontological category (Jackendoff 1990 §2)
+    "AGENT":          None,          # Jackendoff uses THING for both objects and agents
+    "CORPS":          None,          # no distinct physical-body primitive
+    "LIEU":           "PLACE",       # spatial ontological category (Jackendoff 1990 §2)
+    "MATIÈRE":        None,          # no mass-noun primitive (THING covers both)
+    # Quality atoms (v2.6) — Jackendoff has no evaluative quality primitives
     "BON":            None,
     "GRAND":          None,
     "VRAI":           None,

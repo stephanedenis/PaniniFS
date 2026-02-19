@@ -1221,19 +1221,57 @@ def analyze_syntax(text, lang):
 # LAYER 2: WORD-ATOM ALIGNMENT (paragraph level)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def align_words_to_atoms(text, lang):
+def align_words_to_atoms(text, lang, syntax_results=None):
     """Attribute each word to its atom(s). Reuses ATOM_KEYWORDS with
     paragraph-level context for disambiguation.
     
+    v2.7: WSD — Word Sense Disambiguation via POS-aware ranking.
+    When syntax_results is provided, POS tags guide atom selection:
+      VERB → PROC atoms preferred
+      NOUN → ENT atoms preferred, then ABS, then PROC (nominalized)
+      ADJ  → QUAL atoms preferred, then ABS
+      ADV  → QUAL atoms preferred (degree), then ABS
+    Multiple keyword matches are collected and ranked, not first-match.
+    
     Cascade de résolution (v3 — couverture 100%) :
       0. Classification structurelle (titres, TOC, illustrations)
-      1. Match direct/prefix dans ATOM_KEYWORDS (original)
+      1. Match direct/prefix dans ATOM_KEYWORDS (original) — MULTI-MATCH + WSD
       1b. EO X-notation normalization (gx→ĝ, sx→ŝ, etc.)
       2. Lemmatisation → ATOM_KEYWORDS (irréguliers + suffixes)
       3. Racines étymologiques (latines, germaniques)
       4. Inférence inter-langues (langues parentes)
       5. Compound word splitting (Finnish agglutination)
     """
+    # ── POS→Category preference for WSD ──────────────────────────────────
+    # Maps POS tags to ranked lists of preferred atom categories
+    POS_CATEGORY_PREF = {
+        "VERB": ["PROC", "EMOT"],           # verbs → predicative/emotional atoms
+        "NOUN": ["ENT", "ABS", "PROC"],     # nouns → entities, abstract, or nominalized proc
+        "PROPN": ["ENT"],                    # proper nouns → entities
+        "ADJ":  ["QUAL", "ABS", "EMOT"],    # adjectives → quality, abstract, emotional
+        "ADV":  ["QUAL", "ABS"],             # adverbs → quality (degree), abstract
+        "AUX":  ["PROC"],                    # auxiliaries → existence/motion verbs
+    }
+    # Atom → category mapping (local, mirrors import_panlang_v2 sets)
+    ATOM_CATEGORY = {}
+    for a in ("MOUVEMENT", "COGNITION", "PERCEPTION", "COMMUNICATION",
+              "CREATION", "EXISTENCE", "DESTRUCTION", "POSSESSION", "DOMINATION"):
+        ATOM_CATEGORY[a] = "PROC"
+    for a in ("SEEKING", "FEAR", "CARE", "GRIEF", "RAGE", "DISGUST", "PLAY", "TEDIUM", "EMOTION"):
+        ATOM_CATEGORY[a] = "EMOT"
+    for a in ("RELATION", "STRUCTURE", "INVARIANCE", "RÉCURRENCE", "DUALITÉ", "MESURE", "ORDRE"):
+        ATOM_CATEGORY[a] = "ABS"
+    for a in ("CHOSE", "AGENT", "CORPS", "LIEU", "MATIÈRE"):
+        ATOM_CATEGORY[a] = "ENT"
+    for a in ("BON", "GRAND", "VRAI", "INTENSE", "ANCIEN"):
+        ATOM_CATEGORY[a] = "QUAL"
+
+    # Build POS lookup from syntax_results if provided
+    pos_by_position = {}
+    if syntax_results:
+        for sr in syntax_results:
+            pos_by_position[sr["word_position"]] = sr["pos_tag"]
+
     # Import conditionnel pour ne pas casser si le module est absent
     try:
         from morpho_semantic_bridge import (
@@ -1273,11 +1311,54 @@ def align_words_to_atoms(text, lang):
             word_to_sent[offset + j] = si
         offset += len(sent_words)
 
-    # --- Pass 1: Original match (direct + prefix) ---
+    # ── Helper: rank candidates by POS preference ────────────────────────
+    def _rank_candidates(candidates, word_pos):
+        """Select best atom from multiple candidates using POS-aware WSD.
+        
+        Returns the best (atom, confidence, keyword, disambiguation) tuple.
+        If no POS info available, returns highest-confidence candidate.
+        """
+        if len(candidates) == 1:
+            return candidates[0]
+
+        pos = pos_by_position.get(word_pos)
+        if not pos or pos not in POS_CATEGORY_PREF:
+            # No POS info or functional POS → highest confidence wins
+            return max(candidates, key=lambda c: c[1])
+
+        pref_categories = POS_CATEGORY_PREF[pos]
+
+        # Score each candidate: (category_rank, confidence)
+        def candidate_score(c):
+            atom, conf, kw, disamb = c
+            cat = ATOM_CATEGORY.get(atom, "")
+            try:
+                cat_rank = pref_categories.index(cat)
+            except ValueError:
+                cat_rank = 99  # Not in preference list → low priority
+            # Lower cat_rank is better, higher confidence is better
+            return (-cat_rank, conf)
+
+        best = max(candidates, key=candidate_score)
+
+        # Add WSD disambiguation note if there were competing categories
+        atom, conf, kw, disamb = best
+        competing_cats = {ATOM_CATEGORY.get(c[0], "?") for c in candidates}
+        if len(competing_cats) > 1:
+            disamb = (disamb or "") + f" [WSD:{pos}→{ATOM_CATEGORY.get(atom, '?')}, "
+            disamb += f"rejected={','.join(c[0] for c in candidates if c[0] != atom)}]"
+            return (atom, conf, kw, disamb.strip())
+
+        return best
+
+    # --- Pass 1: Original match (direct + prefix) — MULTI-MATCH + WSD ---
     for word_pos, word_raw in enumerate(words):
         word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
         if len(word_lower) < 2:
             continue
+
+        # Collect ALL matching atoms for this word (v2.7: no break on first match)
+        candidates = []  # list of (atom, confidence, keyword, disambiguation)
 
         for atom, keywords_by_lang in ATOM_KEYWORDS.items():
             if lang not in keywords_by_lang:
@@ -1306,19 +1387,24 @@ def align_words_to_atoms(text, lang):
                     elif lang == "en" and word_lower == "be":
                         disambiguation = "be = EXISTENCE (copula); very frequent, possible noise"
 
-                    orig_form = original_words[word_pos] if word_pos < len(original_words) else word_raw
-                    attributions.append({
-                        "word_position": word_pos,
-                        "word_form": orig_form,
-                        "word_lemma": kw,
-                        "atom_id": atom,
-                        "confidence": confidence,
-                        "keyword_matched": kw,
-                        "disambiguation": disambiguation,
-                        "sentence_local_idx": word_to_sent.get(word_pos, 0),
-                    })
-                    matched_positions.add(word_pos)
-                    break
+                    candidates.append((atom, confidence, kw, disambiguation))
+                    break  # Only best match per keyword set per atom (avoid kw duplicates)
+
+        # v2.7 WSD: rank candidates if multiple atoms matched
+        if candidates:
+            best_atom, best_conf, best_kw, best_disamb = _rank_candidates(candidates, word_pos)
+            orig_form = original_words[word_pos] if word_pos < len(original_words) else word_raw
+            attributions.append({
+                "word_position": word_pos,
+                "word_form": orig_form,
+                "word_lemma": best_kw,
+                "atom_id": best_atom,
+                "confidence": best_conf,
+                "keyword_matched": best_kw,
+                "disambiguation": best_disamb,
+                "sentence_local_idx": word_to_sent.get(word_pos, 0),
+            })
+            matched_positions.add(word_pos)
 
     # --- Pass 2: Morpho-semantic bridge (lemmatisation + racines + inter-langues) ---
     if has_bridge:
@@ -1378,6 +1464,133 @@ def align_words_to_atoms(text, lang):
                     break
 
     return attributions
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# STRUCTURAL OPERATIONS: NEG / QUANT / MOD (v2.7)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Multilingual lexicons for structural operator detection
+_NEGATION_WORDS = {
+    "en": {"not", "no", "never", "neither", "nor", "nothing", "nobody", "nowhere",
+           "without", "hardly", "barely", "scarcely", "don't", "doesn't", "didn't",
+           "won't", "wouldn't", "can't", "cannot", "couldn't", "shouldn't", "isn't",
+           "aren't", "wasn't", "weren't", "hasn't", "haven't", "hadn't"},
+    "fr": {"ne", "pas", "jamais", "rien", "personne", "aucun", "aucune", "ni",
+           "sans", "guère", "nullement", "point", "nul", "nulle"},
+    "de": {"nicht", "kein", "keine", "keinem", "keinen", "keiner", "nie", "niemals",
+           "niemand", "nichts", "nirgends", "ohne", "weder", "kaum"},
+    "it": {"non", "mai", "niente", "nulla", "nessuno", "nessuna", "né", "senza",
+           "alcuno", "alcuna"},
+    "es": {"no", "nunca", "jamás", "nada", "nadie", "ninguno", "ninguna", "ni",
+           "sin", "tampoco"},
+    "eo": {"ne", "neniam", "neniu", "nenio", "nenie", "sen", "nek", "neniel"},
+    "fi": {"ei", "en", "et", "emme", "ette", "eivät", "älä", "ilman",
+           "koskaan", "kukaan", "mikään", "missään"},
+}
+
+_QUANTIFIER_WORDS = {
+    "en": {"all", "every", "each", "some", "many", "much", "few", "several",
+           "most", "any", "none", "both", "whole", "entire", "numerous"},
+    "fr": {"tout", "tous", "toute", "toutes", "chaque", "quelques", "plusieurs",
+           "beaucoup", "peu", "aucun", "certains", "certaines", "maints"},
+    "de": {"alle", "jeder", "jede", "jedes", "einige", "viele", "wenige",
+           "mehrere", "manche", "ganz", "sämtliche"},
+    "it": {"tutto", "tutti", "tutta", "tutte", "ogni", "qualche", "molti",
+           "pochi", "alcuni", "ciascuno", "parecchi"},
+    "es": {"todo", "todos", "toda", "todas", "cada", "algunos", "muchos",
+           "pocos", "varios", "ninguno", "bastantes"},
+    "eo": {"ĉiu", "ĉiuj", "ĉio", "kelkaj", "multaj", "iom", "malmultaj",
+           "neniu", "pluraj", "ĉia"},
+    "fi": {"kaikki", "jokainen", "muutama", "moni", "harva", "usea",
+           "jokin", "koko", "lukuisa"},
+}
+
+_MODAL_WORDS = {
+    "en": {"can", "could", "may", "might", "must", "shall", "should", "will",
+           "would", "ought", "need", "dare"},
+    "fr": {"pouvoir", "peut", "peux", "pouvait", "pourrait", "devoir", "doit",
+           "devait", "devrait", "falloir", "faut", "fallait", "faudrait",
+           "vouloir", "veut", "veux", "voulait"},
+    "de": {"können", "kann", "konnte", "könnte", "müssen", "muss", "musste",
+           "müsste", "sollen", "soll", "sollte", "dürfen", "darf", "wollen", "will"},
+    "it": {"potere", "può", "poteva", "potrebbe", "dovere", "deve", "doveva",
+           "dovrebbe", "volere", "vuole", "voleva"},
+    "es": {"poder", "puede", "podía", "podría", "deber", "debe", "debía",
+           "debería", "querer", "quiere", "quería"},
+    "eo": {"povi", "povas", "povis", "povus", "devi", "devas", "devis",
+           "voli", "volas", "volis"},
+    "fi": {"voida", "voi", "saattaa", "täytyä", "täytyy", "pitää",
+           "tarvita", "tarvitsee"},
+}
+
+
+def detect_structural_operators(text, lang, atom_results, syntax_results=None):
+    """Detect structural operators (NEG, QUANT, MOD) that modify atom attributions.
+    
+    Returns a list of operator annotations:
+      {operator, word_form, word_position, scope_atoms, scope_range, confidence}
+    
+    Scope: each operator affects atoms within a ±3 word window (same clause if syntax available).
+    """
+    neg_words = _NEGATION_WORDS.get(lang, _NEGATION_WORDS["en"])
+    quant_words = _QUANTIFIER_WORDS.get(lang, _QUANTIFIER_WORDS["en"])
+    modal_words = _MODAL_WORDS.get(lang, _MODAL_WORDS["en"])
+
+    # Build position→clause_id lookup from syntax
+    clause_by_pos = {}
+    if syntax_results:
+        for sr in syntax_results:
+            clause_by_pos[sr["word_position"]] = sr.get("clause_id", 0)
+
+    # Build position→atom lookup from atom_results
+    atom_by_pos = {}
+    for ar in atom_results:
+        atom_by_pos[ar["word_position"]] = ar["atom_id"]
+
+    words = text.split()
+    operators = []
+
+    for i, word_raw in enumerate(words):
+        word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
+        if len(word_lower) < 2:
+            continue
+
+        op_type = None
+        if word_lower in neg_words:
+            op_type = "NEG"
+        elif word_lower in quant_words:
+            op_type = "QUANT"
+        elif word_lower in modal_words:
+            op_type = "MOD"
+
+        if not op_type:
+            continue
+
+        # Determine scope: atoms within ±3 positions AND same clause
+        my_clause = clause_by_pos.get(i, -1)
+        scope_atoms = []
+        scope_range = (max(0, i - 3), min(len(words) - 1, i + 3))
+
+        for pos in range(scope_range[0], scope_range[1] + 1):
+            if pos == i:
+                continue
+            if pos in atom_by_pos:
+                # If we have clause info, restrict to same clause
+                if my_clause >= 0 and clause_by_pos.get(pos, -2) != my_clause:
+                    continue
+                scope_atoms.append(atom_by_pos[pos])
+
+        operators.append({
+            "operator": op_type,
+            "word_form": word_raw,
+            "word_position": i,
+            "scope_atoms": scope_atoms,
+            "scope_range": f"{scope_range[0]}-{scope_range[1]}",
+            "confidence": 0.85 if scope_atoms else 0.50,
+        })
+
+    return operators
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -2101,9 +2314,13 @@ def generate_translator_choices(para_text, lang, edition_id, original_text,
 # PARAGRAPH CONCEPT DETECTION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def detect_paragraph_concepts(atom_results, syntax_results):
+def detect_paragraph_concepts(atom_results, syntax_results, struct_ops=None):
     """Detect concepts from paragraph-level atom attributions,
-    using syntactic coherence for disambiguation."""
+    using syntactic coherence for disambiguation.
+    
+    v2.7: struct_ops (from detect_structural_operators) annotates concepts
+    with negation/quantification/modality flags.
+    """
     # Build atom set with per-sentence distribution
     atoms_by_sentence = defaultdict(set)
     atom_evidence = {}
@@ -2119,6 +2336,20 @@ def detect_paragraph_concepts(atom_results, syntax_results):
                 "conf": attr["confidence"],
                 "sent": sent_idx,
             }
+
+    # v2.7: Build operator scope sets for negated/quantified/modal atoms
+    negated_atoms = set()
+    quantified_atoms = set()
+    modal_atoms = set()
+    if struct_ops:
+        for op in struct_ops:
+            target = set(op.get("scope_atoms", []))
+            if op["operator"] == "NEG":
+                negated_atoms |= target
+            elif op["operator"] == "QUANT":
+                quantified_atoms |= target
+            elif op["operator"] == "MOD":
+                modal_atoms |= target
 
     all_atoms = set(atom_evidence.keys())
     concepts = []
@@ -2148,12 +2379,24 @@ def detect_paragraph_concepts(atom_results, syntax_results):
         if syntactic_coherence:
             avg_conf = min(1.0, avg_conf * 1.1)
 
+        # v2.7: Annotate with structural operator flags
+        concept_negated = bool(required_atoms & negated_atoms)
+        concept_quantified = bool(required_atoms & quantified_atoms)
+        concept_modal = bool(required_atoms & modal_atoms)
+
+        # Negated concepts: lower confidence (present but negated)
+        if concept_negated:
+            avg_conf = avg_conf * 0.7
+
         concepts.append({
             "concept_id": concept,
             "atoms_evidence": evidence,
             "confidence": round(avg_conf, 3),
             "syntactic_coherence": syntactic_coherence,
             "discourse_support": discourse_support,
+            "negated": concept_negated,
+            "quantified": concept_quantified,
+            "modal": concept_modal,
         })
 
     return concepts
@@ -2196,7 +2439,7 @@ def step3_process_all_paragraphs():
     stats = {
         "syntax": 0, "atoms": 0, "morpho": 0, "register": 0,
         "discourse": 0, "prosody": 0, "cultural": 0, "choices": 0,
-        "concepts": 0,
+        "concepts": 0, "struct_ops": 0,
     }
 
     # ── Batch accumulators (flushed every BATCH_SIZE paragraphs) ──
@@ -2359,8 +2602,8 @@ def step3_process_all_paragraphs():
             ))
             stats["syntax"] += 1
 
-        # ── LAYER 2: Word→atom alignment ──
-        atom_results = align_words_to_atoms(para_text, lang)
+        # ── LAYER 2: Word→atom alignment (v2.7: WSD via POS tags) ──
+        atom_results = align_words_to_atoms(para_text, lang, syntax_results=syntax_results)
         for ar in atom_results:
             batch_atoms.append((
                 para_id, ar['word_position'], ar['word_form'][:120],
@@ -2433,7 +2676,9 @@ def step3_process_all_paragraphs():
             stats["cultural"] += 1
 
         # ── Paragraph concepts ──
-        concepts = detect_paragraph_concepts(atom_results, syntax_results)
+        # v2.7: detect structural operators BEFORE concept detection
+        struct_ops = detect_structural_operators(para_text, lang, atom_results, syntax_results)
+        concepts = detect_paragraph_concepts(atom_results, syntax_results, struct_ops)
         for c in concepts:
             batch_concepts.append((
                 para_id, c['concept_id'],
@@ -2442,6 +2687,7 @@ def step3_process_all_paragraphs():
                 1 if c['discourse_support'] else 0, 'seven_layer'
             ))
             stats["concepts"] += 1
+        stats["struct_ops"] += len(struct_ops)
 
         # ── Translator choices ──
         original_text = None
