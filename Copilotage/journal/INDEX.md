@@ -6,6 +6,7 @@ Généré: 2026-02-18T15:30:00-05:00
 
 ### 2026
 
+- [2026-02-19-hauru-doltdb-optimization.md](2026-02-19-hauru-doltdb-optimization.md) — ⚡ Optimisation DoltDB : de 3.9h à 16s (×877). Classe DoltDB avec MySQL protocol, batch executemany, CALL dolt_commit
 - [2026-02-19-hauru-experiment-registry.md](2026-02-19-hauru-experiment-registry.md) — Registre des expérimentations, audit 3 systèmes « Phase », NA-004 roadmap, v2.5 atomes ENT (CHOSE/AGENT/CORPS/LIEU/MATIÈRE)
 - [2026-02-18-hauru-v24-abs-activation.md](2026-02-18-hauru-v24-abs-activation.md) — v2.4 ABS Activation: 17 nouveaux concepts ABS, 76→92 concepts activés (+21%), MÉLANCOLIE fix
 - [2026-02-18-hauru-v23-concept-revision.md](2026-02-18-hauru-v23-concept-revision.md) — v2.3 Concept Revision: 27 overrides, FK fix, 29→76 concepts activés (+262%)
