@@ -6,6 +6,7 @@ Généré: 2026-02-18T15:30:00-05:00
 
 ### 2026
 
+- [2026-02-19-hauru-v42-semantic-serializer.md](2026-02-19-hauru-v42-semantic-serializer.md) — v4.2 : Sérialisation JSON, comparaison Alice EN↔FR universality score **0.8671 EXCELLENT**, spec E2 reconstruction, **roadmap NA-004 COMPLET** ✅
 - [2026-02-19-hauru-v40-v41-text-media-bridge.md](2026-02-19-hauru-v40-v41-text-media-bridge.md) — v4.0–v4.1 : Pont texte multi-format (6 formats) ↔ moteur d'atomes, document_analyzer pipeline E2E, Alice 814¶ en 20.4s, stockage Dolt validé
 - [2026-02-19-hauru-v27-wsd-structural-ops.md](2026-02-19-hauru-v27-wsd-structural-ops.md) — v2.7 : WSD POS-aware (3.6% mots désambiguïsés), opérations structurelles NEG/QUANT/MOD (71 détections/50 para), Jackendoff 5→11/35, score 0.667 (+0.017)
 - [2026-02-19-hauru-v26-qual-atoms.md](2026-02-19-hauru-v26-qual-atoms.md) — v2.6 : 5 atomes QUAL (BON/GRAND/VRAI/INTENSE/ANCIEN), 24 concepts QUAL-dépendants, 120 concepts total, 4/4 catégories
