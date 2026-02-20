@@ -40,3 +40,5 @@ publications/tmp/
 issues_packs/
 
 SANDBOX/dolt-concept-store/gutenberg_corpus/
+SANDBOX/dolt-concept-store/wikipedia_corpus/
+SANDBOX/dolt-concept-store/wikipedia_exports/
