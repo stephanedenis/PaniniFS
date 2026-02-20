@@ -1,11 +1,12 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-02-19T22:45:00-05:00
+Généré: 2026-02-20T10:30:00-05:00
 
 ## Entrées
 
 ### 2026
 
+- [2026-02-20-hauru-v431-dutch-portuguese-10-languages.md](2026-02-20-hauru-v431-dutch-portuguese-10-languages.md) — 🇳🇱🇵🇹 v4.3.1 : Néerlandais + Portugais. **34/34 atomes universels sur 10 langues = 100%**. 593-594 keywords/langue, LANGUAGE_PROFILES complets, NL↔DE=0.817.
 - [2026-02-19-hauru-v43-exotic-languages-cjk-cyrillic.md](2026-02-19-hauru-v43-exotic-languages-cjk-cyrillic.md) — 🌏 v4.3 Langues exotiques : CJK + cyrillique. **34/34 atomes universels** (100%) sur 8 langues, 3 écritures. Tokenizer CJK greedy, extraction kanji stems. 51 textes, 3.14M mots, cosine FR↔ZH=0.904.
 - [2026-02-19-hauru-gutenberg-corpus-ingestion.md](2026-02-19-hauru-gutenberg-corpus-ingestion.md) — 🌍 Gutenberg corpus complet : **37 textes, 7 langues, 3M mots**, 45 min. Matrice cross-langue : **13 atomes universels** (46.4%), cosine 0.69–0.93. LIEU le plus stable (CV=0.112).
 - [2026-02-19-hauru-v42-semantic-serializer.md](2026-02-19-hauru-v42-semantic-serializer.md) — v4.2 : Sérialisation JSON, comparaison Alice EN↔FR universality score **0.8671 EXCELLENT**, spec E2 reconstruction, **roadmap NA-004 COMPLET** ✅

@@ -82,6 +82,18 @@ except ImportError:
     def is_cjk_char(c): return False
     def cjk_tokenize(t, l, a): return t.split()
 
+# v4.3.1: Supplementary Latin-script language support (nl, pt)
+try:
+    from supplementary_keywords import (
+        SUPPLEMENTARY_LANGUAGE_PROFILES,
+        SUPPLEMENTARY_NEGATION_WORDS,
+        SUPPLEMENTARY_QUANTIFIER_WORDS,
+        SUPPLEMENTARY_MODIFIER_WORDS,
+    )
+    HAS_SUPPLEMENTARY = True
+except ImportError:
+    HAS_SUPPLEMENTARY = False
+
 # Same concept mappings as v3-alpha (for paragraph_concepts)
 # v2.4: all 95 multi-atom concepts including ABS-dependent ones
 # ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)
@@ -721,6 +733,10 @@ LANGUAGE_PROFILES = {
                           "пирог", "блины"},
     },
 }
+
+# v4.3.1: Merge supplementary language profiles (nl, pt) into LANGUAGE_PROFILES
+if HAS_SUPPLEMENTARY:
+    LANGUAGE_PROFILES.update(SUPPLEMENTARY_LANGUAGE_PROFILES)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1674,6 +1690,15 @@ if HAS_EXOTIC:
         _QUANTIFIER_WORDS[lang] = words_set
     for lang, words_set in EXOTIC_MODIFIER_WORDS.items():
         _MODAL_WORDS[lang] = words_set
+
+# v4.3.1: Merge supplementary negation/quantifier/modal words (nl, pt)
+if HAS_SUPPLEMENTARY:
+    for lang, words_list in SUPPLEMENTARY_NEGATION_WORDS.items():
+        _NEGATION_WORDS[lang] = set(words_list)
+    for lang, words_list in SUPPLEMENTARY_QUANTIFIER_WORDS.items():
+        _QUANTIFIER_WORDS[lang] = set(words_list)
+    for lang, words_list in SUPPLEMENTARY_MODIFIER_WORDS.items():
+        _MODAL_WORDS[lang] = set(words_list)
 
 
 def detect_structural_operators(text, lang, atom_results, syntax_results=None):

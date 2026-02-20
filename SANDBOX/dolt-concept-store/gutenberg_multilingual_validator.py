@@ -1106,6 +1106,13 @@ try:
 except ImportError:
     pass  # exotic_keywords.py not yet available
 
+# ── v4.3.1: Merge supplementary Latin-script keywords (nl, pt) ────────────
+try:
+    from supplementary_keywords import merge_supplementary_keywords
+    merge_supplementary_keywords(ATOM_KEYWORDS)
+except ImportError:
+    pass  # supplementary_keywords.py not yet available
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers Dolt
