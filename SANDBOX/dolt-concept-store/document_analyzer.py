@@ -34,7 +34,7 @@ from seven_layers_engine import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Supported languages (matching seven_layers_engine LANGUAGE_PROFILES)
-SUPPORTED_LANGS = {"en", "fr", "de", "it", "es", "eo", "fi"}
+SUPPORTED_LANGS = {"en", "fr", "de", "it", "es", "eo", "fi", "pt", "nl", "zh", "ja", "ru"}
 
 
 def detect_language(text: str, hint: str = None) -> str:
@@ -247,12 +247,14 @@ def analyze_document(
             "unique_atoms": len(all_atoms),
             "wsd_disambiguations": wsd_count,
             "top_atoms": all_atoms.most_common(15),
+            "all_atoms": dict(all_atoms),          # full distribution for export
         },
         "concepts": {
             "unique_detected": len(all_concepts),
             "total_detections": sum(all_concepts.values()),
             "negated_detections": negated_concepts,
             "top_concepts": all_concepts.most_common(15),
+            "all_concepts": dict(all_concepts),    # full distribution for export
             "details": concept_details,
         },
         "structural_operators": dict(all_operators),

@@ -89,6 +89,29 @@ CATALOG = [
 
     # ── Dutch ──
     (18066, "nl", "Max Havelaar", "Multatuli (Eduard Douwes Dekker)"),
+
+    # ── v4.3: Exotic languages (CJK + Cyrillic) ──
+
+    # ── Chinese (zh) — classical and modern ──
+    (24264, "zh", "紅樓夢 (Dream of the Red Chamber)", "曹雪芹 (Cao Xueqin)"),
+    (23962, "zh", "西遊記 (Journey to the West)", "吳承恩 (Wu Cheng'en)"),
+    (23950, "zh", "三國志演義 (Romance of Three Kingdoms)", "羅貫中 (Luo Guanzhong)"),
+    (23863, "zh", "水滸傳 (Water Margin)", "施耐庵 (Shi Nai'an)"),
+    (7337,  "zh", "道德經 (Tao Te Ching)", "老子 (Laozi)"),
+    (23864, "zh", "孫子兵法 (The Art of War)", "孫子 (Sunzi)"),
+    (27166, "zh", "吶喊 (Call to Arms)", "魯迅 (Lu Xun)"),
+    (23839, "zh", "論語 (Analects of Confucius)", "孔子 (Confucius)"),
+
+    # ── Japanese (ja) ──
+    (1982,  "ja", "羅生門 (Rashōmon)", "芥川龍之介 (Akutagawa Ryūnosuke)"),
+    (20683, "ja", "奥の細道 (Narrow Road to the Deep North)", "松尾芭蕉 (Matsuo Bashō)"),
+    (31617, "ja", "刺靑 (The Tattooer)", "谷崎潤一郎 (Tanizaki Jun'ichirō)"),
+    (31757, "ja", "お目出たき人 (A Happy Man)", "武者小路実篤 (Mushanokōji Saneatsu)"),
+
+    # ── Russian (ru) ──
+    (16527, "ru", "1001 задача для умственного счёта (1001 Mental Arithmetic Problems)", "С.А. Рачинский (Rachinskii)"),
+    (14741, "ru", "Духовные оды (Spiritual Odes)", "Г.Р. Державин (Derzhavin)"),
+    (30774, "ru", "Московия в представлении иностранцев XVI-XVII в.", "П.Н. Апостол (Apostol)"),
 ]
 
 CORPUS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gutenberg_corpus")
@@ -443,7 +466,7 @@ def build_universality_matrix(export_paths: List[str], verbose=True) -> dict:
         "total_atoms": len(union),
         "universality_rate": round(len(universal) / max(len(union), 1), 4),
         "lang_profiles": {
-            lang: {k: round(v, 4) for k, v in sorted(profile.items(), key=lambda x: -x[1])[:15]}
+            lang: {k: round(v, 4) for k, v in sorted(profile.items(), key=lambda x: -x[1])}
             for lang, profile in lang_profiles.items()
         },
     }

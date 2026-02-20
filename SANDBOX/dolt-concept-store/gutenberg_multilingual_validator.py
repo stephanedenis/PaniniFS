@@ -1099,6 +1099,13 @@ ATOM_KEYWORDS = {
     },
 }
 
+# ── v4.3: Merge exotic language keywords (CJK + Cyrillic) ─────────────────
+try:
+    from exotic_keywords import merge_exotic_keywords
+    merge_exotic_keywords(ATOM_KEYWORDS)
+except ImportError:
+    pass  # exotic_keywords.py not yet available
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers Dolt

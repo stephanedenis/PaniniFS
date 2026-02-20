@@ -164,7 +164,10 @@ def classify_structural_text(text, lang):
         struct_type = "edition_meta"
     elif len(text_stripped.split()) <= 5 and text_stripped == text_stripped.upper():
         # All-caps short text = likely heading/label
-        struct_type = "chapter_heading"
+        # v4.3: Skip CJK text — CJK chars have no case distinction
+        has_latin = any('A' <= c <= 'Z' or 'a' <= c <= 'z' for c in text_stripped)
+        if has_latin:
+            struct_type = "chapter_heading"
     
     if struct_type is None:
         return []

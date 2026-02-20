@@ -120,11 +120,8 @@ def export_document_atoms(
     export.total_paragraphs = report["paragraphs"]
     export.total_words = report["total_words"]
 
-    # Atom distribution
-    atom_counts = dict(report["atoms"]["top_atoms"])
-    # We may have more atoms not in top — re-derive from top_atoms
-    # (the report only keeps top 15, but for serialization we want all)
-    # Re-run a minimal pass just for atom collection if needed
+    # Atom distribution — use full distribution if available, fallback to top_atoms
+    atom_counts = report["atoms"].get("all_atoms", dict(report["atoms"]["top_atoms"]))
     export.atom_distribution = atom_counts
     export.unique_atoms = report["atoms"]["unique_atoms"]
     export.total_atom_detections = report["atoms"]["total_detections"]
@@ -137,8 +134,8 @@ def export_document_atoms(
         for atom, count in atom_counts.items()
     }
 
-    # Concept distribution
-    concept_counts = dict(report["concepts"]["top_concepts"])
+    # Concept distribution — use full distribution if available
+    concept_counts = report["concepts"].get("all_concepts", dict(report["concepts"]["top_concepts"]))
     export.concept_distribution = concept_counts
     export.unique_concepts = report["concepts"]["unique_detected"]
     export.total_concept_detections = report["concepts"]["total_detections"]

@@ -66,6 +66,22 @@ from gutenberg_multilingual_validator import (
     strip_gutenberg_header_footer, extract_segment
 )
 
+# v4.3: CJK tokenization support
+try:
+    from exotic_keywords import (
+        is_cjk_language, is_cjk_char, cjk_tokenize,
+        EXOTIC_NEGATION_WORDS, EXOTIC_QUANTIFIER_WORDS, EXOTIC_MODIFIER_WORDS,
+        ZH_PARTICLES, ZH_PREPOSITIONS, ZH_CONJUNCTIONS, ZH_PRONOUNS,
+        JA_PARTICLES, JA_CONJUNCTIONS, JA_PRONOUNS,
+        RU_DETERMINERS, RU_PREPOSITIONS, RU_CONJUNCTIONS, RU_PRONOUNS, RU_AUXILIARIES,
+    )
+    HAS_EXOTIC = True
+except ImportError:
+    HAS_EXOTIC = False
+    def is_cjk_language(lang): return False
+    def is_cjk_char(c): return False
+    def cjk_tokenize(t, l, a): return t.split()
+
 # Same concept mappings as v3-alpha (for paragraph_concepts)
 # v2.4: all 95 multi-atom concepts including ABS-dependent ones
 # ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)
@@ -590,6 +606,120 @@ LANGUAGE_PROFILES = {
         "cultural_food": {"leipä", "puuro", "kalakukko", "piirakka",
                           "kahvi", "voi"},
     },
+    # ── v4.3: Exotic language profiles (CJK + Cyrillic) ────────────────────
+    "zh": {
+        "lang_name": "Chinese",
+        "word_order": "SVO",
+        "morphological_richness": "none",
+        "case_system": False,
+        "grammatical_gender": False,
+        "agglutinative": False,
+        "avg_sentence_length_preference": 12.0,
+        "subordination_tendency": "medium",
+        "formality_levels": "multi",
+        "notes": "Isolating language. No inflection, no spaces between words. "
+                 "Classical Chinese (文言文) uses monosyllabic words. "
+                 "Modern Chinese (白话文) uses bisyllabic compounds.",
+        "determiners": set(),  # No articles in Chinese
+        "prepositions": {"在", "从", "到", "向", "对", "与", "和", "跟", "把", "被",
+                         "给", "用", "以", "为", "於", "于", "自", "因"},
+        "conjunctions": {"和", "与", "及", "而", "但", "却", "然", "或", "若", "虽",
+                         "如", "则", "故", "因", "且", "即", "乃"},
+        "pronouns": {"我", "你", "他", "她", "它", "们", "吾", "汝", "尔", "其",
+                     "彼", "此", "己", "自", "谁", "何", "某", "余", "予", "朕"},
+        "auxiliaries": set(),  # No auxiliary verbs in Chinese
+        "negations": {"不", "无", "没", "未", "非", "莫", "勿", "毋", "否", "别"},
+        "formal_markers": set(),
+        "archaic_markers": {"之", "乎", "者", "也", "矣", "焉", "哉", "耳", "兮",
+                            "曰", "夫", "盖", "惟", "其"},
+        "literary_markers": {"噫", "嗟", "呜呼", "善哉", "妙哉"},
+        "temporal_connectors": {"然后", "之后", "以后", "从前", "以前", "当时",
+                                "忽然", "顿时", "终于", "渐渐"},
+        "causal_connectors": {"因为", "所以", "故", "因此", "由于", "以致"},
+        "adversative_connectors": {"但是", "然而", "不过", "可是", "却", "虽然"},
+        "additive_connectors": {"而且", "并且", "也", "又", "还", "更"},
+        "measurement_system": "traditional",
+        "cultural_food": {"茶", "酒", "米", "饭", "粥", "面", "豆腐"},
+    },
+    "ja": {
+        "lang_name": "Japanese",
+        "word_order": "SOV",
+        "morphological_richness": "high",
+        "case_system": False,
+        "grammatical_gender": False,
+        "agglutinative": True,
+        "avg_sentence_length_preference": 20.0,
+        "subordination_tendency": "high",
+        "formality_levels": "multi",
+        "notes": "SOV with postpositions (particles). Mixed script: kanji + hiragana + "
+                 "katakana. Agglutinative verb morphology. No spaces between words.",
+        "determiners": set(),  # No articles in Japanese
+        "prepositions": set(),  # Postpositions only, handled as particles
+        "conjunctions": {"そして", "しかし", "だが", "けれど", "また", "あるいは",
+                         "それとも", "すなわち", "つまり", "ところが", "なお"},
+        "pronouns": {"私", "僕", "俺", "彼", "彼女", "我", "あなた", "君",
+                     "誰", "何", "これ", "それ", "あれ", "ここ", "そこ", "あそこ"},
+        "auxiliaries": set(),  # Verb suffixes, not separate words
+        "negations": {"ない", "ず", "ぬ", "いいえ", "いない", "できない", "しない",
+                      "なし", "無い", "まい", "ざる"},
+        "formal_markers": set(),
+        "archaic_markers": {"けり", "なり", "たり", "べし", "まじ", "めり",
+                            "らむ", "けむ", "ぬ", "つ"},
+        "literary_markers": {"ああ", "おお", "いかに", "さても"},
+        "temporal_connectors": {"そして", "それから", "その後", "以前", "前に",
+                                "突然", "やがて", "ついに", "次に"},
+        "causal_connectors": {"だから", "なぜなら", "ゆえに", "したがって",
+                              "そのため"},
+        "adversative_connectors": {"しかし", "だが", "けれども", "それでも",
+                                   "ところが", "にもかかわらず"},
+        "additive_connectors": {"そして", "また", "さらに", "その上",
+                                "しかも"},
+        "measurement_system": "metric",
+        "cultural_food": {"茶", "酒", "米", "飯", "蕎麦", "豆腐", "味噌"},
+    },
+    "ru": {
+        "lang_name": "Russian",
+        "word_order": "SVO",
+        "morphological_richness": "very_high",
+        "case_system": True,
+        "grammatical_gender": True,
+        "agglutinative": False,
+        "avg_sentence_length_preference": 18.0,
+        "subordination_tendency": "high",
+        "formality_levels": "2-tier",
+        "notes": "6-case system. Rich verb morphology (aspect: perfective/imperfective). "
+                 "Flexible word order for emphasis. Cyrillic script.",
+        "determiners": {"этот", "эта", "это", "эти", "тот", "та", "то", "те",
+                        "мой", "твой", "его", "её", "наш", "ваш", "их",
+                        "какой", "какая", "какое", "какие", "каждый"},
+        "prepositions": {"в", "на", "с", "к", "у", "о", "по", "из", "за", "от",
+                         "до", "для", "при", "про", "без", "через", "между",
+                         "над", "под", "перед", "около"},
+        "conjunctions": {"и", "но", "а", "или", "да", "однако", "зато", "если",
+                         "что", "чтобы", "когда", "потому", "хотя", "либо"},
+        "pronouns": {"я", "ты", "он", "она", "оно", "мы", "вы", "они",
+                     "себя", "кто", "что", "кто-то", "что-то", "никто",
+                     "ничто", "весь", "сам", "свой"},
+        "auxiliaries": {"быть", "был", "была", "было", "были", "будет", "будут",
+                        "есть", "стать", "стал", "стала", "стали"},
+        "negations": {"не", "нет", "ни", "никогда", "ничего", "никто", "нигде",
+                      "без", "нельзя", "невозможно"},
+        "formal_markers": {"весьма", "ежели", "дабы", "токмо", "паче"},
+        "archaic_markers": {"сей", "оный", "токмо", "доколе", "ибо", "понеже",
+                            "зело", "дондеже", "аще", "убо"},
+        "literary_markers": {"увы", "о", "ах", "боже", "воистину"},
+        "temporal_connectors": {"потом", "затем", "после", "перед", "когда",
+                                "вдруг", "наконец", "скоро", "тогда"},
+        "causal_connectors": {"потому что", "так как", "поэтому",
+                              "следовательно", "ибо"},
+        "adversative_connectors": {"но", "однако", "зато", "хотя",
+                                   "тем не менее", "всё же"},
+        "additive_connectors": {"и", "также", "кроме того", "ещё",
+                                "к тому же"},
+        "measurement_system": "metric",
+        "cultural_food": {"хлеб", "каша", "чай", "водка", "борщ",
+                          "пирог", "блины"},
+    },
 }
 
 
@@ -1093,7 +1223,12 @@ def analyze_syntax(text, lang):
     positional heuristics for open-class words.
     """
     profile = LANGUAGE_PROFILES.get(lang, LANGUAGE_PROFILES["en"])
-    words = text.split()
+
+    # v4.3: CJK-aware tokenization for syntax analysis
+    if is_cjk_language(lang):
+        words = cjk_tokenize(text, lang, ATOM_KEYWORDS)
+    else:
+        words = text.split()
     analysis = []
     
     determiners = profile.get("determiners", set())
@@ -1296,8 +1431,13 @@ def align_words_to_atoms(text, lang, syntax_results=None):
     if lang == "eo" and has_bridge:
         text_for_matching = normalize_eo_x_notation(text)
 
-    words = text_for_matching.split()
-    original_words = text.split()  # Keep originals for word_form
+    # v4.3: CJK-aware tokenization
+    if is_cjk_language(lang):
+        words = cjk_tokenize(text_for_matching, lang, ATOM_KEYWORDS)
+        original_words = words[:]  # CJK tokens are already "original"
+    else:
+        words = text_for_matching.split()
+        original_words = text.split()  # Keep originals for word_form
     attributions = []
     sentences = split_into_sentences(text_for_matching, lang)
     matched_positions = set()  # Track positions already matched
@@ -1352,9 +1492,11 @@ def align_words_to_atoms(text, lang, syntax_results=None):
         return best
 
     # --- Pass 1: Original match (direct + prefix) — MULTI-MATCH + WSD ---
+    _cjk_mode = is_cjk_language(lang)  # v4.3: lower thresholds for CJK
+    _min_word_len = 1 if _cjk_mode else 2
     for word_pos, word_raw in enumerate(words):
         word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
-        if len(word_lower) < 2:
+        if len(word_lower) < _min_word_len:
             continue
 
         # Collect ALL matching atoms for this word (v2.7: no break on first match)
@@ -1367,7 +1509,7 @@ def align_words_to_atoms(text, lang, syntax_results=None):
             for kw in keywords_by_lang[lang]:
                 kw_lower = kw.lower()
                 if word_lower == kw_lower or (
-                    len(kw_lower) >= 4 and word_lower.startswith(
+                    not _cjk_mode and len(kw_lower) >= 4 and word_lower.startswith(
                         kw_lower[:max(4, len(kw_lower) - 2)]
                     )
                 ):
@@ -1524,6 +1666,15 @@ _MODAL_WORDS = {
            "tarvita", "tarvitsee"},
 }
 
+# v4.3: Merge exotic negation/quantifier/modal words
+if HAS_EXOTIC:
+    for lang, words_set in EXOTIC_NEGATION_WORDS.items():
+        _NEGATION_WORDS[lang] = words_set
+    for lang, words_set in EXOTIC_QUANTIFIER_WORDS.items():
+        _QUANTIFIER_WORDS[lang] = words_set
+    for lang, words_set in EXOTIC_MODIFIER_WORDS.items():
+        _MODAL_WORDS[lang] = words_set
+
 
 def detect_structural_operators(text, lang, atom_results, syntax_results=None):
     """Detect structural operators (NEG, QUANT, MOD) that modify atom attributions.
@@ -1548,12 +1699,16 @@ def detect_structural_operators(text, lang, atom_results, syntax_results=None):
     for ar in atom_results:
         atom_by_pos[ar["word_position"]] = ar["atom_id"]
 
-    words = text.split()
+    # v4.3: CJK-aware tokenization
+    if is_cjk_language(lang):
+        words = cjk_tokenize(text, lang, ATOM_KEYWORDS)
+    else:
+        words = text.split()
     operators = []
 
     for i, word_raw in enumerate(words):
         word_lower = word_raw.lower().strip('.,;:!?"\'"()[]{}—–-…""''«»')
-        if len(word_lower) < 2:
+        if len(word_lower) < 1 if is_cjk_language(lang) else len(word_lower) < 2:
             continue
 
         op_type = None
