@@ -106,6 +106,23 @@ try:
 except ImportError:
     HAS_INDIC = False
 
+# v4.7: Massive vocabulary expansion for total Gutenberg reconstruction
+try:
+    from vocabulary_expansion_v47 import EXPANSION_KEYWORDS, EXTRA_STOP_WORDS
+    # Merge expansion keywords into ATOM_KEYWORDS (additive, no overwrite)
+    for _atom, _langs in EXPANSION_KEYWORDS.items():
+        if _atom in ATOM_KEYWORDS:
+            for _lang, _words in _langs.items():
+                if _lang in ATOM_KEYWORDS[_atom]:
+                    _existing = set(ATOM_KEYWORDS[_atom][_lang])
+                    _new = [w for w in _words if w not in _existing]
+                    ATOM_KEYWORDS[_atom][_lang].extend(_new)
+                else:
+                    ATOM_KEYWORDS[_atom][_lang] = list(_words)
+    HAS_EXPANSION = True
+except ImportError:
+    HAS_EXPANSION = False
+
 # Same concept mappings as v3-alpha (for paragraph_concepts)
 # v2.4: all 95 multi-atom concepts including ABS-dependent ones
 # ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)

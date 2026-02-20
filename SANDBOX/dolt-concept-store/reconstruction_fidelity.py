@@ -34,6 +34,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from document_analyzer import analyze_document, detect_language
 
+# v4.7: Import expanded stop words and punctuation chars
+try:
+    from vocabulary_expansion_v47 import EXTRA_STOP_WORDS, EXTRA_PUNCTUATION_CHARS
+    _HAS_EXPANSION = True
+except ImportError:
+    _HAS_EXPANSION = False
+    EXTRA_STOP_WORDS = {}
+    EXTRA_PUNCTUATION_CHARS = ""
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STOP WORDS — function words that carry no semantic content
@@ -142,8 +151,11 @@ DEFAULT_STOP_WORDS = {".", ",", ";", ":", "!", "?", "(", ")", "[", "]", "{", "}"
 
 
 def get_stop_words(lang: str) -> set:
-    """Get stop words for a language, with fallback."""
-    return STOP_WORDS.get(lang, set()) | DEFAULT_STOP_WORDS
+    """Get stop words for a language, with fallback + v4.7 expansion."""
+    base = STOP_WORDS.get(lang, set()) | DEFAULT_STOP_WORDS
+    if _HAS_EXPANSION and lang in EXTRA_STOP_WORDS:
+        base = base | EXTRA_STOP_WORDS[lang]
+    return base
 
 
 # CJK character ranges
@@ -174,6 +186,8 @@ def count_words(text: str, lang: str) -> int:
 def get_content_words(text: str, lang: str, stop_words: set) -> list:
     """Extract content words (not stop words, not punctuation, len >= 2).
     CJK-aware: treats each character as a potential word."""
+    # Extended punctuation chars (v4.7)
+    _strip = EXTRA_PUNCTUATION_CHARS if _HAS_EXPANSION else ".,;:!?\"'()-–—…[]{}«»"
     if lang in ("ja", "zh"):
         content = []
         for ch in text:
@@ -182,14 +196,14 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
         # Also check non-CJK words in the text
         non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
         for w in non_cjk.split():
-            w_lower = w.lower().strip(".,;:!?\"'()-–—…[]{}«»")
+            w_lower = w.lower().strip(_strip)
             if w_lower and len(w_lower) >= 2 and w_lower not in stop_words:
                 content.append(w_lower)
         return content
     else:
         content = []
         for w in text.split():
-            w_lower = w.lower().strip(".,;:!?\"'()-–—…[]{}«»")
+            w_lower = w.lower().strip(_strip)
             if w_lower and len(w_lower) >= 2 and w_lower not in stop_words:
                 content.append(w_lower)
         return content

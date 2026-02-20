@@ -1,11 +1,13 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-02-20T16:00:00-05:00
+Généré: 2026-02-20T20:00:00-05:00
 
 ## Entrées
 
 ### 2026
 
+- [2026-02-20-hauru-v47-vocabulary-expansion-interpretations-db.md](2026-02-20-hauru-v47-vocabulary-expansion-interpretations-db.md) — 📚 v4.7 : Expansion vocabulaire 44.7%→71.0% (+26.3pp), 33 atomes × 8 langues. **panini-interpretations-db** : 7 tables hiérarchiques, 11 ouvrages ingérés (7 588 paragraphes, 118K atomes, 31K concepts). DE 92.1%, EN 85.8%.
+- [2026-02-20-hauru-v47-preamble-normalizer.md](2026-02-20-hauru-v47-preamble-normalizer.md) — 🌐 v4.7 : Normalisation préambules Gutenberg multilingues. **Fingerprints 9 langues, ≡IDENTICAL_SENSE**. Détection citations étrangères (4 méthodes, 34 latin phrases). Re-synthèse multi-format via UnifiedWork. 21 tests ✅, validé pg55456(FR)/pg11(EN)/pg2229(DE).
 - [2026-02-20-hauru-v46-reconstruction-fidelity.md](2026-02-20-hauru-v46-reconstruction-fidelity.md) — 🔬 v4.6 : Fidélité de reconstruction E2. **8 langues, readiness moy 0.615**. Export enrichi 7 couches (schema v1.1). Round-trip atoms-only : FR F1=51.3%, EN F1=60.6% @100% précision. L2 atoms = goulot (38.7% lex. coverage).
 - [2026-02-20-hauru-v45-wikipedia-massive-ingestion.md](2026-02-20-hauru-v45-wikipedia-massive-ingestion.md) — 🌐 v4.5 : Ingestion massive Wikipedia. **973 articles, 2.2M mots, 14 langues, 34/34 = 100%**. 30 sujets curatés Wikidata + 50 aléatoires/langue. Cosinus cross-langue 0.80 (vs 0.75 Gutenberg). ja-zh=0.94, en-fr=0.93.
 - [2026-02-20-hauru-v44-indic-hindi-sanskrit.md](2026-02-20-hauru-v44-indic-hindi-sanskrit.md) — 🇮🇳 v4.4 : Hindi + Sanskrit (पाणिनि). **14 langues, 5 écritures, 34/34 = 100%**. 538 kw hindi, 885 kw sanskrit (Devanagari + ITRANS). pg9000 : 30/34 atomes.
