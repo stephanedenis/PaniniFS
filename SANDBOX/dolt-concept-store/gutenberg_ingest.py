@@ -32,6 +32,15 @@ from semantic_serializer import (
     prepare_e2_experiment, print_e2_report,
 )
 
+# v4.7: Optional preamble normalizer for zone/citation metadata
+try:
+    from gutenberg_preamble_normalizer import (
+        classify_gutenberg_zones, detect_foreign_citations, ZoneType,
+    )
+    HAS_PREAMBLE_NORMALIZER = True
+except ImportError:
+    HAS_PREAMBLE_NORMALIZER = False
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # GUTENBERG CATALOG — curated multilingual corpus
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -311,12 +320,44 @@ def analyze_all(store_in_dolt=True, verbose=True) -> List[str]:
             total_atoms += export.unique_atoms
             total_concepts += export.unique_concepts
 
+            # v4.7: Add zone/citation metadata if normalizer available
+            zone_info = {}
+            if HAS_PREAMBLE_NORMALIZER:
+                try:
+                    with open(filepath, 'r', encoding='utf-8', errors='replace') as _f:
+                        raw_text = _f.read()
+                    zones = classify_gutenberg_zones(raw_text, document_lang=lang)
+                    boilerplate_zones = [
+                        z for z in zones
+                        if z.zone_type in (ZoneType.GUTENBERG_HEADER, ZoneType.GUTENBERG_FOOTER)
+                    ]
+                    body_zones = [z for z in zones if z.zone_type == ZoneType.BODY]
+                    citations = detect_foreign_citations(raw_text, document_lang=lang)
+                    zone_info = {
+                        'boilerplate_zones': len(boilerplate_zones),
+                        'boilerplate_langs': list(set(
+                            z.language for z in boilerplate_zones if z.language
+                        )),
+                        'body_pct': round(
+                            sum(z.end_char - z.start_char for z in body_zones)
+                            / max(len(raw_text), 1) * 100, 1
+                        ),
+                        'foreign_citations': len(citations),
+                        'citation_langs': list(set(
+                            c.detected_language for c in citations
+                            if c.confidence >= 0.3
+                        )),
+                    }
+                except Exception:
+                    pass
+
             results_summary.append({
                 "file": fname, "lang": lang,
                 "words": export.total_words,
                 "atoms": export.unique_atoms,
                 "concepts": export.unique_concepts,
                 "time_s": round(dt, 1),
+                **zone_info,
             })
 
             if verbose:

@@ -26,6 +26,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
+# v4.7: Optional preamble normalizer for language-aware Gutenberg stripping
+try:
+    from gutenberg_preamble_normalizer import (
+        classify_gutenberg_zones, detect_foreign_citations,
+        strip_gutenberg_boilerplate, ZoneType,
+    )
+    HAS_PREAMBLE_NORMALIZER = True
+except ImportError:
+    HAS_PREAMBLE_NORMALIZER = False
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DATA STRUCTURES
@@ -524,35 +534,54 @@ def _extract_txt(filepath: str) -> ExtractionResult:
 
         # Strip Gutenberg-style headers/footers if present
         text_lower = text[:3000].lower()
-        if 'project gutenberg' in text_lower:
-            # Find start marker (case-insensitive)
-            start_markers = [
-                '*** START OF THE PROJECT GUTENBERG',
-                '*** START OF THIS PROJECT GUTENBERG',
-                '*END*THE SMALL PRINT',
-            ]
-            for marker in start_markers:
-                pos = text.upper().find(marker.upper())
-                if pos >= 0:
-                    text = text[pos + len(marker):]
-                    # Skip past the rest of the marker line
-                    nl = text.find('\n')
-                    if nl >= 0:
-                        text = text[nl + 1:]
-                    break
+        if 'project gutenberg' in text_lower or 'projet gutenberg' in text_lower:
+            if HAS_PREAMBLE_NORMALIZER:
+                # v4.7: Language-aware zone classification + boilerplate removal
+                zones = classify_gutenberg_zones(text)
+                text = strip_gutenberg_boilerplate(text)
+                # Enrich metadata with zone and citation info
+                result.metadata['gutenberg_zones'] = [
+                    {
+                        'type': z.zone_type.name.lower(),
+                        'language': z.language,
+                        'confidence': z.confidence,
+                        'chars': z.end_char - z.start_char,
+                        'semantic_id': z.metadata.get('semantic_id', ''),
+                        'equivalent_across_languages': z.metadata.get(
+                            'equivalent_across_languages', False
+                        ),
+                    }
+                    for z in zones
+                ]
+                result.metadata['gutenberg_stripped'] = True
+                result.metadata['gutenberg_normalizer_version'] = '4.7'
+            else:
+                # Legacy: English-only marker-based stripping
+                start_markers = [
+                    '*** START OF THE PROJECT GUTENBERG',
+                    '*** START OF THIS PROJECT GUTENBERG',
+                    '*END*THE SMALL PRINT',
+                ]
+                for marker in start_markers:
+                    pos = text.upper().find(marker.upper())
+                    if pos >= 0:
+                        text = text[pos + len(marker):]
+                        nl = text.find('\n')
+                        if nl >= 0:
+                            text = text[nl + 1:]
+                        break
 
-            # Find end marker (case-insensitive)
-            end_markers = [
-                '*** END OF THE PROJECT GUTENBERG',
-                '*** END OF THIS PROJECT GUTENBERG',
-                'End of the Project Gutenberg',
-                'End of Project Gutenberg',
-            ]
-            for marker in end_markers:
-                pos = text.upper().find(marker.upper())
-                if pos >= 0:
-                    text = text[:pos]
-                    break
+                end_markers = [
+                    '*** END OF THE PROJECT GUTENBERG',
+                    '*** END OF THIS PROJECT GUTENBERG',
+                    'End of the Project Gutenberg',
+                    'End of Project Gutenberg',
+                ]
+                for marker in end_markers:
+                    pos = text.upper().find(marker.upper())
+                    if pos >= 0:
+                        text = text[:pos]
+                        break
 
         cleaned = _clean_paragraphs(text)
         result.paragraphs = _make_extracted_paragraphs(cleaned)

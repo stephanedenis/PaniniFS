@@ -294,6 +294,9 @@ def classify_gutenberg_zones(
             score, bp_lang = _compute_boilerplate_score(
                 header_text, GUTENBERG_HEADER_FINGERPRINTS
             )
+            # Short headers (just the marker line) are always English
+            if len(header_text.strip()) < 100:
+                bp_lang = "en"
             zones.append(TextZone(
                 zone_type=ZoneType.GUTENBERG_HEADER,
                 start_char=0,
@@ -520,7 +523,10 @@ SCRIPT_PROFILES = {
 # Trigrams de haute fréquence par langue pour identification rapide
 LANGUAGE_TRIGRAMS = {
     "en": {"the", "and", "ing", "ion", "tio", "ent", "ati", "for", "her", "ter",
-           "hat", "tha", "ere", "his", "not", "was", "all", "ons"},
+           "hat", "tha", "ere", "his", "not", "was", "all", "ons",
+           "hal", "sha", "oul", "oul", "wou", "ear", "are", "mad",
+           "you", "our", "hav", "ave", "hey", "hem", "hey", "ome",
+           "wit", "ith", "sho", "hou", "hou", "she", "ery", "ver"},
     "fr": {"les", "des", "ent", "que", "ion", "ait", "ous", "par", "pas",
            "une", "son", "sur", "ont", "est", "ais", "eur", "qui", "dan",
            "ans", "our", "oir", "tre", "com", "men", "tou", "pou", "mai",
@@ -682,16 +688,37 @@ def detect_foreign_citations(
     for m in latin_phrase_pat.finditer(text):
         _add_citation(m.group(0), m.start(), m.end(), "la", 0.95, "latin_phrase")
     
+    # Language families — close-family detections need higher confidence
+    ROMANCE = {"fr", "es", "it", "pt", "la"}
+    GERMANIC = {"en", "de", "nl"}
+    
+    def _is_close_family(doc_lang, detected_lang):
+        """Return True if both languages are in the same family."""
+        if doc_lang in ROMANCE and detected_lang in ROMANCE:
+            return True
+        if doc_lang in GERMANIC and detected_lang in GERMANIC:
+            return True
+        return False
+    
     # ── Méthode 2 : Délimiteurs (italiques, guillemets) ──────────────────
     for pat in CITATION_DELIMITERS[:-1]:  # Exclure le pattern latin déjà traité
         for m in pat.finditer(text):
             inner = m.group(1) if m.lastindex else m.group(0)
+            # Skip very short delimiter content (< min_words) — too noisy
+            if len(inner.split()) < min_words:
+                continue
             # D'abord vérifier si c'est une phrase latine connue
             if latin_phrase_pat.search(inner):
                 _add_citation(inner, m.start(), m.end(), "la", 0.95, "latin_in_delimiter")
                 continue
             lang, conf = _detect_language_trigram(inner, exclude_lang=document_lang)
-            if lang != "unknown" and lang != document_lang:
+            # Higher threshold for close-family languages (FR↔IT↔PT↔ES, EN↔DE↔NL)
+            if _is_close_family(document_lang, lang):
+                delim_threshold = 0.40
+            else:
+                word_count = len(inner.split())
+                delim_threshold = 0.20 if word_count >= 8 else 0.15
+            if lang != "unknown" and lang != document_lang and conf >= delim_threshold:
                 _add_citation(inner, m.start(), m.end(), lang, conf, "delimiter")
     
     # ── Méthode 2 : Changements de script ────────────────────────────────
@@ -735,7 +762,9 @@ def detect_foreign_citations(
             continue
         
         lang, conf = _detect_language_trigram(para_stripped, exclude_lang=document_lang)
-        if lang != "unknown" and lang != document_lang and conf > 0.5:
+        # Higher threshold for close-family languages at paragraph level
+        para_threshold = 0.65 if _is_close_family(document_lang, lang) else 0.5
+        if lang != "unknown" and lang != document_lang and conf > para_threshold:
             _add_citation(para_stripped, para_start, para_end, lang, conf, "paragraph_trigram")
         
         pos = para_end

@@ -97,13 +97,43 @@ les profils atomiques inter-formats.
 
 ## Prochaines étapes
 
-1. **Intégrer dans `gutenberg_ingest.py`** : utiliser `classify_gutenberg_zones()`
-   dans le pipeline d'analyse pour exclure le boilerplate de l'analyse atomique.
-2. **Intégrer dans `text_extractor.py`** : remplacer la logique de strip inline.
-3. **Télécharger les formats HTML/EPUB** de Gutenberg pour tester la re-synthèse
+1. ~~**Intégrer dans `gutenberg_ingest.py`**~~ ✅ Fait (v4.7.1).
+2. ~~**Intégrer dans `text_extractor.py`**~~ ✅ Fait (v4.7.1).
+3. ~~**Raffiner les faux positifs**~~ ✅ Fait (v4.7.1) : filtre famille
+   linguistique, seuil adaptatif, trigrammes EN étendus.
+4. **Télécharger les formats HTML/EPUB** de Gutenberg pour tester la re-synthèse
    multi-format.
-4. **Raffiner les faux positifs** : la détection par délimiteur avec conf < 0.15
-   produit du bruit (mots courts EN détectés comme DE par trigram). Envisager un
-   seuil adaptatif.
 5. **Ajouter les trigrammes** pour les langues manquantes (zh, ja, ru, hi, sa) —
    actuellement seules les langues latines sont couvertes par le trigram detector.
+
+---
+
+## v4.7.1 — Intégration pipeline et réduction des faux positifs
+
+**Même session, deuxième commit.**
+
+### Intégration
+- `text_extractor.py` : `_extract_txt()` délègue maintenant au normalizer pour
+  le strip. `ExtractionResult.metadata` enrichi avec `gutenberg_zones`,
+  `gutenberg_stripped`, `gutenberg_normalizer_version`.
+- `gutenberg_ingest.py` : import conditionnel du normalizer, ajout de
+  `boilerplate_zones`, `body_pct`, `foreign_citations`, `citation_langs`
+  dans les résumés d'analyse par texte.
+
+### Corrections faux positifs
+| Problème | Solution |
+|----------|----------|
+| EN Alice header détecté comme `nl` | Headers < 100 chars → forcés à `en` |
+| FR Alice 32 faux positifs (it/pt/la) | Filtre famille linguistique : Romance→Romance=0.40, Germanic→Germanic=0.65 |
+| DE Kafka 21 faux positifs (nl) | Même filtre famille au niveau paragraph_trigram |
+| EN trigrams trop peu discriminants | +20 trigrammes : `sha, hal, ear, are, you, wit, ith, hou, she, ver...` |
+| Mots courts dans délimiteurs | Skip inner < `min_words` avant trigram |
+
+### Résultats après raffinement
+| Texte | Avant | Après | Réduction |
+|-------|-------|-------|-----------|
+| EN Alice | 12 | 4 | -67% |
+| FR Alice | 32 | 3 | -91% |
+| DE Kafka | 21 | 1 | -95% |
+| ES Quijote | — | 7 | — |
+| IT Dante | — | 2 | — |
