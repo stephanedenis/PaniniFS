@@ -29,6 +29,18 @@ import urllib.request
 from datetime import date
 from pathlib import Path
 
+# v4.7: Preamble normalization, citation detection, format re-synthesis
+try:
+    from gutenberg_preamble_normalizer import (
+        classify_gutenberg_zones,
+        detect_foreign_citations,
+        strip_gutenberg_boilerplate,
+        ZoneType,
+    )
+    HAS_PREAMBLE_NORMALIZER = True
+except ImportError:
+    HAS_PREAMBLE_NORMALIZER = False
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Configuration
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1370,8 +1382,16 @@ def step3_download_texts():
 # Step 4: Extract comparable segments
 # ─────────────────────────────────────────────────────────────────────────────
 
-def strip_gutenberg_header_footer(text):
-    """Remove Project Gutenberg header and footer."""
+def strip_gutenberg_header_footer(text, lang="en"):
+    """Remove Project Gutenberg header and footer.
+    
+    v4.7: Delegates to gutenberg_preamble_normalizer when available.
+    Recognizes preambles in ANY language as semantically identical.
+    """
+    if HAS_PREAMBLE_NORMALIZER:
+        return strip_gutenberg_boilerplate(text, declared_lang=lang)
+    
+    # Legacy fallback
     start_markers = [
         "*** START OF THIS PROJECT GUTENBERG",
         "*** START OF THE PROJECT GUTENBERG",
