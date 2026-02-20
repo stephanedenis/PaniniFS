@@ -112,6 +112,9 @@ CATALOG = [
     (16527, "ru", "1001 задача для умственного счёта (1001 Mental Arithmetic Problems)", "С.А. Рачинский (Rachinskii)"),
     (14741, "ru", "Духовные оды (Spiritual Odes)", "Г.Р. Державин (Derzhavin)"),
     (30774, "ru", "Московия в представлении иностранцев XVI-XVII в.", "П.Н. Апостол (Apostol)"),
+
+    # ── v4.4: Indic languages (Sanskrit ITRANS) ──
+    (9000,  "sa", "विष्णुसहस्रनाम (Vishnu Sahasranaamam — ITRANS)", "Anonymous (Vedic hymn)"),
 ]
 
 CORPUS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gutenberg_corpus")

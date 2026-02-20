@@ -34,7 +34,7 @@ from seven_layers_engine import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Supported languages (matching seven_layers_engine LANGUAGE_PROFILES)
-SUPPORTED_LANGS = {"en", "fr", "de", "it", "es", "eo", "fi", "pt", "nl", "zh", "ja", "ru"}
+SUPPORTED_LANGS = {"en", "fr", "de", "it", "es", "eo", "fi", "pt", "nl", "zh", "ja", "ru", "hi", "sa"}
 
 
 def detect_language(text: str, hint: str = None) -> str:

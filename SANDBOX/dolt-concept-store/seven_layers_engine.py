@@ -94,6 +94,18 @@ try:
 except ImportError:
     HAS_SUPPLEMENTARY = False
 
+# v4.4: Indic language support (hi, sa — Devanagari + ITRANS)
+try:
+    from indic_keywords import (
+        INDIC_LANGUAGE_PROFILES,
+        INDIC_NEGATION_WORDS,
+        INDIC_QUANTIFIER_WORDS,
+        INDIC_MODIFIER_WORDS,
+    )
+    HAS_INDIC = True
+except ImportError:
+    HAS_INDIC = False
+
 # Same concept mappings as v3-alpha (for paragraph_concepts)
 # v2.4: all 95 multi-atom concepts including ABS-dependent ones
 # ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)
@@ -737,6 +749,10 @@ LANGUAGE_PROFILES = {
 # v4.3.1: Merge supplementary language profiles (nl, pt) into LANGUAGE_PROFILES
 if HAS_SUPPLEMENTARY:
     LANGUAGE_PROFILES.update(SUPPLEMENTARY_LANGUAGE_PROFILES)
+
+# v4.4: Merge Indic language profiles (hi, sa) into LANGUAGE_PROFILES
+if HAS_INDIC:
+    LANGUAGE_PROFILES.update(INDIC_LANGUAGE_PROFILES)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1698,6 +1714,15 @@ if HAS_SUPPLEMENTARY:
     for lang, words_list in SUPPLEMENTARY_QUANTIFIER_WORDS.items():
         _QUANTIFIER_WORDS[lang] = set(words_list)
     for lang, words_list in SUPPLEMENTARY_MODIFIER_WORDS.items():
+        _MODAL_WORDS[lang] = set(words_list)
+
+# v4.4: Merge Indic negation/quantifier/modal words (hi, sa)
+if HAS_INDIC:
+    for lang, words_list in INDIC_NEGATION_WORDS.items():
+        _NEGATION_WORDS[lang] = set(words_list)
+    for lang, words_list in INDIC_QUANTIFIER_WORDS.items():
+        _QUANTIFIER_WORDS[lang] = set(words_list)
+    for lang, words_list in INDIC_MODIFIER_WORDS.items():
         _MODAL_WORDS[lang] = set(words_list)
 
 

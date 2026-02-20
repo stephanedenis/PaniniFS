@@ -6,6 +6,7 @@ Généré: 2026-02-20T10:30:00-05:00
 
 ### 2026
 
+- [2026-02-20-hauru-v44-indic-hindi-sanskrit.md](2026-02-20-hauru-v44-indic-hindi-sanskrit.md) — 🇮🇳 v4.4 : Hindi + Sanskrit (पाणिनि). **14 langues, 5 écritures, 34/34 = 100%**. 538 kw hindi, 885 kw sanskrit (Devanagari + ITRANS). pg9000 : 30/34 atomes.
 - [2026-02-20-hauru-v431-dutch-portuguese-10-languages.md](2026-02-20-hauru-v431-dutch-portuguese-10-languages.md) — 🇳🇱🇵🇹 v4.3.1 : Néerlandais + Portugais. **34/34 atomes universels sur 10 langues = 100%**. 593-594 keywords/langue, LANGUAGE_PROFILES complets, NL↔DE=0.817.
 - [2026-02-19-hauru-v43-exotic-languages-cjk-cyrillic.md](2026-02-19-hauru-v43-exotic-languages-cjk-cyrillic.md) — 🌏 v4.3 Langues exotiques : CJK + cyrillique. **34/34 atomes universels** (100%) sur 8 langues, 3 écritures. Tokenizer CJK greedy, extraction kanji stems. 51 textes, 3.14M mots, cosine FR↔ZH=0.904.
 - [2026-02-19-hauru-gutenberg-corpus-ingestion.md](2026-02-19-hauru-gutenberg-corpus-ingestion.md) — 🌍 Gutenberg corpus complet : **37 textes, 7 langues, 3M mots**, 45 min. Matrice cross-langue : **13 atomes universels** (46.4%), cosine 0.69–0.93. LIEU le plus stable (CV=0.112).

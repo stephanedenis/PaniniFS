@@ -1113,6 +1113,13 @@ try:
 except ImportError:
     pass  # supplementary_keywords.py not yet available
 
+# ── v4.4: Merge Indic language keywords (hi, sa — Devanagari + ITRANS) ────
+try:
+    from indic_keywords import merge_indic_keywords
+    merge_indic_keywords(ATOM_KEYWORDS)
+except ImportError:
+    pass  # indic_keywords.py not yet available
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers Dolt
