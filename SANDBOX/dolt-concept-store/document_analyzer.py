@@ -26,6 +26,7 @@ from seven_layers_engine import (
     analyze_syntax, align_words_to_atoms, analyze_morphology,
     detect_structural_operators, detect_paragraph_concepts,
     split_into_sentences, CONCEPT_MAPPINGS, get_db, dolt_sql, esc,
+    analyze_discourse, analyze_prosody,
 )
 
 
@@ -126,6 +127,7 @@ def analyze_document(
     force_format: str = None,
     store_in_dolt: bool = False,
     verbose: bool = False,
+    rich_mode: bool = False,
 ) -> dict:
     """Full document analysis pipeline.
     
@@ -135,6 +137,10 @@ def analyze_document(
         force_format: Force format (auto-detected if None).
         store_in_dolt: Store results in Dolt DB.
         verbose: Print progress.
+        rich_mode: If True, retain full 7-layer data per paragraph
+            (word→atom alignments, morphology, discourse, prosody,
+            concepts with atom evidence). Needed for reconstruction
+            fidelity analysis (E2).
     
     Returns:
         Dict with extraction results, analysis results, and statistics.
@@ -179,13 +185,15 @@ def analyze_document(
     all_concepts = Counter()
     all_operators = Counter()
     concept_details = []
+    rich_layers = []  # Full 7-layer data when rich_mode=True
     wsd_count = 0
     total_atom_count = 0
     negated_concepts = 0
 
     for i, para in enumerate(extraction.paragraphs):
         if verbose and (i % 50 == 0 or i == 0):
-            print(f"  [{i + 1}/{extraction.total_paragraphs}] Analyzing...")
+            print(f"  [{i + 1}/{extraction.total_paragraphs}] Analyzing..."
+                  f"{' (rich)' if rich_mode else ''}")
 
         result = analyze_paragraph(para.text, detected_lang)
 
@@ -218,6 +226,117 @@ def analyze_document(
                         "negated": c.get("negated", False),
                         "quantified": c.get("quantified", False),
                         "modal": c.get("modal", False),
+                    }
+                    for c in result["concepts"]
+                ],
+            })
+
+        # ── Rich mode: retain full 7-layer data per paragraph ──
+        if rich_mode:
+            words = para.text.split()
+            word_count = len(words)
+
+            # L5: Discourse relations
+            discourse = []
+            try:
+                discourse = analyze_discourse(para.text, detected_lang)
+            except Exception:
+                pass
+
+            # L6: Prosody
+            prosody = []
+            try:
+                prosody = analyze_prosody(para.text, detected_lang)
+            except Exception:
+                pass
+
+            rich_layers.append({
+                "paragraph_index": para.index,
+                "section": para.section,
+                "text": para.text,
+                "word_count": word_count,
+                # L1: Syntax (POS tags, lemmas, dependencies)
+                "syntax": [
+                    {
+                        "position": w.get("word_position", j),
+                        "word": w.get("word_form", w.get("word", "")),
+                        "lemma": w.get("lemma", ""),
+                        "pos": w.get("pos_tag", w.get("pos", "")),
+                        "dep": w.get("dep_relation", ""),
+                        "role": w.get("semantic_role"),
+                    }
+                    for j, w in enumerate(result["syntax"])
+                ] if isinstance(result["syntax"], list) else [],
+                # L2: Word→atom alignments
+                "atoms": [
+                    {
+                        "position": a["word_position"],
+                        "word": a["word_form"],
+                        "atom": a["atom_id"],
+                        "keyword": a["keyword_matched"],
+                        "confidence": round(a["confidence"], 3),
+                        "wsd": str(a.get("disambiguation", "")) if a.get("disambiguation") else None,
+                    }
+                    for a in result["atoms"]
+                ],
+                # L3: Morphology
+                "morphology": [
+                    {
+                        "position": m.get("word_position", j),
+                        "word": m.get("word_form", ""),
+                        "tense": m.get("tense"),
+                        "aspect": m.get("aspect"),
+                        "mood": m.get("mood"),
+                        "voice": m.get("voice"),
+                        "number": m.get("number_feat"),
+                        "gender": m.get("gender"),
+                        "case": m.get("case_feat"),
+                    }
+                    for j, m in enumerate(result["morphology"])
+                    if any(m.get(k) for k in ("tense", "aspect", "mood", "voice", "gender", "case_feat"))
+                ] if isinstance(result["morphology"], list) else [],
+                # L4: Structural operators
+                "operators": [
+                    {
+                        "type": op["operator"],
+                        "position": op.get("position"),
+                        "word": op.get("word", ""),
+                        "scope": op.get("scope"),
+                    }
+                    for op in result["structural_operators"]
+                ],
+                # L5: Discourse relations
+                "discourse": [
+                    {
+                        "relation": d.get("relation_type", ""),
+                        "source_pos": d.get("source_position"),
+                        "connector": d.get("connector", ""),
+                        "strength": d.get("strength", 0),
+                    }
+                    for d in discourse
+                ] if isinstance(discourse, list) else [],
+                # L6: Prosody
+                "prosody": {
+                    "syllables": prosody[0].get("syllable_count_est", 0) if prosody else 0,
+                    "rhythm": prosody[0].get("rhythm_type", "") if prosody else "",
+                    "cadence": prosody[0].get("cadence_score", 0) if prosody else 0,
+                    "figure": prosody[0].get("rhetorical_figure") if prosody else None,
+                } if prosody else {},
+                # Concepts with atom evidence
+                "concepts": [
+                    {
+                        "id": c["concept_id"],
+                        "confidence": round(c["confidence"], 3),
+                        "negated": c.get("negated", False),
+                        "quantified": c.get("quantified", False),
+                        "modal": c.get("modal", False),
+                        "atoms_evidence": {
+                            atom: {
+                                "word": ev.get("word", ""),
+                                "pos": ev.get("pos", 0),
+                            }
+                            for atom, ev in c.get("atoms_evidence", {}).items()
+                        } if c.get("atoms_evidence") else {},
                     }
                     for c in result["concepts"]
                 ],
@@ -265,6 +384,10 @@ def analyze_document(
             "paragraphs_per_sec": round(extraction.total_paragraphs / max(analysis_time, 0.01), 1),
         },
     }
+
+    # Include rich 7-layer data if requested
+    if rich_mode and rich_layers:
+        report["rich_layers"] = rich_layers
 
     if verbose:
         _print_report(report)

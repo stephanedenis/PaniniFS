@@ -1,11 +1,12 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-02-20T10:30:00-05:00
+Généré: 2026-02-20T16:00:00-05:00
 
 ## Entrées
 
 ### 2026
 
+- [2026-02-20-hauru-v46-reconstruction-fidelity.md](2026-02-20-hauru-v46-reconstruction-fidelity.md) — 🔬 v4.6 : Fidélité de reconstruction E2. **8 langues, readiness moy 0.615**. Export enrichi 7 couches (schema v1.1). Round-trip atoms-only : FR F1=51.3%, EN F1=60.6% @100% précision. L2 atoms = goulot (38.7% lex. coverage).
 - [2026-02-20-hauru-v45-wikipedia-massive-ingestion.md](2026-02-20-hauru-v45-wikipedia-massive-ingestion.md) — 🌐 v4.5 : Ingestion massive Wikipedia. **973 articles, 2.2M mots, 14 langues, 34/34 = 100%**. 30 sujets curatés Wikidata + 50 aléatoires/langue. Cosinus cross-langue 0.80 (vs 0.75 Gutenberg). ja-zh=0.94, en-fr=0.93.
 - [2026-02-20-hauru-v44-indic-hindi-sanskrit.md](2026-02-20-hauru-v44-indic-hindi-sanskrit.md) — 🇮🇳 v4.4 : Hindi + Sanskrit (पाणिनि). **14 langues, 5 écritures, 34/34 = 100%**. 538 kw hindi, 885 kw sanskrit (Devanagari + ITRANS). pg9000 : 30/34 atomes.
 - [2026-02-20-hauru-v431-dutch-portuguese-10-languages.md](2026-02-20-hauru-v431-dutch-portuguese-10-languages.md) — 🇳🇱🇵🇹 v4.3.1 : Néerlandais + Portugais. **34/34 atomes universels sur 10 langues = 100%**. 593-594 keywords/langue, LANGUAGE_PROFILES complets, NL↔DE=0.817.

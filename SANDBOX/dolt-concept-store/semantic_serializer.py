@@ -32,7 +32,7 @@ from text_extractor import extract_document
 # DATA STRUCTURES
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 
 @dataclass
 class SemanticExport:
@@ -73,6 +73,11 @@ class SemanticExport:
     # Per-paragraph details (optional, for deep analysis)
     paragraph_atoms: List[Dict] = field(default_factory=list)
 
+    # Rich 7-layer data per paragraph (v1.1 — for reconstruction fidelity)
+    # Contains: text, syntax, word→atom, morphology, operators, discourse,
+    # prosody, concepts with atom evidence — the full "spectrogramme"
+    rich_layers: List[Dict] = field(default_factory=list)
+
     # Timing
     analysis_time_s: float = 0.0
     exported_at: str = ""
@@ -89,6 +94,7 @@ def export_document_atoms(
     filepath: str,
     lang: str = None,
     include_paragraphs: bool = False,
+    include_rich: bool = False,
     verbose: bool = False,
 ) -> SemanticExport:
     """Analyze a document and export its semantic profile.
@@ -96,7 +102,11 @@ def export_document_atoms(
     Args:
         filepath: Path to the document to analyze.
         lang: Force language (auto-detected if None).
-        include_paragraphs: Include per-paragraph atom details.
+        include_paragraphs: Include per-paragraph concept summaries.
+        include_rich: Include full 7-layer data per paragraph
+            (word→atom alignments, morphology, discourse, prosody,
+            concepts with atom evidence). ~10× larger output but
+            enables reconstruction fidelity analysis.
         verbose: Print progress.
     
     Returns:
@@ -104,8 +114,11 @@ def export_document_atoms(
     """
     t_start = time.time()
 
-    # Run full analysis
-    report = analyze_document(filepath, lang=lang, verbose=verbose)
+    # Run full analysis (with rich mode if requested)
+    report = analyze_document(
+        filepath, lang=lang, verbose=verbose,
+        rich_mode=include_rich,
+    )
 
     if "error" in report:
         raise ValueError(f"Analysis failed: {report['error']}")
@@ -162,6 +175,10 @@ def export_document_atoms(
     # Per-paragraph details (optional)
     if include_paragraphs:
         export.paragraph_atoms = report["concepts"]["details"]
+
+    # Rich 7-layer data (v1.1 — for reconstruction fidelity)
+    if include_rich and "rich_layers" in report:
+        export.rich_layers = report["rich_layers"]
 
     export.analysis_time_s = round(time.time() - t_start, 2)
     export.exported_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
