@@ -57,6 +57,55 @@ except ImportError:
     LITERARY_STOP_WORDS = set()
     EXTRA_PUNCTUATION_V48 = ""
 
+# v4.8.1: Finnish lemmatizer expansion — stop words, keywords, proper nouns
+try:
+    from vocabulary_expansion_v481 import (
+        STOP_WORDS_V481, FINNISH_KEYWORDS_V481, PROPER_NOUNS_V481,
+        EXTRA_PUNCTUATION_V481, is_finnish_function_word,
+    )
+    _HAS_EXPANSION_V481 = True
+except ImportError:
+    _HAS_EXPANSION_V481 = False
+    STOP_WORDS_V481 = {}
+    FINNISH_KEYWORDS_V481 = {}
+    PROPER_NOUNS_V481 = {}
+    EXTRA_PUNCTUATION_V481 = ""
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# PyStemmer — Snowball stemmers for 7 languages
+try:
+    import Stemmer as _PyStemmer
+    _SNOWBALL_LANG_MAP = {
+        "en": "english", "fr": "french", "de": "german",
+        "es": "spanish", "it": "italian", "fi": "finnish",
+        "eo": "esperanto",
+    }
+    _STEMMERS = {}  # lazy init per language
+    _HAS_STEMMER = True
+
+    def _get_stemmer(lang: str):
+        """Get or create a Snowball stemmer for a language."""
+        if lang not in _STEMMERS and lang in _SNOWBALL_LANG_MAP:
+            _STEMMERS[lang] = _PyStemmer.Stemmer(_SNOWBALL_LANG_MAP[lang])
+        return _STEMMERS.get(lang)
+except ImportError:
+    _HAS_STEMMER = False
+    _SNOWBALL_LANG_MAP = {}
+    def _get_stemmer(lang): return None
+
+# Voikko — Finnish morphological analyzer (lemmatizer)
+try:
+    import libvoikko as _libvoikko
+    _VOIKKO = _libvoikko.Voikko("fi")
+    _HAS_VOIKKO = True
+except (ImportError, OSError):
+    _VOIKKO = None
+    _HAS_VOIKKO = False
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8: MORPHOLOGICAL SUFFIX STRIPPING (for inflected form coverage)
@@ -147,11 +196,113 @@ def _extend_global_with_proper_nouns():
             _GLOBAL_KEYWORDS["_all"] = set()
         _GLOBAL_KEYWORDS["_all"].update(w.lower() for w in PROPER_NOUN_AGENTS)
 
+# v4.8.1: Extend global index with Finnish keyword expansions + proper nouns
+def _extend_global_with_v481():
+    """Add FINNISH_KEYWORDS_V481 and PROPER_NOUNS_V481 to global keyword index."""
+    if not _HAS_EXPANSION_V481:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    if "fi" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["fi"] = set()
+    # Add Finnish keywords for each atom
+    for atom_id, fi_words in FINNISH_KEYWORDS_V481.items():
+        for w in fi_words:
+            wl = w.lower()
+            _GLOBAL_KEYWORDS["fi"].add(wl)
+            _GLOBAL_KEYWORDS["_all"].add(wl)
+    # Add proper nouns
+    for lang, names in PROPER_NOUNS_V481.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+
 _build_global_keyword_index()
 _extend_global_with_proper_nouns()
+_extend_global_with_v481()
 
 
-def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
+# ═══════════════════════════════════════════════════════════════════════════════
+# v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_STEMMED_KEYWORDS = {}  # {lang: set(stemmed_keywords)}
+_VOIKKO_LEMMA_CACHE = {}  # cache voikko lookups (word → set of base forms)
+
+
+def _build_stemmed_keyword_index():
+    """Build a per-language set of stemmed keywords for fuzzy coverage."""
+    global _STEMMED_KEYWORDS
+    if not _HAS_STEMMER:
+        return
+    for lang, kw_set in _GLOBAL_KEYWORDS.items():
+        if lang == "_all":
+            continue
+        stemmer = _get_stemmer(lang)
+        if stemmer is None:
+            continue
+        stems = set()
+        for kw in kw_set:
+            stems.add(stemmer.stemWord(kw))
+        _STEMMED_KEYWORDS[lang] = stems
+    # Also build an "_all" set from union of all language-specific stems
+    all_stems = set()
+    for s in _STEMMED_KEYWORDS.values():
+        all_stems.update(s)
+    _STEMMED_KEYWORDS["_all"] = all_stems
+
+
+def _voikko_base_forms(word: str) -> set:
+    """Get base forms of a Finnish word via voikko. Cached."""
+    if not _HAS_VOIKKO:
+        return set()
+    if word in _VOIKKO_LEMMA_CACHE:
+        return _VOIKKO_LEMMA_CACHE[word]
+    try:
+        analyses = _VOIKKO.analyze(word)
+        bases = set()
+        for a in analyses:
+            bf = a.get("BASEFORM", "").lower()
+            if bf:
+                bases.add(bf)
+        _VOIKKO_LEMMA_CACHE[word] = bases
+    except Exception:
+        _VOIKKO_LEMMA_CACHE[word] = set()
+    return _VOIKKO_LEMMA_CACHE.get(word, set())
+
+
+_build_stemmed_keyword_index()
+
+# ── v4.8.1: Pre-merged keyword/stem caches & word-level coverage cache ───────
+# Avoids re-computing set unions on every call to _is_covered_enhanced().
+_MERGED_KEYWORDS = {}   # {lang: set(lang_kw | all_kw)}
+_MERGED_STEMS = {}      # {lang: set(lang_stems | all_stems)}
+_COVERAGE_CACHE = {}    # {(word, lang): bool}  — result across all paragraphs
+
+
+def _get_merged_keywords(lang: str) -> set:
+    """Get merged keyword set (language + _all). Cached per language."""
+    if lang not in _MERGED_KEYWORDS:
+        _MERGED_KEYWORDS[lang] = (
+            _GLOBAL_KEYWORDS.get(lang, set()) | _GLOBAL_KEYWORDS.get("_all", set())
+        )
+    return _MERGED_KEYWORDS[lang]
+
+
+def _get_merged_stems(lang: str) -> set:
+    """Get merged stemmed keyword set. Cached per language."""
+    if lang not in _MERGED_STEMS:
+        _MERGED_STEMS[lang] = (
+            _STEMMED_KEYWORDS.get(lang, set()) | _STEMMED_KEYWORDS.get("_all", set())
+        )
+    return _MERGED_STEMS[lang]
+
+
+def _is_covered_enhanced(word: str, atom_words: set, lang: str,
+                         atom_stems: set = None) -> bool:
     """Check if a content word is covered using multiple strategies.
 
     Strategies (in order):
@@ -162,14 +313,31 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
       5. Morphological suffix stripping (with language-aware min stem)
       6. German prefix stripping (ver-, ent-, be-, ge-, er-, zer-, etc.)
       7. Two-pass suffix stripping (remove suffix, then try again)
+      8. Snowball stemmer: stem word ↔ stem keyword match (7 languages)
+      9. Voikko Finnish lemmatizer: morphological base form lookup
+
+    v4.8.1: Uses word-level coverage cache and pre-merged keyword sets
+    for ~10× speedup on multi-paragraph documents.
+
+    Args:
+        atom_stems: Pre-stemmed atom_words (optional, avoids re-stemming per call)
     """
-    # 1. Direct match against paragraph atoms
+    # 1. Direct match against paragraph atoms (varies per paragraph)
     if word in atom_words:
         return True
 
+    # v4.8.1: Check coverage cache (strategies 2-9 don't depend on atom_words)
+    cache_key = (word, lang)
+    cached = _COVERAGE_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+
+    # Pre-merged keyword set (language + _all)
+    gk = _get_merged_keywords(lang)
+
     # 2. Check against global keyword index (language-specific + all)
-    gk = _GLOBAL_KEYWORDS.get(lang, set()) | _GLOBAL_KEYWORDS.get("_all", set())
     if word in gk:
+        _COVERAGE_CACHE[cache_key] = True
         return True
 
     # Helper: check if a candidate is in any known set
@@ -180,12 +348,14 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
     if '-' in word:
         parts = [p for p in word.split('-') if len(p) >= 2]
         if parts and any(_in_known(p) for p in parts):
+            _COVERAGE_CACHE[cache_key] = True
             return True
 
     # 4. Apostrophe splitting: d'alice → alice, l'abbé → abbé, ch'è → è
     if "'" in word:
         parts = [p for p in word.split("'") if len(p) >= 1]
         if parts and any(_in_known(p) for p in parts if len(p) >= 2):
+            _COVERAGE_CACHE[cache_key] = True
             return True
 
     # Suffix list for this language
@@ -197,6 +367,7 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
         if word.endswith(suffix) and len(word) - len(suffix) >= min_stem:
             stem = word[:-len(suffix)]
             if _in_known(stem):
+                _COVERAGE_CACHE[cache_key] = True
                 return True
 
     # 6. German prefix stripping: ver|ent|be|ge|er|zer + root → root
@@ -205,12 +376,14 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
             if word.startswith(prefix) and len(word) - len(prefix) >= 3:
                 root = word[len(prefix):]
                 if _in_known(root):
+                    _COVERAGE_CACHE[cache_key] = True
                     return True
                 # Prefix + suffix combo: ver-wirr-t → wirr
                 for suffix in suffixes:
                     if root.endswith(suffix) and len(root) - len(suffix) >= 2:
                         inner = root[:-len(suffix)]
                         if _in_known(inner):
+                            _COVERAGE_CACHE[cache_key] = True
                             return True
 
     # 7. Two-pass suffix stripping: remove one suffix, then try another
@@ -225,8 +398,40 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
                         and suffix2 != suffix1):
                     stem2 = stem1[:-len(suffix2)]
                     if _in_known(stem2):
+                        _COVERAGE_CACHE[cache_key] = True
                         return True
 
+    # 8. Snowball stemmer: stem the word and check against stemmed keyword index
+    #    e.g. "hastily" → stem "hastili", keyword "haste" → stem "hast" — match
+    #    Much more powerful than hand-coded suffix lists
+    if _HAS_STEMMER:
+        stemmer = _get_stemmer(lang)
+        if stemmer is not None:
+            word_stem = stemmer.stemWord(word)
+            sk = _get_merged_stems(lang)
+            if word_stem in sk:
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Check against pre-stemmed atom words (paragraph-level)
+            if atom_stems is not None and word_stem in atom_stems:
+                return True
+
+    # 9. Voikko Finnish lemmatizer: get base form(s) and check against keywords
+    #    e.g. "talonpoikien" → baseform "talonpoika" → might match keyword
+    if lang == "fi" and _HAS_VOIKKO:
+        bases = _voikko_base_forms(word)
+        for base in bases:
+            if _in_known(base):
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Try stemming the base form too
+            if _HAS_STEMMER:
+                stemmer = _get_stemmer("fi")
+                if stemmer and stemmer.stemWord(base) in _get_merged_stems("fi"):
+                    _COVERAGE_CACHE[cache_key] = True
+                    return True
+
+    _COVERAGE_CACHE[cache_key] = False
     return False
 
 
@@ -337,7 +542,7 @@ DEFAULT_STOP_WORDS = {".", ",", ";", ":", "!", "?", "(", ")", "[", "]", "{", "}"
 
 
 def get_stop_words(lang: str) -> set:
-    """Get stop words for a language, with fallback + v4.7/v4.8 expansion."""
+    """Get stop words for a language, with fallback + v4.7/v4.8/v4.8.1 expansion."""
     base = STOP_WORDS.get(lang, set()) | DEFAULT_STOP_WORDS
     if _HAS_EXPANSION and lang in EXTRA_STOP_WORDS:
         base = base | EXTRA_STOP_WORDS[lang]
@@ -347,6 +552,9 @@ def get_stop_words(lang: str) -> set:
         if lang in STOP_WORDS_V48:
             base = base | set(STOP_WORDS_V48[lang])
         base = base | LITERARY_STOP_WORDS
+    # v4.8.1: Finnish stop word expansion (voikko-derived function words)
+    if _HAS_EXPANSION_V481 and lang in STOP_WORDS_V481:
+        base = base | STOP_WORDS_V481[lang]
     return base
 
 
@@ -383,6 +591,9 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
     # v4.8: extend with additional quote/dash characters
     if _HAS_EXPANSION_V48:
         _strip = _strip + EXTRA_PUNCTUATION_V48
+    # v4.8.1: Finnish typographic chars
+    if _HAS_EXPANSION_V481:
+        _strip = _strip + EXTRA_PUNCTUATION_V481
     # v4.8: normalize curly/smart apostrophes to straight apostrophe
     # This ensures contractions like I'm/qu'il match stop words consistently
     text = text.replace('\u2019', "'").replace('\u2018', "'")
@@ -538,6 +749,8 @@ def analyze_paragraph_fidelity(
     _atom_strip = EXTRA_PUNCTUATION_CHARS if _HAS_EXPANSION else ".,;:!?\"'()-–—…[]{}«»"
     if _HAS_EXPANSION_V48:
         _atom_strip = _atom_strip + EXTRA_PUNCTUATION_V48
+    if _HAS_EXPANSION_V481:
+        _atom_strip = _atom_strip + EXTRA_PUNCTUATION_V481
     atom_words = set()
     for a in atoms:
         w = a.get("word", "").lower().strip(_atom_strip)
@@ -560,15 +773,21 @@ def analyze_paragraph_fidelity(
                     atom_words.add(k_clean)
     # Lexical coverage = unique content words that are covered
     # Uses enhanced matching: atom words + global keywords + suffix stripping + compound splitting
-    covered_count = sum(1 for cw in content_words
-                        if _is_covered_enhanced(cw, atom_words, lang))
+    # v4.8.1: Pre-stem atom_words for efficient Snowball matching
+    _atom_stems = None
+    if _HAS_STEMMER:
+        stemmer = _get_stemmer(lang)
+        if stemmer is not None:
+            _atom_stems = set(stemmer.stemWord(aw) for aw in atom_words)
+    # Single pass: compute covered count AND uncovered list together
+    covered_count = 0
+    for cw in content_words:
+        if _is_covered_enhanced(cw, atom_words, lang, atom_stems=_atom_stems):
+            covered_count += 1
+        else:
+            pf.uncovered_content_words.append(cw)
     pf.lexical_coverage = covered_count / max(pf.content_word_count, 1)
     pf.atom_density = pf.atom_alignments / max(pf.word_count, 1)
-    
-    # Find uncovered content words (using enhanced matching)
-    for cw in content_words:
-        if not _is_covered_enhanced(cw, atom_words, lang):
-            pf.uncovered_content_words.append(cw)
     
     # L3: Morphology
     morpho = layer.get("morphology", [])
