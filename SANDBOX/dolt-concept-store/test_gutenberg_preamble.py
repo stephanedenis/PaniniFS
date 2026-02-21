@@ -494,6 +494,161 @@ class TestInformationLayers(unittest.TestCase):
         self.assertGreater(layers.text_words, 20000)
 
 
+class TestSchemaV12(unittest.TestCase):
+    """Tests v4.7.4: schema v1.2, multilingual illustrations, to_dict, format_consistency in export."""
+
+    def test_information_layer_to_dict(self):
+        """InformationLayer.to_dict() returns all numeric dimensions."""
+        from gutenberg_preamble_normalizer import InformationLayer
+        layer = InformationLayer(headings=5, emphasis_spans=10, images=3,
+                                 text_chars=1000, text_words=200)
+        d = layer.to_dict()
+        self.assertEqual(d["headings"], 5)
+        self.assertEqual(d["emphasis_spans"], 10)
+        self.assertEqual(d["images"], 3)
+        self.assertEqual(d["text_words"], 200)
+        self.assertIn("structural_richness", d)
+        # No list fields in the dict
+        self.assertNotIn("heading_texts", d)
+        self.assertNotIn("image_alts", d)
+
+    def test_multilingual_illustration_markers(self):
+        """Detect [Illustration], [Illustrazione], [Ilustrajxo], etc."""
+        from gutenberg_preamble_normalizer import _extract_information_layers
+        import tempfile, os
+        content = """Some text before.
+
+[Illustration: Alice falling down]
+
+More text here.
+
+[Illustrazione: La caduta]
+
+German text.
+
+[Abbildung: Der Fall]
+
+Esperanto text.
+
+[Ilustrajxo: LA KUNIKLO]
+
+End."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False,
+                                          encoding='utf-8') as f:
+            f.write(content)
+            tmp_path = f.name
+        try:
+            layers = _extract_information_layers(tmp_path, 'txt')
+            self.assertEqual(layers.images, 4)
+            self.assertEqual(len(layers.image_alts), 4)
+            self.assertIn("Alice falling down", layers.image_alts)
+            self.assertIn("La caduta", layers.image_alts)
+            self.assertIn("Der Fall", layers.image_alts)
+            self.assertIn("LA KUNIKLO", layers.image_alts)
+        finally:
+            os.unlink(tmp_path)
+
+    def test_illustration_zone_has_marker_type(self):
+        """classify_gutenberg_zones captures marker_type for multilingual illustrations."""
+        from gutenberg_preamble_normalizer import classify_gutenberg_zones, ZoneType
+        text = """*** START OF THE PROJECT GUTENBERG EBOOK ***
+
+Some text.
+
+[Illustrazione: Una scena bella]
+
+More text.
+
+*** END OF THE PROJECT GUTENBERG EBOOK ***"""
+        zones = classify_gutenberg_zones(text, declared_lang='it')
+        illus = [z for z in zones if z.zone_type == ZoneType.ILLUSTRATION_MARKER]
+        self.assertEqual(len(illus), 1)
+        self.assertEqual(illus[0].metadata["marker_type"], "Illustrazione")
+        self.assertEqual(illus[0].metadata["caption"], "Una scena bella")
+
+    def test_schema_v12_version(self):
+        """SemanticExport schema_version is 1.2."""
+        from semantic_serializer import SCHEMA_VERSION, SemanticExport
+        self.assertEqual(SCHEMA_VERSION, "1.2")
+        export = SemanticExport()
+        self.assertEqual(export.schema_version, "1.2")
+
+    def test_export_with_info_layers(self):
+        """export_document_atoms accepts and includes info_layers in output."""
+        from semantic_serializer import SemanticExport
+        export = SemanticExport()
+        test_layers = {"headings": 10, "emphasis_spans": 50, "text_words": 5000}
+        export.information_layers = test_layers
+        d = export.to_dict()
+        self.assertEqual(d["information_layers"]["headings"], 10)
+        self.assertEqual(d["information_layers"]["emphasis_spans"], 50)
+
+    def test_export_with_format_consistency(self):
+        """export_document_atoms accepts and includes format_consistency in output."""
+        from semantic_serializer import SemanticExport
+        export = SemanticExport()
+        test_fc = {
+            "canonical_format": "html",
+            "canonical_richness": 100,
+            "information_loss": {
+                "txt": {"avg_structural_loss": 0.667, "text_fidelity": 0.895}
+            }
+        }
+        export.format_consistency = test_fc
+        d = export.to_dict()
+        self.assertEqual(d["format_consistency"]["canonical_format"], "html")
+        self.assertEqual(
+            d["format_consistency"]["information_loss"]["txt"]["avg_structural_loss"],
+            0.667
+        )
+
+    def test_real_export_with_loss_metrics(self):
+        """Full pipeline: export pg11.txt with sibling HTML loss metrics."""
+        import os
+        txt_path = os.path.join(os.path.dirname(__file__),
+                                "gutenberg_corpus", "en", "pg11.txt")
+        html_path = os.path.join(os.path.dirname(__file__),
+                                 "gutenberg_corpus", "en", "pg11.html")
+        if not os.path.exists(txt_path) or not os.path.exists(html_path):
+            self.skipTest("pg11.txt or pg11.html not available")
+        
+        from gutenberg_preamble_normalizer import (
+            _extract_information_layers, unify_editions,
+        )
+        from semantic_serializer import export_document_atoms
+        
+        # Compute loss metrics
+        work = unify_editions(
+            work_id="PG11",
+            edition_paths={
+                "11_txt": txt_path,
+                "11_html": html_path,
+            },
+            work_metadata={"lang": "en"},
+            analyze_atoms=False,
+            verbose=False,
+        )
+        txt_layers = _extract_information_layers(txt_path, "txt")
+        
+        # Export with v1.2 enrichment
+        export = export_document_atoms(
+            txt_path, lang="en", verbose=False,
+            info_layers=txt_layers.to_dict(),
+            format_consistency=work.format_consistency,
+        )
+        
+        d = export.to_dict()
+        self.assertEqual(d["schema_version"], "1.2")
+        self.assertIn("information_layers", d)
+        self.assertGreater(d["information_layers"]["text_words"], 20000)
+        self.assertIn("format_consistency", d)
+        self.assertEqual(d["format_consistency"]["canonical_format"], "html")
+        self.assertIn("txt", d["format_consistency"]["information_loss"])
+        loss = d["format_consistency"]["information_loss"]["txt"]
+        self.assertGreater(loss["avg_structural_loss"], 0.5)
+        self.assertGreater(loss["text_fidelity"], 0.8)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLI
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -191,7 +191,9 @@ GUTENBERG_FOOTER_FINGERPRINTS = {
 # ─── Marqueurs structurels internes ─────────────────────────────────────────
 
 ILLUSTRATION_PATTERN = re.compile(
-    r'\[Illustration[:\s]*([^\]]*)\]', re.IGNORECASE
+    r'\[(Illustration|Illustrazione|Ilustrajxo|Abbildung|'
+    r'Ilustraci[oó]n|Figura|Gravure|Illustratie)'
+    r'[:\s]*([^\]]*)\]', re.IGNORECASE
 )
 FOOTNOTE_PATTERN = re.compile(
     r'\[(?:Footnote|Note|Nota|Anmerkung|Fußnote)[:\s]*([^\]]*)\]', re.IGNORECASE
@@ -451,7 +453,10 @@ def _classify_body_zones(
             text=m.group(0),
             language=declared_lang,
             confidence=1.0,
-            metadata={"caption": m.group(1).strip() if m.group(1) else ""},
+            metadata={
+                "marker_type": m.group(1),
+                "caption": m.group(2).strip() if m.group(2) else "",
+            },
         ))
     
     # ── Détecter les notes de bas de page ────────────────────────────────
@@ -963,6 +968,26 @@ class InformationLayer:
             loss["text_words"] = round(abs(1.0 - text_ratio), 4)
         return loss
 
+    def to_dict(self) -> Dict[str, int]:
+        """Serialize numeric dimensions for JSON export (skip text lists)."""
+        return {
+            "headings": self.headings,
+            "emphasis_spans": self.emphasis_spans,
+            "strong_spans": self.strong_spans,
+            "images": self.images,
+            "links": self.links,
+            "tables": self.tables,
+            "table_cells": self.table_cells,
+            "paragraphs": self.paragraphs,
+            "blockquotes": self.blockquotes,
+            "preformatted": self.preformatted,
+            "lists": self.lists,
+            "list_items": self.list_items,
+            "text_chars": self.text_chars,
+            "text_words": self.text_words,
+            "structural_richness": self.structural_richness,
+        }
+
 
 @dataclass
 class EditionFormat:
@@ -1127,8 +1152,20 @@ def _extract_information_layers(filepath: str, fmt: str) -> InformationLayer:
         layers.emphasis_spans = len(re.findall(r'_[^_]{2,50}_', raw))
         layers.emphasis_spans += len(re.findall(r'\*[^*]{2,50}\*', raw))
         
-        # Illustrations markers [Illustration: ...]
-        layers.images = len(re.findall(r'\[Illustration', raw, re.I))
+        # Illustration markers — multilingual variants
+        # [Illustration: caption], [Illustrazione: ...], [Ilustrajxo: ...],
+        # [Abbildung: ...], [Ilustración: ...], [Figura: ...]
+        illus_pattern = re.compile(
+            r'\[(Illustration|Illustrazione|Ilustrajxo|Abbildung|'
+            r'Ilustraci[oó]n|Figura|Gravure|Illustratie)'
+            r'(?:[:\s]*([^\]]*))?\]', re.IGNORECASE
+        )
+        illus_matches = illus_pattern.findall(raw)
+        layers.images = len(illus_matches)
+        layers.image_alts = [
+            caption.strip() for _, caption in illus_matches
+            if caption.strip()
+        ]
         
         # Paragraphs = blocks separated by blank lines
         layers.paragraphs = len(re.split(r'\n\s*\n', raw.strip()))

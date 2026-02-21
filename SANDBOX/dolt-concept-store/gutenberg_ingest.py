@@ -15,6 +15,7 @@ Part of PaniniFS concept store — Gutenberg corpus ingestion.
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import urllib.request
@@ -407,7 +408,60 @@ def analyze_all(store_in_dolt=True, verbose=True) -> List[str]:
 
         t0 = time.time()
         try:
-            export = export_document_atoms(filepath, lang=lang, verbose=False)
+            # v4.7.4: Detect sibling formats (HTML/EPUB) for loss metrics
+            info_layers_dict = None
+            format_consistency_dict = None
+            if HAS_PREAMBLE_NORMALIZER:
+                try:
+                    from gutenberg_preamble_normalizer import (
+                        _extract_information_layers, unify_editions,
+                    )
+                    from text_extractor import detect_format
+                    
+                    base = os.path.splitext(filepath)[0]
+                    gid_match = re.search(r'pg(\d+)', os.path.basename(filepath))
+                    gid_str = gid_match.group(1) if gid_match else ""
+                    
+                    # Build edition_paths for all existing sibling formats
+                    edition_paths = {f"{gid_str}_txt": filepath}
+                    lang_dir = os.path.dirname(filepath)
+                    for ext in ("html", "epub"):
+                        # Try both pg{gid}.ext and pg{gid}-images.ext
+                        for pattern in [f"pg{gid_str}.{ext}",
+                                        f"pg{gid_str}-images.{ext}"]:
+                            sibling = os.path.join(lang_dir, pattern)
+                            if os.path.exists(sibling):
+                                edition_paths[f"{gid_str}_{ext}"] = sibling
+                                break
+                    
+                    if len(edition_paths) > 1:
+                        # Multiple formats found — compute loss metrics
+                        work = unify_editions(
+                            work_id=gid_str,
+                            edition_paths=edition_paths,
+                            work_metadata={"lang": lang},
+                            analyze_atoms=False,
+                            verbose=False,
+                        )
+                        format_consistency_dict = work.format_consistency
+                        
+                        # Get info_layers for the TXT itself
+                        txt_fmt = detect_format(filepath)
+                        txt_layers = _extract_information_layers(filepath, txt_fmt)
+                        info_layers_dict = txt_layers.to_dict()
+                    else:
+                        # Single format — just compute layers for TXT
+                        txt_fmt = detect_format(filepath)
+                        txt_layers = _extract_information_layers(filepath, txt_fmt)
+                        info_layers_dict = txt_layers.to_dict()
+                except Exception:
+                    pass
+
+            export = export_document_atoms(
+                filepath, lang=lang, verbose=False,
+                info_layers=info_layers_dict,
+                format_consistency=format_consistency_dict,
+            )
             save_export(export, export_path)
             export_paths.append(export_path)
 

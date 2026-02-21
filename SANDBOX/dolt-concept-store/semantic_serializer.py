@@ -32,7 +32,7 @@ from text_extractor import extract_document
 # DATA STRUCTURES
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SCHEMA_VERSION = "1.1"
+SCHEMA_VERSION = "1.2"
 
 @dataclass
 class SemanticExport:
@@ -78,6 +78,12 @@ class SemanticExport:
     # prosody, concepts with atom evidence — the full "spectrogramme"
     rich_layers: List[Dict] = field(default_factory=list)
 
+    # Information layers & format consistency (v1.2 — loss model)
+    # Structural dimensions of the source format (headings, emphasis, images...)
+    information_layers: Dict[str, int] = field(default_factory=dict)
+    # Multi-format consistency when sibling formats exist (canonical, loss metrics)
+    format_consistency: Dict = field(default_factory=dict)
+
     # Timing
     analysis_time_s: float = 0.0
     exported_at: str = ""
@@ -95,6 +101,8 @@ def export_document_atoms(
     lang: str = None,
     include_paragraphs: bool = False,
     include_rich: bool = False,
+    info_layers: Dict = None,
+    format_consistency: Dict = None,
     verbose: bool = False,
 ) -> SemanticExport:
     """Analyze a document and export its semantic profile.
@@ -107,6 +115,10 @@ def export_document_atoms(
             (word→atom alignments, morphology, discourse, prosody,
             concepts with atom evidence). ~10× larger output but
             enables reconstruction fidelity analysis.
+        info_layers: Pre-computed InformationLayer dict (v1.2).
+            If provided, included in export as structural dimensions.
+        format_consistency: Pre-computed multi-format loss metrics (v1.2).
+            If provided, included in export for cross-format comparison.
         verbose: Print progress.
     
     Returns:
@@ -179,6 +191,12 @@ def export_document_atoms(
     # Rich 7-layer data (v1.1 — for reconstruction fidelity)
     if include_rich and "rich_layers" in report:
         export.rich_layers = report["rich_layers"]
+
+    # Information layers & format consistency (v1.2 — loss model)
+    if info_layers:
+        export.information_layers = info_layers
+    if format_consistency:
+        export.format_consistency = format_consistency
 
     export.analysis_time_s = round(time.time() - t_start, 2)
     export.exported_at = time.strftime("%Y-%m-%dT%H:%M:%S%z")
