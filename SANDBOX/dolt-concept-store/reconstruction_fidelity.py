@@ -125,23 +125,23 @@ except ImportError:
     _PROPER_NOUNS_V484 = {}
     _ARCHAIC_FORMS_V484 = {}
 
-# v4.8.5: Push toward 90% — aggressive targeting of remaining gaps
+# v4.8.6: Push toward 90% — aggressive targeting of remaining gaps
 try:
-    from vocabulary_expansion_v485 import (
-        get_keywords_v485, get_stop_words_v485,
-        get_proper_nouns_v485, get_archaic_forms_v485,
+    from vocabulary_expansion_v486 import (
+        get_keywords_v486, get_stop_words_v486,
+        get_proper_nouns_v486, get_archaic_forms_v486,
     )
-    _KEYWORDS_V485 = get_keywords_v485()
-    _STOP_WORDS_V485 = get_stop_words_v485()
-    _PROPER_NOUNS_V485 = get_proper_nouns_v485()
-    _ARCHAIC_FORMS_V485 = get_archaic_forms_v485()
-    _HAS_EXPANSION_V485 = True
+    _KEYWORDS_V486 = get_keywords_v486()
+    _STOP_WORDS_V486 = get_stop_words_v486()
+    _PROPER_NOUNS_V486 = get_proper_nouns_v486()
+    _ARCHAIC_FORMS_V486 = get_archaic_forms_v486()
+    _HAS_EXPANSION_V486 = True
 except ImportError:
-    _HAS_EXPANSION_V485 = False
-    _KEYWORDS_V485 = {}
-    _STOP_WORDS_V485 = {}
-    _PROPER_NOUNS_V485 = {}
-    _ARCHAIC_FORMS_V485 = {}
+    _HAS_EXPANSION_V486 = False
+    _KEYWORDS_V486 = {}
+    _STOP_WORDS_V486 = {}
+    _PROPER_NOUNS_V486 = {}
+    _ARCHAIC_FORMS_V486 = {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -405,14 +405,14 @@ def _extend_global_with_v484():
 
 _extend_global_with_v484()
 
-# v4.8.5: Extend global index — push toward 90%
-def _extend_global_with_v485():
+# v4.8.6: Extend global index — push toward 90%
+def _extend_global_with_v486():
     """Add KEYWORDS_V485, PROPER_NOUNS_V485, and ARCHAIC_FORMS_V485 to global."""
-    if not _HAS_EXPANSION_V485:
+    if not _HAS_EXPANSION_V486:
         return
     if "_all" not in _GLOBAL_KEYWORDS:
         _GLOBAL_KEYWORDS["_all"] = set()
-    for atom_id, lang_words in _KEYWORDS_V485.items():
+    for atom_id, lang_words in _KEYWORDS_V486.items():
         for lang, words in lang_words.items():
             if lang not in _GLOBAL_KEYWORDS:
                 _GLOBAL_KEYWORDS[lang] = set()
@@ -420,14 +420,14 @@ def _extend_global_with_v485():
                 wl = w.lower()
                 _GLOBAL_KEYWORDS[lang].add(wl)
                 _GLOBAL_KEYWORDS["_all"].add(wl)
-    for lang, names in _PROPER_NOUNS_V485.items():
+    for lang, names in _PROPER_NOUNS_V486.items():
         if lang not in _GLOBAL_KEYWORDS:
             _GLOBAL_KEYWORDS[lang] = set()
         for name in names:
             nl = name.lower()
             _GLOBAL_KEYWORDS[lang].add(nl)
             _GLOBAL_KEYWORDS["_all"].add(nl)
-    for lang, mappings in _ARCHAIC_FORMS_V485.items():
+    for lang, mappings in _ARCHAIC_FORMS_V486.items():
         if lang not in _GLOBAL_KEYWORDS:
             _GLOBAL_KEYWORDS[lang] = set()
         for old_form, modern_form in mappings.items():
@@ -436,7 +436,7 @@ def _extend_global_with_v485():
             _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
             _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
 
-_extend_global_with_v485()
+_extend_global_with_v486()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -861,9 +861,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.4: EN base-form stop words + remaining
     if _HAS_EXPANSION_V484 and lang in _STOP_WORDS_V484:
         base = base | set(_STOP_WORDS_V484[lang])
-    # v4.8.5: Push toward 90% stop words
-    if _HAS_EXPANSION_V485 and lang in _STOP_WORDS_V485:
-        base = base | set(_STOP_WORDS_V485[lang])
+    # v4.8.6: Push toward 90% stop words
+    if _HAS_EXPANSION_V486 and lang in _STOP_WORDS_V486:
+        base = base | set(_STOP_WORDS_V486[lang])
     return base
 
 

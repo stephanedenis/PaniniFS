@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-21-hauru-v486-push-90pct.md](2026-02-21-hauru-v486-push-90pct.md) — 📈 v4.8.6 : Expansion ciblée push 90%. **89.0%→89.4% (+0.4pp)** global. DE **90.1%** (1er non-EN ≥90%). EN 94.4%, EO 92.4%, ES 89.5%, FR 89.0%, IT 87.5%, FI 86.8%. 400 entrées (335 kw + 31 sw + 20 pn + 14 af). 178/178 mots cibles résolus. 8 atomes × 7 langues.
 - [2026-02-21-hauru-v485-algorithmic-coverage-89pct.md](2026-02-21-hauru-v485-algorithmic-coverage-89pct.md) — 🔧 v4.8.5 : Corrections algorithmiques `_deep_check()` + suffixes + composés DE. **88.8%→89.0% (+0.2pp)** cumulé v4.8.2→v4.8.5 **+3.9pp**. EN 94.0%, EO 91.8%, DE 89.5%. Bug critique `_deep_check()` corrigé (+0.8pp). Décomposition binaire DE, suffixes pluriels FR/IT/ES. 958 kw + 265 sw = 1305 entrées.
 - [2026-02-21-hauru-v484-en-baseform-injection.md](2026-02-21-hauru-v484-en-baseform-injection.md) — 📈 v4.8.4 : Injection formes de base EN + résidus multilingues. **87.4%→88.8% (+1.4pp)** global. EN 94.0%, EO 91.8%, DE 89.4% (+2.1pp), IT 86.6% (+2.2pp). 584 entrées (503 kw + 48 sw + 20 pn + 13 af). 175/175 mots cibles résolus. Faiblesse structurelle EN diagnostiquée et corrigée.
 - [2026-02-21-hauru-v483-targeted-expansion.md](2026-02-21-hauru-v483-targeted-expansion.md) — 📈 v4.8.3 : Expansion ciblée langues faibles (R1+R2). **85.1%→87.4% (+2.3pp)** global. EN 93.3%, EO 90.4%, FI 84.9% (+3.0pp), IT 84.4% (+2.5pp). 771 entrées (604 kw + 116 sw + 22 pn + 29 af). Correctif élisions FR (15 mots), passato remoto IT, composés DE.
