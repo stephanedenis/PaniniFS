@@ -1,120 +1,131 @@
 {
-  "timestamp": "2026-02-20T12:46:47",
-  "files": 10,
-  "total_words": 283984,
-  "total_paragraphs": 7547,
-  "total_atoms": 105387,
-  "elapsed_s": 917.8,
+  "timestamp": "2026-02-21T01:18:12",
+  "files": 11,
+  "total_words": 313548,
+  "total_paragraphs": 8418,
+  "total_atoms": 143015,
+  "elapsed_s": 1280.0,
   "works": [
     {
-      "work_id": 2,
+      "work_id": 12,
+      "filename": "pg11_en.txt",
+      "title": "Alice's Adventures in Wonderland",
+      "language": "en",
+      "word_count": 29564,
+      "chapters": 13,
+      "paragraphs": 871,
+      "atoms": 15198,
+      "concepts": 9952
+    },
+    {
+      "work_id": 13,
       "filename": "pg17482_eo.txt",
       "title": "La Aventuroj de Alicio en Mirlando",
       "language": "eo",
       "word_count": 28537,
       "chapters": 13,
       "paragraphs": 1052,
-      "atoms": 10250,
-      "concepts": 6319
+      "atoms": 12602,
+      "concepts": 7284
     },
     {
-      "work_id": 3,
+      "work_id": 14,
       "filename": "pg19778_de.txt",
       "title": "Alice im Wunderland",
       "language": "de",
       "word_count": 28781,
       "chapters": 13,
       "paragraphs": 913,
-      "atoms": 12561,
-      "concepts": 6834
+      "atoms": 14807,
+      "concepts": 7839
     },
     {
-      "work_id": 4,
+      "work_id": 15,
       "filename": "pg19942_en.txt",
       "title": "Candide",
       "language": "en",
       "word_count": 38908,
       "chapters": 1,
       "paragraphs": 893,
-      "atoms": 16545,
-      "concepts": 11087
+      "atoms": 19607,
+      "concepts": 12188
     },
     {
-      "work_id": 5,
+      "work_id": 16,
       "filename": "pg28371_it.txt",
       "title": "Le avventure di Alice nel Paese delle Meraviglie",
       "language": "it",
       "word_count": 26833,
       "chapters": 13,
       "paragraphs": 924,
-      "atoms": 9701,
-      "concepts": 6088
+      "atoms": 12225,
+      "concepts": 7465
     },
     {
-      "work_id": 6,
+      "work_id": 17,
       "filename": "pg4650_fr.txt",
       "title": "Candide, ou l'Optimisme",
       "language": "fr",
       "word_count": 37111,
       "chapters": 37,
       "paragraphs": 433,
-      "atoms": 13565,
-      "concepts": 10789
+      "atoms": 16392,
+      "concepts": 11835
     },
     {
-      "work_id": 7,
+      "work_id": 18,
       "filename": "pg46569_fi.txt",
       "title": "Liisan seikkailut ihmemaassa",
       "language": "fi",
       "word_count": 21902,
       "chapters": 1,
       "paragraphs": 911,
-      "atoms": 7620,
-      "concepts": 4023
+      "atoms": 9556,
+      "concepts": 4864
     },
     {
-      "work_id": 8,
+      "work_id": 19,
       "filename": "pg52336_fi.txt",
       "title": "Candide eli optimismi",
       "language": "fi",
       "word_count": 32282,
       "chapters": 1,
       "paragraphs": 989,
-      "atoms": 11523,
-      "concepts": 6362
+      "atoms": 13900,
+      "concepts": 7705
     },
     {
-      "work_id": 9,
+      "work_id": 20,
       "filename": "pg55456_fr.txt",
       "title": "Les Aventures d'Alice au pays des merveilles",
       "language": "fr",
       "word_count": 29405,
       "chapters": 12,
       "paragraphs": 936,
-      "atoms": 11735,
-      "concepts": 8081
+      "atoms": 13587,
+      "concepts": 9287
     },
     {
-      "work_id": 10,
+      "work_id": 21,
       "filename": "pg7109_es.txt",
       "title": "C\u00e1ndido, \u00f3 El Optimismo",
       "language": "es",
       "word_count": 35725,
       "chapters": 30,
       "paragraphs": 295,
-      "atoms": 11411,
-      "concepts": 9228
+      "atoms": 14492,
+      "concepts": 10152
     },
     {
-      "work_id": 11,
+      "work_id": 22,
       "filename": "pg9000_sa.txt",
       "title": "Vi\u1e63\u1e47usahasran\u0101ma",
       "language": "sa",
       "word_count": 4500,
       "chapters": 1,
       "paragraphs": 201,
-      "atoms": 476,
-      "concepts": 17
+      "atoms": 649,
+      "concepts": 35
     }
   ]
 }

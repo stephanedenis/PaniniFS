@@ -314,8 +314,15 @@ class DoltCLI:
         subprocess.run(["dolt", "commit", "-m", msg], cwd=self.db, capture_output=True)
 
 
-def ingest_file(fp: str, db: DoltCLI, corpus_id: int, verbose: bool = False) -> Dict:
-    """Ingest one Gutenberg file."""
+def ingest_file(fp: str, db: DoltCLI, corpus_id: int, verbose: bool = False,
+                force: bool = False) -> Dict:
+    """Ingest one Gutenberg file.
+
+    Args:
+        force: If True, delete existing work and all dependent data before
+               re-inserting.  Required when re-ingesting after vocabulary
+               expansion rounds.
+    """
     fn = os.path.basename(fp)
     meta = WORK_METADATA.get(fn, {})
     lang = meta.get("lang", "en")
@@ -324,6 +331,32 @@ def ingest_file(fp: str, db: DoltCLI, corpus_id: int, verbose: bool = False) -> 
 
     with open(fp, 'r', encoding='utf-8', errors='replace') as f:
         text = f.read()
+
+    # ── Handle existing work ───────────────────────────────────────────
+    existing = db.sql_rows(
+        f"SELECT work_id FROM works WHERE corpus_id={corpus_id} "
+        f"AND source_file={db.esc(fn)};")
+    if existing:
+        if not force:
+            raise RuntimeError(
+                f"Work already exists (work_id={existing[0]['work_id']}). "
+                f"Use --force to re-ingest.")
+        old_wid = existing[0]['work_id']
+        # Cascade-delete in reverse FK order
+        db.sql(f"DELETE FROM fidelity_metrics WHERE unit_id IN "
+               f"(SELECT unit_id FROM structural_units WHERE work_id={old_wid});")
+        db.sql(f"DELETE FROM concepts WHERE unit_id IN "
+               f"(SELECT unit_id FROM structural_units WHERE work_id={old_wid});")
+        db.sql(f"DELETE FROM atom_profiles WHERE unit_id IN "
+               f"(SELECT unit_id FROM structural_units WHERE work_id={old_wid});")
+        # structural_units has self-referencing FK (parent_id → unit_id)
+        # Delete children (paragraphs) first, then parents (chapters)
+        db.sql(f"DELETE FROM structural_units WHERE work_id={old_wid} "
+               f"AND parent_id IS NOT NULL;")
+        db.sql(f"DELETE FROM structural_units WHERE work_id={old_wid};")
+        db.sql(f"DELETE FROM works WHERE work_id={old_wid};")
+        if verbose:
+            print(f"  🗑️  Cleared existing work #{old_wid} ({fn})")
 
     wc = count_words(text, lang)
     work_id = db.insert_id(
@@ -435,6 +468,8 @@ def main():
     parser.add_argument("files", nargs="*", default=[])
     parser.add_argument("--corpus-dir", default="gutenberg_corpus")
     parser.add_argument("--db-path", default="panini-interpretations-db")
+    parser.add_argument("--force", "-f", action="store_true",
+                        help="Delete and re-ingest works that already exist")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -462,7 +497,7 @@ def main():
 
     for fp in files:
         try:
-            r = ingest_file(fp, db, corpus_id, verbose=args.verbose)
+            r = ingest_file(fp, db, corpus_id, verbose=args.verbose, force=args.force)
             results.append(r)
             print(f"  ✅ {r['filename']}: {r['word_count']:,}w, {r['atoms']:,}a, {r['concepts']}c")
         except Exception as e:
@@ -478,7 +513,7 @@ def main():
     print(f"DONE: {len(results)} works, {tw:,} words, {tp:,} paragraphs, {ta:,} atoms")
     print(f"Time: {elapsed:.0f}s ({elapsed/60:.1f}min)")
 
-    db.commit(f"v4.7: Ingest {len(results)} Gutenberg works ({tw:,} words)")
+    db.commit(f"v4.8.1: Ingest {len(results)} Gutenberg works ({tw:,} words)")
     print(f"💾 Committed to Dolt")
 
     summary = {"timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),

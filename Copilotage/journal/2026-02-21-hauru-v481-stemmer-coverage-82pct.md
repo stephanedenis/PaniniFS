@@ -3,7 +3,7 @@
 **Date** : 2026-02-21  
 **Machine** : hauru (Intel Xeon E5-2650, 8c/16t, 62GB)  
 **Agent** : GitHub Copilot (Claude Opus 4.6)  
-**Commit** : (à venir)
+**Commit** : `94075c6` (R7 expansion) + commit suivant (re-ingestion)
 
 ## Contexte
 
@@ -22,12 +22,23 @@ pas (EN: said≠say, DE: befand≠finden).
   propres.
 - **Impact** : 80.3% → 81.8% (+1.5pp).
 
+### 2. Fix re-ingestion avec `--force`
+- **Constat** : `interpretation_ingest.py` échouait sur les 11 œuvres avec
+  « duplicate unique key » car les œuvres existaient déjà depuis v4.7.
+- **Décision** : Ajout du flag `--force` avec cascade-delete : suppression des
+  fidelity_metrics, concepts, atom_profiles, structural_units (enfants d'abord
+  pour le FK self-referencing parent_id), puis works, avant ré-insertion.
+- **Impact** : 11 œuvres ré-ingérées avec les alignements v4.8.1 en 21.3 min
+  (vs 47 min pour v4.7). 143,015 atoms vs 128,612 (+11.2%).
+
 ## Fichiers modifiés
 
 | Fichier | Raison |
 |---------|--------|
 | `vocabulary_expansion_v48.py` | Round 7 : STOP_WORDS_V48_R7, EXPANSION_KEYWORDS_V48_R7, PROPER_NOUN_AGENTS_R7 |
 | `vocabulary_audit_v481_r7.json` | Résultats audit final (81.8%) |
+| `interpretation_ingest.py` | Flag `--force` avec cascade-delete pour ré-ingestion |
+| `interpretation_ingestion_summary.json` | Résumé ré-ingestion v4.8.1 |
 
 ## Tests effectués
 
@@ -51,6 +62,6 @@ pas (EN: said≠say, DE: befand≠finden).
 
 ## Prochaines étapes
 
-1. **Re-ingestion interpretations-db** avec keywords v4.8.1
+1. ~~Re-ingestion interpretations-db avec keywords v4.8.1~~ ✅ Fait (143,015 atoms)
 2. **v4.9 target 85%** — Lemmatiseurs FR/IT (spaCy/simplemma)
 3. **Objectif 90%** — NLP sophistiqué (POS-tagging + lemmatisation)
