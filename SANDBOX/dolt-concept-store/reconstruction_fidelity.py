@@ -89,6 +89,24 @@ except ImportError:
     _PROPER_NOUNS_V482 = {}
     _ARCHAIC_FORMS = {}
 
+# v4.8.3: Targeted coverage push for weak languages (FI/IT/ES/FR/DE/EN/EO)
+try:
+    from vocabulary_expansion_v483 import (
+        get_keywords_v483, get_stop_words_v483,
+        get_proper_nouns_v483, get_archaic_forms_v483,
+    )
+    _KEYWORDS_V483 = get_keywords_v483()
+    _STOP_WORDS_V483 = get_stop_words_v483()
+    _PROPER_NOUNS_V483 = get_proper_nouns_v483()
+    _ARCHAIC_FORMS_V483 = get_archaic_forms_v483()
+    _HAS_EXPANSION_V483 = True
+except ImportError:
+    _HAS_EXPANSION_V483 = False
+    _KEYWORDS_V483 = {}
+    _STOP_WORDS_V483 = {}
+    _PROPER_NOUNS_V483 = {}
+    _ARCHAIC_FORMS_V483 = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -278,6 +296,39 @@ def _extend_global_with_v482():
 
 _extend_global_with_v482()
 
+# v4.8.3: Extend global index with targeted weak-language keywords
+def _extend_global_with_v483():
+    """Add KEYWORDS_V483, PROPER_NOUNS_V483, and ARCHAIC_FORMS_V483 to global."""
+    if not _HAS_EXPANSION_V483:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for atom_id, lang_words in _KEYWORDS_V483.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V483.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    for lang, mappings in _ARCHAIC_FORMS_V483.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v483()
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
@@ -406,9 +457,13 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
         return w in atom_words or w in gk
 
     # Helper: deep check — apply stemming + voikko to a sub-part (no recursion)
+    # v4.8.3: Also checks stop words (fixes elision/compound sub-parts)
     def _deep_check(w):
-        """Check a word against keywords, stems, and lemmatizers."""
+        """Check a word against keywords, stems, lemmatizers, AND stop words."""
         if _in_known(w):
+            return True
+        # v4.8.3: Stop words are also "covered" (they're known function words)
+        if w in get_stop_words(lang):
             return True
         # Snowball stemmer check
         if _HAS_STEMMER:
@@ -430,8 +485,10 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
         return False
 
     # v4.8.2: Romance elision prefixes (FR/IT/ES)
+    # v4.8.3: Added v (IT: v'era), ch (IT: ch'ebbe), ai (FR: ai-je)
     _ELISION_PREFIXES = {"d", "l", "m", "n", "s", "c", "j", "qu",
-                         "all", "nell", "dell", "sull", "dall", "un"}
+                         "all", "nell", "dell", "sull", "dall", "un",
+                         "v", "ch", "ai"}
 
     # 3. Compound splitting (hyphen): rabbit-hole → rabbit, hole
     #    v4.8.2: Use _deep_check for parts + stop-word-aware splitting
@@ -668,6 +725,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.2: Massive stop word expansion (archaic forms, function words)
     if _HAS_EXPANSION_V482 and lang in _STOP_WORDS_V482:
         base = base | _STOP_WORDS_V482[lang]
+    # v4.8.3: Targeted weak-language stop words
+    if _HAS_EXPANSION_V483 and lang in _STOP_WORDS_V483:
+        base = base | set(_STOP_WORDS_V483[lang])
     return base
 
 
