@@ -107,6 +107,24 @@ except ImportError:
     _PROPER_NOUNS_V483 = {}
     _ARCHAIC_FORMS_V483 = {}
 
+# v4.8.4: EN base-form injection + remaining gaps across all languages
+try:
+    from vocabulary_expansion_v484 import (
+        get_keywords_v484, get_stop_words_v484,
+        get_proper_nouns_v484, get_archaic_forms_v484,
+    )
+    _KEYWORDS_V484 = get_keywords_v484()
+    _STOP_WORDS_V484 = get_stop_words_v484()
+    _PROPER_NOUNS_V484 = get_proper_nouns_v484()
+    _ARCHAIC_FORMS_V484 = get_archaic_forms_v484()
+    _HAS_EXPANSION_V484 = True
+except ImportError:
+    _HAS_EXPANSION_V484 = False
+    _KEYWORDS_V484 = {}
+    _STOP_WORDS_V484 = {}
+    _PROPER_NOUNS_V484 = {}
+    _ARCHAIC_FORMS_V484 = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -156,17 +174,24 @@ MORPHO_SUFFIXES = {
            "aient", "ement", "tion", "sion", "ité", "ment",
            "ais", "ait", "ons", "ez", "ant", "eur", "euse", "eurs",
            "ées", "ée", "és", "ère", "ères", "eux", "eaux",
-           "ât", "ît", "ût", "ent", "ais", "ait"],
+           "ât", "ît", "ût", "ent", "ais", "ait",
+           # v4.8.3: basic plurals + past participle
+           "es", "s", "x", "é"],
     "de": ["ungen", "ieren", "ierte", "ierten", "lich", "keit", "heit",
            "isch", "ische", "ischen", "iges", "iger",
            "ung", "bar", "sam", "ern", "eln", "ten", "en", "te",
            "ig", "ige", "es", "er", "em", "et", "st", "t", "e", "n"],
     "es": ["ción", "sión", "mente", "ieron", "aron", "aban", "ando", "iendo",
            "ados", "adas", "ado", "ada", "ía", "ían", "ible", "able", "aba",
-           "ó", "án", "ás", "é", "ió", "emos", "éis"],
+           "ó", "án", "ás", "é", "ió", "emos", "éis",
+           # v4.8.3: basic plurals + gender
+           "es", "s", "os", "as", "a", "o"],
     "it": ["zione", "mente", "izzare", "izzato", "eggiare", "ibile", "abile",
            "ando", "endo", "ato", "ata", "ati", "ate", "ava", "ò",
-           "arono", "ire", "ere", "are", "ire", "ì", "arono"],
+           "arono", "ire", "ere", "are", "ire", "ì", "arono",
+           # v4.8.3: basic endings + diminutive
+           "i", "e", "o", "a", "ini", "ino", "ina", "ine",
+           "etto", "etta", "etti", "ette"],
     "fi": ["ttiin", "ssaan", "ssään", "llaan", "lleen", "staan", "stään",
            "ttaan", "ttään", "matta", "iseen",
            "mme", "tte", "vat", "vät", "nsa", "nsä", "ssa", "ssä",
@@ -184,7 +209,7 @@ MORPHO_SUFFIXES = {
 }
 
 # German prefixes that may be stripped for compound matching
-_DE_PREFIXES = ["ver", "ent", "be", "ge", "er", "zer", "miss",
+_DE_PREFIXES = ["ver", "ent", "be", "ge", "er", "zer", "miss", "un",
                 "an", "auf", "aus", "ein", "um", "vor", "zu",
                 "ab", "hin", "her", "nach", "über", "unter", "mit",
                 "durch", "wider", "wieder"]
@@ -328,6 +353,39 @@ def _extend_global_with_v483():
             _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
 
 _extend_global_with_v483()
+
+# v4.8.4: Extend global index with EN base forms + remaining gaps
+def _extend_global_with_v484():
+    """Add KEYWORDS_V484, PROPER_NOUNS_V484, and ARCHAIC_FORMS_V484 to global."""
+    if not _HAS_EXPANSION_V484:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for atom_id, lang_words in _KEYWORDS_V484.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V484.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    for lang, mappings in _ARCHAIC_FORMS_V484.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v484()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -510,13 +568,17 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
 
     # 4. Apostrophe/elision splitting with recursive sub-coverage
     #    v4.8.2: For elision prefixes (d', l', m', etc.), apply deep check
+    #    v4.8.3: Allow single-char stop words (d'y, d'è) as covered
     if "'" in word:
         parts = word.split("'")
         if len(parts) == 2:
             prefix, main = parts
-            if prefix.lower() in _ELISION_PREFIXES and len(main) >= 2:
-                # Elision: only the main part needs to be covered
-                if _deep_check(main):
+            if prefix.lower() in _ELISION_PREFIXES:
+                if len(main) >= 2 and _deep_check(main):
+                    _COVERAGE_CACHE[cache_key] = True
+                    return True
+                # v4.8.3: single-char stop words (FR: d'y, IT: d'è)
+                if len(main) == 1 and main in get_stop_words(lang):
                     _COVERAGE_CACHE[cache_key] = True
                     return True
         # Fallback: any part ≥2 chars covered by deep check
@@ -552,6 +614,23 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
                         if _in_known(inner):
                             _COVERAGE_CACHE[cache_key] = True
                             return True
+
+    # 6b. German binary compound splitting: try splitting at every position
+    #     v4.8.3: kunststücke → kunst+stücke, erzbischof → erz+bischof
+    if lang == "de" and len(word) >= 6:
+        # Also try with common linking elements: -s-, -n-, -en-, -er-
+        for i in range(3, len(word) - 2):
+            left, right = word[:i], word[i:]
+            if _deep_check(left) and _deep_check(right):
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Linking elements: Arbeit-s-zimmer, Küche-n-tisch
+            for link in ('s', 'n', 'en', 'er'):
+                if right.startswith(link) and len(right) > len(link) + 2:
+                    right2 = right[len(link):]
+                    if _deep_check(left) and _deep_check(right2):
+                        _COVERAGE_CACHE[cache_key] = True
+                        return True
 
     # 7. Two-pass suffix stripping: remove one suffix, then try another
     #    e.g. "hastily" → "hasti" → fail, but "filled" → "fill" → match
@@ -728,6 +807,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.3: Targeted weak-language stop words
     if _HAS_EXPANSION_V483 and lang in _STOP_WORDS_V483:
         base = base | set(_STOP_WORDS_V483[lang])
+    # v4.8.4: EN base-form stop words + remaining
+    if _HAS_EXPANSION_V484 and lang in _STOP_WORDS_V484:
+        base = base | set(_STOP_WORDS_V484[lang])
     return base
 
 

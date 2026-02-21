@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-21-hauru-v484-en-baseform-injection.md](2026-02-21-hauru-v484-en-baseform-injection.md) — 📈 v4.8.4 : Injection formes de base EN + résidus multilingues. **87.4%→88.8% (+1.4pp)** global. EN 94.0%, EO 91.8%, DE 89.4% (+2.1pp), IT 86.6% (+2.2pp). 584 entrées (503 kw + 48 sw + 20 pn + 13 af). 175/175 mots cibles résolus. Faiblesse structurelle EN diagnostiquée et corrigée.
 - [2026-02-21-hauru-v483-targeted-expansion.md](2026-02-21-hauru-v483-targeted-expansion.md) — 📈 v4.8.3 : Expansion ciblée langues faibles (R1+R2). **85.1%→87.4% (+2.3pp)** global. EN 93.3%, EO 90.4%, FI 84.9% (+3.0pp), IT 84.4% (+2.5pp). 771 entrées (604 kw + 116 sw + 22 pn + 29 af). Correctif élisions FR (15 mots), passato remoto IT, composés DE.
 - [2026-02-21-hauru-v482-keyword-expansion.md](2026-02-21-hauru-v482-keyword-expansion.md) — 📈 v4.8.2 : Expansion massive multilingue. **81.9%→85.1% (+3.2pp)** global. EN 91.9%, FR 85.5%, FI 81.9%. 23 atomes × 7 langues, +3,306 mots-clés. Strategies 0/3/4 améliorées (numérique, composés, élisions). Stop words archaïques, noms propres littéraires.
 - [2026-02-21-hauru-v481-stemmer-coverage-82pct.md](2026-02-21-hauru-v481-stemmer-coverage-82pct.md) — 📈 v4.8.1 Round 7 : Expansion post-stemmer multi-langue. 80.3%→81.8% (+1.5pp). Stop words irréguliers (EN/DE/FR/ES/IT/FI), keywords ciblés, noms propres.
