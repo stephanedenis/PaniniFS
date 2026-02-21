@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-21T10:31:32",
+  "timestamp": "2026-02-21T11:34:40",
   "corpus_dir": "gutenberg_corpus",
   "total_files": 11,
   "languages": {
@@ -8,411 +8,411 @@
         "pg19778_de.txt"
       ],
       "total_words": 25687,
-      "total_content_words": 10119,
+      "total_content_words": 10094,
       "total_atom_alignments": 13529,
-      "avg_readiness": 0.8728,
-      "avg_lexical_coverage": 0.8674,
-      "unique_uncovered_count": 840,
+      "avg_readiness": 0.8839,
+      "avg_lexical_coverage": 0.8951,
+      "unique_uncovered_count": 594,
       "top_uncovered_words": [
         [
-          "croquetfeld",
-          4
-        ],
-        [
-          "westentasche",
-          4
-        ],
-        [
-          "hecke",
-          4
-        ],
-        [
-          "abwärts",
-          4
-        ],
-        [
-          "fassen",
-          4
-        ],
-        [
-          "bedeckt",
-          4
-        ],
-        [
-          "kenntnisse",
-          4
-        ],
-        [
-          "knixen",
-          4
-        ],
-        [
-          "theestunde",
-          4
-        ],
-        [
-          "spazieren",
-          4
-        ],
-        [
-          "plump",
-          4
-        ],
-        [
-          "liegen",
-          4
-        ],
-        [
-          "paßte",
-          4
-        ],
-        [
-          "mäuseloch",
-          4
-        ],
-        [
-          "wüßte",
-          4
-        ],
-        [
-          "vorgegangen",
-          4
-        ],
-        [
-          "zettel",
-          4
-        ],
-        [
-          "nützt",
-          4
-        ],
-        [
-          "ohrfeige",
-          4
-        ],
-        [
-          "prüfend",
-          4
-        ],
-        [
-          "thränenpfuhl",
-          4
-        ],
-        [
-          "auseinander",
-          4
-        ],
-        [
-          "schämen",
-          4
-        ],
-        [
-          "hauptstadt",
-          4
-        ],
-        [
-          "allgemeinen",
-          4
-        ],
-        [
-          "anzureden",
-          4
-        ],
-        [
-          "demnach",
-          4
-        ],
-        [
-          "entgegnete",
-          4
-        ],
-        [
-          "kunststücke",
-          4
-        ],
-        [
-          "dadurch",
-          4
-        ],
-        [
-          "mäuschen",
-          2
-        ],
-        [
-          "blaß",
-          2
-        ],
-        [
-          "unbehaglich",
-          2
-        ],
-        [
-          "wenigen",
-          2
-        ],
-        [
-          "hm",
-          2
-        ],
-        [
-          "northumbria",
-          2
-        ],
-        [
-          "erzbischof",
-          2
-        ],
-        [
-          "beachtete",
-          2
-        ],
-        [
-          "anzubieten",
-          2
-        ],
-        [
-          "wendend",
-          2
-        ],
-        [
-          "gewonnen",
-          2
-        ],
-        [
-          "zuckerplätzchen",
-          2
-        ],
-        [
-          "allgemeines",
-          2
-        ],
-        [
-          "getraute",
-          2
-        ],
-        [
-          "paßt",
-          2
-        ],
-        [
-          "unwillig",
-          2
-        ],
-        [
-          "unke",
-          2
-        ],
-        [
-          "mama",
-          2
-        ],
-        [
-          "entfernten",
-          2
-        ],
-        [
-          "frettchen",
-          2
-        ],
-        [
-          "begreife",
-          2
-        ],
-        [
-          "errieth",
-          2
-        ],
-        [
-          "glaceehandschuhe",
-          2
-        ],
-        [
-          "gutmüthig",
-          2
-        ],
-        [
-          "anzuklopfen",
-          2
-        ],
-        [
-          "bücken",
-          2
-        ],
-        [
-          "gestemmt",
-          2
-        ],
-        [
-          "betrübt",
-          2
-        ],
-        [
-          "aufgaben",
-          2
-        ],
-        [
-          "sieh",
-          2
-        ],
-        [
-          "draußen",
-          2
-        ],
-        [
-          "faßte",
-          2
-        ],
-        [
-          "aepfel",
-          2
-        ],
-        [
-          "is",
-          2
-        ],
-        [
-          "esel",
-          2
-        ],
-        [
-          "einzelne",
-          2
-        ],
-        [
-          "thu",
-          2
-        ],
-        [
           "durcheinander",
-          2
-        ],
-        [
-          "krachen",
-          2
-        ],
-        [
-          "sollst",
-          2
+          4
         ],
         [
           "verworrene",
-          2
-        ],
-        [
-          "ne",
-          2
-        ],
-        [
-          "rühren",
-          2
-        ],
-        [
-          "karre",
-          2
+          4
         ],
         [
           "denen",
-          2
-        ],
-        [
-          "pfeifen",
-          2
-        ],
-        [
-          "distel",
-          2
+          4
         ],
         [
           "auszuruhen",
-          2
-        ],
-        [
-          "deutlicher",
-          2
-        ],
-        [
-          "ich's",
-          2
-        ],
-        [
-          "groschen",
-          2
-        ],
-        [
-          "schüchtern",
-          2
-        ],
-        [
-          "wechseln",
-          2
-        ],
-        [
-          "übel",
-          2
-        ],
-        [
-          "biß",
-          2
-        ],
-        [
-          "frei",
-          2
-        ],
-        [
-          "rauschen",
-          2
+          4
         ],
         [
           "ei",
-          2
+          4
         ],
         [
           "gegessen",
-          2
+          4
         ],
         [
           "benutzte",
-          2
+          4
         ],
         [
           "kümmert",
-          2
+          4
         ],
         [
           "verdrießlich",
-          2
+          4
         ],
         [
           "knabberte",
-          2
+          4
         ],
         [
           "klopfte",
-          2
+          4
         ],
         [
           "demselben",
-          2
+          4
         ],
         [
           "verbeugten",
-          2
+          4
         ],
         [
           "derselben",
-          2
-        ],
-        [
-          "unhöflich",
-          2
-        ],
-        [
-          "kasserole",
-          2
+          4
         ],
         [
           "anbelangt",
+          4
+        ],
+        [
+          "kennst",
+          4
+        ],
+        [
+          "heiserer",
+          4
+        ],
+        [
+          "stützen",
+          4
+        ],
+        [
+          "mamagei",
+          4
+        ],
+        [
+          "triumphirend",
+          4
+        ],
+        [
+          "sch",
+          4
+        ],
+        [
+          "umgestoßen",
+          4
+        ],
+        [
+          "verdrießlichem",
+          4
+        ],
+        [
+          "pinsel",
+          4
+        ],
+        [
+          "zuge",
+          4
+        ],
+        [
+          "zug",
+          4
+        ],
+        [
+          "purpurroth",
+          4
+        ],
+        [
+          "stampfte",
+          4
+        ],
+        [
+          "zanken",
+          4
+        ],
+        [
+          "treffen",
+          4
+        ],
+        [
+          "beißen",
           2
+        ],
+        [
+          "senf",
+          2
+        ],
+        [
+          "verurtheilt",
+          2
+        ],
+        [
+          "wäsche",
+          2
+        ],
+        [
+          "nöthig",
+          2
+        ],
+        [
+          "lehrte",
+          2
+        ],
+        [
+          "wechselt",
+          2
+        ],
+        [
+          "pergamentrolle",
+          2
+        ],
+        [
+          "spuren",
+          2
+        ],
+        [
+          "blies",
+          2
+        ],
+        [
+          "klatschte",
+          2
+        ],
+        [
+          "pult",
+          2
+        ],
+        [
+          "adressirt",
+          2
+        ],
+        [
+          "lies",
+          2
+        ],
+        [
+          "eh",
+          2
+        ],
+        [
+          "spur",
+          2
+        ],
+        [
+          "teich",
+          2
+        ],
+        [
+          "klappern",
+          2
+        ],
+        [
+          "gellende",
+          2
+        ],
+        [
+          "antonie",
+          1
+        ],
+        [
+          "autorisirte",
+          1
+        ],
+        [
+          "ausgabe",
+          1
+        ],
+        [
+          "flut",
+          1
+        ],
+        [
+          "steuer",
+          1
+        ],
+        [
+          "lenket",
+          1
+        ],
+        [
+          "unsre",
+          1
+        ],
+        [
+          "fahrt",
+          1
+        ],
+        [
+          "gemächlich",
+          1
+        ],
+        [
+          "vereinten",
+          1
+        ],
+        [
+          "mährchen",
+          1
+        ],
+        [
+          "zauberland",
+          1
+        ],
+        [
+          "mähr",
+          1
+        ],
+        [
+          "verkehr",
+          1
+        ],
+        [
+          "heimisch",
+          1
+        ],
+        [
+          "ward",
+          1
+        ],
+        [
+          "beplaudert",
+          1
+        ],
+        [
+          "welken",
+          1
+        ],
+        [
+          "anerkennung",
+          1
+        ],
+        [
+          "eingestreute",
+          1
+        ],
+        [
+          "unverständlich",
+          1
+        ],
+        [
+          "ersetzt",
+          1
+        ],
+        [
+          "ebenso",
+          1
+        ],
+        [
+          "unübersetzbaren",
+          1
+        ],
+        [
+          "eingeschoben",
+          1
+        ],
+        [
+          "verdankt",
+          1
+        ],
+        [
+          "wohnung",
+          1
+        ],
+        [
+          "theegesellschaft",
+          1
+        ],
+        [
+          "gestohlen",
+          1
+        ],
+        [
+          "hitze",
+          1
+        ],
+        [
+          "aufzustehen",
+          1
+        ],
+        [
+          "gänseblümchen",
+          1
+        ],
+        [
+          "pflücken",
+          1
+        ],
+        [
+          "besah",
+          1
+        ],
+        [
+          "küchenschränken",
+          1
+        ],
+        [
+          "bücherbrettern",
+          1
+        ],
+        [
+          "haken",
+          1
+        ],
+        [
+          "aufschrift",
+          1
+        ],
+        [
+          "übte",
+          1
+        ],
+        [
+          "australien",
+          1
+        ],
+        [
+          "napf",
+          1
+        ],
+        [
+          "laub",
+          1
+        ],
+        [
+          "erleuchtet",
+          1
+        ],
+        [
+          "bunten",
+          1
+        ],
+        [
+          "anweisungen",
+          1
+        ],
+        [
+          "gedruckt",
+          1
+        ],
+        [
+          "rothglühendes",
+          1
+        ],
+        [
+          "unfehlbar",
+          1
+        ],
+        [
+          "kirschkuchen",
+          1
+        ],
+        [
+          "sahnensauce",
+          1
+        ],
+        [
+          "ananas",
+          1
         ]
       ]
     },
@@ -422,219 +422,135 @@
         "pg19942_en.txt"
       ],
       "total_words": 62320,
-      "total_content_words": 23785,
+      "total_content_words": 23775,
       "total_atom_alignments": 32426,
-      "avg_readiness": 0.9147,
-      "avg_lexical_coverage": 0.9279,
-      "unique_uncovered_count": 1532,
+      "avg_readiness": 0.9194,
+      "avg_lexical_coverage": 0.9398,
+      "unique_uncovered_count": 1402,
       "top_uncovered_words": [
         [
-          "ornamented",
-          8
-        ],
-        [
-          "de",
-          8
-        ],
-        [
-          "sixth",
-          8
-        ],
-        [
-          "sire",
-          8
-        ],
-        [
-          "sequins",
-          8
-        ],
-        [
-          "ignorant",
+          "abide",
           7
         ],
         [
-          "eaten",
-          7
-        ],
-        [
-          "bound",
-          7
-        ],
-        [
-          "globe",
-          7
-        ],
-        [
-          "hoarse",
+          "cauldron",
           6
         ],
         [
-          "eaglet",
+          "seraglio",
           6
         ],
         [
-          "sulky",
+          "janissaries",
           6
         ],
         [
-          "crab",
+          "oath",
           6
         ],
         [
-          "em",
+          "underwent",
           6
         ],
         [
-          "folded",
+          "physical",
           6
         ],
         [
-          "nibbling",
+          "mascarenes",
           6
         ],
         [
-          "cautiously",
+          "south",
           6
         ],
         [
-          "upset",
+          "flight",
           6
         ],
         [
-          "checked",
+          "barrier",
           6
         ],
         [
-          "tortoise",
+          "sergeant",
           6
         ],
         [
-          "quadrille",
+          "slain",
           6
         ],
         [
-          "panther",
+          "induced",
           6
         ],
         [
-          "teacup",
+          "coach",
           6
         ],
         [
-          "conclusion",
+          "employed",
           6
         ],
         [
-          "mediterranean",
+          "mynheer",
           6
         ],
         [
-          "universe",
+          "famous",
           6
         ],
         [
-          "sonnets",
+          "ease",
           6
         ],
         [
-          "expressed",
+          "magistrate",
           6
         ],
         [
-          "inspired",
+          "employment",
           6
         ],
         [
-          "plump",
+          "behold",
           6
         ],
         [
-          "necessarily",
+          "asserted",
           6
         ],
         [
-          "blushed",
+          "devotees",
           6
         ],
         [
-          "assist",
+          "insipid",
           6
         ],
         [
-          "drank",
+          "nod",
           6
         ],
         [
-          "gauntlet",
+          "gauchat",
           6
         ],
         [
-          "wives",
+          "acres",
           6
         ],
         [
-          "ripped",
+          "presume",
           6
         ],
         [
-          "assistance",
+          "levantine",
           6
         ],
         [
-          "convulsions",
+          "pizzle",
           6
-        ],
-        [
-          "excuse",
-          6
-        ],
-        [
-          "necessity",
-          6
-        ],
-        [
-          "biscayner",
-          6
-        ],
-        [
-          "render",
-          6
-        ],
-        [
-          "sunday",
-          6
-        ],
-        [
-          "virgin",
-          6
-        ],
-        [
-          "picking",
-          5
-        ],
-        [
-          "hedge",
-          5
-        ],
-        [
-          "wild",
-          5
-        ],
-        [
-          "ma",
-          5
-        ],
-        [
-          "introduce",
-          5
-        ],
-        [
-          "royal",
-          5
-        ],
-        [
-          "stole",
-          4
         ],
         [
           "dipped",
@@ -673,19 +589,83 @@
           4
         ],
         [
-          "wink",
+          "them—and",
           4
         ],
         [
-          "won",
+          "ugh",
           4
         ],
         [
-          "cauldron",
+          "ferrets",
           4
         ],
         [
-          "abide",
+          "stoop",
+          4
+        ],
+        [
+          "curled",
+          4
+        ],
+        [
+          "apples",
+          4
+        ],
+        [
+          "goose",
+          4
+        ],
+        [
+          "squeaking",
+          4
+        ],
+        [
+          "barrowful",
+          4
+        ],
+        [
+          "rattling",
+          4
+        ],
+        [
+          "coaxing",
+          4
+        ],
+        [
+          "tiptoe",
+          4
+        ],
+        [
+          "unfolded",
+          4
+        ],
+        [
+          "entangled",
+          4
+        ],
+        [
+          "hint",
+          4
+        ],
+        [
+          "thoroughly",
+          4
+        ],
+        [
+          "raving",
+          4
+        ],
+        [
+          "giddy",
+          4
+        ],
+        [
+          "cushion",
+          4
+        ],
+        [
+          "clock",
           4
         ],
         [
@@ -697,15 +677,7 @@
           4
         ],
         [
-          "eyelids",
-          4
-        ],
-        [
           "orange",
-          3
-        ],
-        [
-          "proceed",
           3
         ],
         [
@@ -714,10 +686,6 @@
         ],
         [
           "theirs",
-          3
-        ],
-        [
-          "bark",
           3
         ],
         [
@@ -749,84 +717,116 @@
           3
         ],
         [
-          "mount",
+          "transylvanian",
           3
         ],
         [
-          "military",
+          "dissected",
           3
         ],
         [
-          "urban",
+          "mufti",
           3
         ],
         [
-          "palestrina",
+          "retained",
           3
         ],
         [
-          "poets",
-          3
+          "shelves",
+          2
         ],
         [
-          "carara",
-          3
+          "curtain",
+          2
         ],
         [
-          "opera",
-          3
+          "ate",
+          2
         ],
         [
-          "tawnies",
-          3
+          "stockings",
+          2
         ],
         [
-          "mulattoes",
-          3
+          "pour",
+          2
         ],
         [
-          "food",
-          3
+          "burst",
+          2
         ],
         [
-          "naples",
-          3
+          "latin",
+          2
         ],
         [
-          "operation",
-          3
+          "energetic",
+          2
         ],
         [
-          "seraglio",
-          3
+          "trampled",
+          2
         ],
         [
-          "janissaries",
-          3
+          "incessantly",
+          2
         ],
         [
-          "oath",
-          3
+          "limbs",
+          2
         ],
         [
-          "underwent",
-          3
+          "upright",
+          2
         ],
         [
-          "physical",
-          3
+          "uncivil",
+          2
         ],
         [
-          "fernando",
-          3
+          "whistling",
+          2
         ],
         [
-          "d'ibaraa",
-          3
+          "violence",
+          2
         ],
         [
-          "mascarenes",
-          3
+          "spoon",
+          2
+        ],
+        [
+          "pinch",
+          2
+        ],
+        [
+          "triumphantly",
+          2
+        ],
+        [
+          "sh",
+          2
+        ],
+        [
+          "sulkily",
+          2
+        ],
+        [
+          "clubs",
+          2
+        ],
+        [
+          "furrows",
+          2
+        ],
+        [
+          "unrolled",
+          2
+        ],
+        [
+          "stamping",
+          2
         ]
       ]
     },
@@ -835,410 +835,410 @@
         "pg17482_eo.txt"
       ],
       "total_words": 25383,
-      "total_content_words": 12005,
+      "total_content_words": 11990,
       "total_atom_alignments": 11842,
-      "avg_readiness": 0.8788,
-      "avg_lexical_coverage": 0.895,
-      "unique_uncovered_count": 1151,
+      "avg_readiness": 0.8881,
+      "avg_lexical_coverage": 0.9182,
+      "unique_uncovered_count": 989,
       "top_uncovered_words": [
         [
-          "korektis",
-          6
-        ],
-        [
-          "tenadis",
-          6
-        ],
-        [
-          "t.e",
-          6
-        ],
-        [
-          "sro",
-          6
-        ],
-        [
-          "demetis",
-          6
-        ],
-        [
-          "frakasata",
-          6
-        ],
-        [
-          "atingos",
-          6
-        ],
-        [
-          "tubo",
-          6
-        ],
-        [
-          "eviti",
-          6
-        ],
-        [
-          "apogante",
-          6
-        ],
-        [
-          "cxefa",
-          6
-        ],
-        [
-          "konsciis",
-          6
-        ],
-        [
-          "neeble",
-          6
-        ],
-        [
-          "timeme",
-          6
-        ],
-        [
-          "akso",
-          6
-        ],
-        [
-          "toleri",
-          6
-        ],
-        [
-          "varti",
-          6
-        ],
-        [
-          "horlogxon",
-          6
-        ],
-        [
-          "ekgxemis",
-          6
-        ],
-        [
-          "muzikon",
-          6
-        ],
-        [
-          "fabelon",
-          6
-        ],
-        [
-          "vekigxu",
-          6
-        ],
-        [
-          "putfundo",
-          6
-        ],
-        [
-          "rozojn",
-          6
-        ],
-        [
-          "lauxeble",
-          6
-        ],
-        [
-          "duope",
-          6
-        ],
-        [
-          "ludejo",
-          6
-        ],
-        [
-          "gxemante",
-          6
-        ],
-        [
-          "omara",
-          6
-        ],
-        [
-          "fojojn",
-          6
-        ],
-        [
-          "fokeno",
-          3
-        ],
-        [
-          "poluras",
-          3
-        ],
-        [
-          "jxurintaro",
-          3
-        ],
-        [
-          "subpremita",
-          3
-        ],
-        [
-          "jugxato",
-          3
-        ],
-        [
-          "versajxoj",
-          3
-        ],
-        [
-          "kritikojn",
-          2
-        ],
-        [
-          "tralego",
-          2
-        ],
-        [
-          "konis",
-          2
-        ],
-        [
-          "detale",
-          2
-        ],
-        [
-          "pencojn",
-          2
-        ],
-        [
-          "vetkuro",
-          2
-        ],
-        [
-          "cxefe",
-          2
-        ],
-        [
-          "admonon",
-          2
-        ],
-        [
-          "frenezuloj",
-          2
-        ],
-        [
-          "bretoj",
-          2
-        ],
-        [
-          "falante",
-          2
-        ],
-        [
-          "marmeladujon",
-          2
-        ],
-        [
-          "kruela",
-          2
-        ],
-        [
-          "promesas",
-          2
-        ],
-        [
-          "fojo",
-          2
-        ],
-        [
-          "konversaciojn",
-          2
-        ],
-        [
-          "barilo",
-          2
-        ],
-        [
-          "kondukis",
-          2
-        ],
-        [
-          "falego",
-          2
-        ],
-        [
-          "kilometroj",
-          2
-        ],
-        [
-          "iafoje",
-          2
-        ],
-        [
-          "kurteno",
-          2
-        ],
-        [
-          "ensxovis",
-          2
-        ],
-        [
-          "kondukas",
-          2
-        ],
-        [
-          "sovagxaj",
-          2
-        ],
-        [
-          "nulo",
-          2
-        ],
-        [
-          "atingi",
-          2
-        ],
-        [
-          "tiajxo",
-          2
-        ],
-        [
-          "plua",
-          2
-        ],
-        [
-          "prokrasto",
-          2
-        ],
-        [
-          "babiladis",
-          2
-        ],
-        [
           "hararo",
-          2
+          4
         ],
         [
           "dudek",
-          2
+          4
         ],
         [
           "cxefurbo",
-          2
+          4
         ],
         [
           "parkerajxojn",
-          2
+          4
         ],
         [
           "netigas",
-          2
-        ],
-        [
-          "demetu",
-          2
+          4
         ],
         [
           "tutsola",
-          2
+          4
         ],
         [
           "tolereble",
-          2
+          4
         ],
         [
           "plauxde",
-          2
+          4
         ],
         [
           "cxirkauxnagxante",
-          2
+          4
         ],
         [
           "komforte",
-          2
+          4
         ],
         [
           "lerta",
-          2
+          4
         ],
         [
           "priparoli",
-          2
+          4
         ],
         [
           "hundeto",
-          2
+          4
         ],
         [
           "cxiuspecajn",
-          2
-        ],
-        [
-          "atingis",
-          2
+          4
         ],
         [
           "edvino",
-          2
+          4
         ],
         [
           "nortumbrio",
-          2
+          4
         ],
         [
           "sulkigis",
-          2
+          4
         ],
         [
           "cxefepiskopo",
-          2
+          4
         ],
         [
           "konsilinda",
-          2
+          4
         ],
         [
           "renkonti",
-          2
+          4
         ],
         [
           "kauxko",
-          2
+          4
         ],
         [
           "spiregante",
-          2
+          4
         ],
         [
           "konfuzo",
-          2
+          4
         ],
         [
           "aliflanke",
-          2
+          4
         ],
         [
           "tutsole",
-          2
+          4
         ],
         [
           "ha",
-          2
+          4
         ],
         [
           "permesite",
-          2
+          4
         ],
         [
           "funde",
-          2
+          4
         ],
         [
           "neta",
-          2
+          4
         ],
         [
           "kubuton",
+          4
+        ],
+        [
+          "sxovis",
           2
         ],
         [
-          "kaj--jen",
+          "kamentubon",
+          2
+        ],
+        [
+          "eblo",
+          2
+        ],
+        [
+          "eletendis",
+          2
+        ],
+        [
+          "ekscelenco",
+          2
+        ],
+        [
+          "ekze",
+          2
+        ],
+        [
+          "gxenu",
+          2
+        ],
+        [
+          "derampi",
+          2
+        ],
+        [
+          "hxoron",
+          2
+        ],
+        [
+          "pafigxis",
+          2
+        ],
+        [
+          "unumomenta",
+          2
+        ],
+        [
+          "pusxcxaro",
+          2
+        ],
+        [
+          "iuspeca",
+          2
+        ],
+        [
+          "englutis",
+          2
+        ],
+        [
+          "kobajoj",
+          2
+        ],
+        [
+          "fajfi",
+          2
+        ],
+        [
+          "konsciante",
+          2
+        ],
+        [
+          "brancxeto",
+          2
+        ],
+        [
+          "cxirkauxkuris",
+          2
+        ],
+        [
+          "oportuna",
+          2
+        ],
+        [
+          "spireganta",
+          2
+        ],
+        [
+          "cxirkauxe",
+          2
+        ],
+        [
+          "falditaj",
+          2
+        ],
+        [
+          "serene",
+          2
+        ],
+        [
+          "gxenata",
+          2
+        ],
+        [
+          "vilcx",
+          2
+        ],
+        [
+          "vilcxo",
+          2
+        ],
+        [
+          "fleksebla",
+          2
+        ],
+        [
+          "gxojigite",
+          2
+        ],
+        [
+          "sarkasme",
+          2
+        ],
+        [
+          "nei",
+          2
+        ],
+        [
+          "ternas",
+          2
+        ],
+        [
+          "kaldrono",
+          2
+        ],
+        [
+          "ternis",
+          2
+        ],
+        [
+          "plimulto",
+          2
+        ],
+        [
+          "kaserolo",
+          2
+        ],
+        [
+          "dudekkvar",
+          2
+        ],
+        [
+          "rekaptis",
+          2
+        ],
+        [
+          "kulpa",
+          2
+        ],
+        [
+          "porketo",
+          2
+        ],
+        [
+          "porkinfano",
+          2
+        ],
+        [
+          "porkido",
+          2
+        ],
+        [
+          "grauxlas",
+          2
+        ],
+        [
+          "svingas",
+          2
+        ],
+        [
+          "cetera",
+          2
+        ],
+        [
+          "unuvocxe",
+          2
+        ],
+        [
+          "hararon",
+          2
+        ],
+        [
+          "indikas",
+          2
+        ],
+        [
+          "koncerto",
+          2
+        ],
+        [
+          "pincxis",
+          2
+        ],
+        [
+          "triumfe",
+          2
+        ],
+        [
+          "sidloko",
+          2
+        ],
+        [
+          "cxerpi",
+          2
+        ],
+        [
+          "cxeestis",
+          2
+        ],
+        [
+          "lerte",
+          2
+        ],
+        [
+          "rozarbo",
+          2
+        ],
+        [
+          "okupis",
+          2
+        ],
+        [
+          "rugxaj",
+          2
+        ],
+        [
+          "kulpo",
+          2
+        ],
+        [
+          "ludkartoj",
+          2
+        ],
+        [
+          "k.c",
+          2
+        ],
+        [
+          "permesos",
+          2
+        ],
+        [
+          "ceteraj",
+          2
+        ],
+        [
+          "domagxe",
+          2
+        ],
+        [
+          "cxiuminute",
+          2
+        ],
+        [
+          "ludado",
+          2
+        ],
+        [
+          "aludita",
+          2
+        ],
+        [
+          "konsilas",
+          2
+        ],
+        [
+          "progresi",
+          2
+        ],
+        [
+          "talion",
           2
         ]
       ]
@@ -1248,410 +1248,410 @@
         "pg7109_es.txt"
       ],
       "total_words": 32648,
-      "total_content_words": 14430,
+      "total_content_words": 14378,
       "total_atom_alignments": 13795,
-      "avg_readiness": 0.9069,
-      "avg_lexical_coverage": 0.8691,
-      "unique_uncovered_count": 1867,
+      "avg_readiness": 0.9169,
+      "avg_lexical_coverage": 0.8941,
+      "unique_uncovered_count": 1630,
       "top_uncovered_words": [
         [
-          "tienes",
-          8
+          "naciéron",
+          4
         ],
         [
-          "favor",
-          6
+          "abochornó",
+          4
         ],
         [
-          "basta",
-          6
+          "alzó",
+          4
         ],
         [
-          "irse",
-          6
+          "clamaban",
+          4
         ],
         [
-          "mollera",
-          6
+          "acabáron",
+          4
         ],
         [
-          "forzoso",
-          6
+          "limosna",
+          4
         ],
         [
-          "pidió",
-          6
+          "asamblea",
+          4
         ],
         [
-          "ingenio",
-          6
+          "bribon",
+          4
         ],
         [
-          "orador",
-          6
+          "vuelva",
+          4
         ],
         [
-          "pueda",
-          6
+          "ignominia",
+          4
         ],
         [
-          "pedazos",
-          6
+          "fábrica",
+          4
         ],
         [
-          "eminente",
-          6
+          "persia",
+          4
         ],
         [
-          "teología",
-          6
+          "clamaba",
+          4
         ],
         [
-          "japon",
-          6
+          "inhumanidad",
+          4
         ],
         [
-          "globo",
-          6
+          "cubierto",
+          4
         ],
         [
-          "cura",
-          6
+          "esfuerzo",
+          4
         ],
         [
-          "pereciéron",
-          6
+          "aliento",
+          4
         ],
         [
-          "llantos",
-          6
+          "verme",
+          4
         ],
         [
-          "vizcayno",
-          6
+          "novicio",
+          4
         ],
         [
-          "mió",
-          6
+          "pegado",
+          4
         ],
         [
-          "pomada",
-          6
+          "determináron",
+          4
         ],
         [
-          "velo",
-          6
+          "convertido",
+          4
         ],
         [
-          "pasmo",
-          6
+          "bayonetas",
+          4
         ],
         [
-          "olor",
-          6
+          "naufragio",
+          4
         ],
         [
-          "tajadas",
-          6
+          "rezaba",
+          4
         ],
         [
-          "banquero",
-          6
+          "faena",
+          4
         ],
         [
-          "sirviéron",
-          6
+          "colgado",
+          4
         ],
         [
-          "ama",
-          6
+          "cimientos",
+          4
         ],
         [
-          "discreta",
-          6
+          "detenerse",
+          4
         ],
         [
-          "esquadra",
-          6
+          "edificios",
+          4
         ],
         [
-          "mias",
-          3
-        ],
-        [
-          "cuna",
-          3
-        ],
-        [
-          "satisfizo",
-          3
-        ],
-        [
-          "palestrina",
-          3
-        ],
-        [
-          "beldad",
-          3
-        ],
-        [
-          "poetas",
-          3
-        ],
-        [
-          "convulsiones",
-          3
-        ],
-        [
-          "friolera",
-          3
-        ],
-        [
-          "inmediaciones",
-          3
-        ],
-        [
-          "nosotras",
-          3
-        ],
-        [
-          "merecen",
-          3
-        ],
-        [
-          "mulatos",
-          3
-        ],
-        [
-          "sosiego",
-          3
-        ],
-        [
-          "baxo",
-          3
-        ],
-        [
-          "dey",
-          3
-        ],
-        [
-          "serrallo",
-          3
-        ],
-        [
-          "genízaros",
-          3
-        ],
-        [
-          "eunucos",
-          3
-        ],
-        [
-          "juramento",
-          3
-        ],
-        [
-          "conduxéron",
-          3
-        ],
-        [
-          "exîstencia",
-          3
-        ],
-        [
-          "ingleses",
-          3
-        ],
-        [
-          "urbanidad",
-          3
-        ],
-        [
-          "fernando",
-          3
-        ],
-        [
-          "ibarra",
-          3
-        ],
-        [
-          "mascareñas",
-          3
-        ],
-        [
-          "lampurdan",
-          3
-        ],
-        [
-          "souza",
-          3
-        ],
-        [
-          "echáron",
-          3
-        ],
-        [
-          "clérigos",
-          3
-        ],
-        [
-          "pradera",
-          3
-        ],
-        [
-          "llanto",
-          3
-        ],
-        [
-          "víveres",
-          3
-        ],
-        [
-          "cayena",
-          3
-        ],
-        [
-          "muriéron",
-          3
-        ],
-        [
-          "esmeraldas",
-          3
-        ],
-        [
-          "licores",
-          3
-        ],
-        [
-          "caña",
-          3
-        ],
-        [
-          "azúcar",
-          3
-        ],
-        [
-          "inglés",
-          3
-        ],
-        [
-          "eres",
-          3
-        ],
-        [
-          "hola",
-          3
-        ],
-        [
-          "baxa",
-          3
-        ],
-        [
-          "valia",
-          3
-        ],
-        [
-          "apuesta",
-          3
-        ],
-        [
-          "injusticia",
-          3
-        ],
-        [
-          "encarnado",
-          3
-        ],
-        [
-          "canalla",
-          3
-        ],
-        [
-          "gordo",
-          3
-        ],
-        [
-          "buque",
-          3
-        ],
-        [
-          "obras",
-          3
-        ],
-        [
-          "freqüencia",
-          3
-        ],
-        [
-          "footnote",
-          3
-        ],
-        [
-          "henrique",
-          3
-        ],
-        [
-          "lléveme",
-          3
-        ],
-        [
-          "diaguino",
-          3
-        ],
-        [
-          "vanidad",
-          3
-        ],
-        [
-          "arte",
-          3
-        ],
-        [
-          "zequíes",
-          3
-        ],
-        [
-          "fregando",
-          3
-        ],
-        [
-          "latigazos",
-          3
-        ],
-        [
-          "rescate",
-          3
-        ],
-        [
-          "crucial",
-          3
-        ],
-        [
-          "puse",
-          3
-        ],
-        [
-          "ramillete",
-          3
-        ],
-        [
-          "muftí",
-          3
-        ],
-        [
-          "saturno",
-          3
-        ],
-        [
-          "índole",
+          "aceyte",
           2
         ],
         [
-          "fisonomía",
+          "lima",
           2
         ],
         [
-          "catorce",
+          "esten",
+          2
+        ],
+        [
+          "pegáron",
+          2
+        ],
+        [
+          "eficaz",
+          2
+        ],
+        [
+          "incomodaba",
+          2
+        ],
+        [
+          "abaxo",
+          2
+        ],
+        [
+          "rabo",
+          2
+        ],
+        [
+          "oyéron",
+          2
+        ],
+        [
+          "desatentado",
+          2
+        ],
+        [
+          "agasajo",
+          2
+        ],
+        [
+          "cobró",
+          2
+        ],
+        [
+          "duerme",
+          2
+        ],
+        [
+          "padua",
+          2
+        ],
+        [
+          "obstante",
+          2
+        ],
+        [
+          "durmió",
+          2
+        ],
+        [
+          "vuelve",
+          2
+        ],
+        [
+          "tercer",
+          2
+        ],
+        [
+          "traxo",
+          2
+        ],
+        [
+          "agarró",
+          2
+        ],
+        [
+          "abren",
+          2
+        ],
+        [
+          "gabinete",
+          2
+        ],
+        [
+          "dificultad",
+          2
+        ],
+        [
+          "cubierta",
+          2
+        ],
+        [
+          "cae",
+          2
+        ],
+        [
+          "sigue",
+          2
+        ],
+        [
+          "plugo",
+          2
+        ],
+        [
+          "cuchillada",
+          2
+        ],
+        [
+          "sigamos",
+          2
+        ],
+        [
+          "hilo",
+          2
+        ],
+        [
+          "debaxo",
+          2
+        ],
+        [
+          "resistido",
+          2
+        ],
+        [
+          "mansion",
+          2
+        ],
+        [
+          "israelita",
+          2
+        ],
+        [
+          "ajuste",
+          2
+        ],
+        [
+          "freqüentes",
+          2
+        ],
+        [
+          "domingo",
+          2
+        ],
+        [
+          "asientos",
+          2
+        ],
+        [
+          "desnudo",
+          2
+        ],
+        [
+          "insolencia",
+          2
+        ],
+        [
+          "reunir",
+          2
+        ],
+        [
+          "traxese",
+          2
+        ],
+        [
+          "prosiguen",
+          2
+        ],
+        [
+          "remision",
+          2
+        ],
+        [
+          "ensilló",
+          2
+        ],
+        [
+          "enterráron",
+          2
+        ],
+        [
+          "badajoz",
+          2
+        ],
+        [
+          "degollado",
+          2
+        ],
+        [
+          "lagañosos",
+          2
+        ],
+        [
+          "tudescos",
+          2
+        ],
+        [
+          "pestañas",
+          2
+        ],
+        [
+          "cejas",
+          2
+        ],
+        [
+          "soberano",
+          2
+        ],
+        [
+          "sonetos",
+          2
+        ],
+        [
+          "elogio",
+          2
+        ],
+        [
+          "naciones",
+          2
+        ],
+        [
+          "éramos",
+          2
+        ],
+        [
+          "pólvora",
+          2
+        ],
+        [
+          "tigres",
+          2
+        ],
+        [
+          "dueño",
+          2
+        ],
+        [
+          "flaqueza",
+          2
+        ],
+        [
+          "che",
+          2
+        ],
+        [
+          "sciagura",
+          2
+        ],
+        [
+          "senza",
+          2
+        ],
+        [
+          "cogl",
+          2
+        ],
+        [
+          "prosigue",
+          2
+        ],
+        [
+          "chiquillos",
+          2
+        ],
+        [
+          "operacion",
+          2
+        ],
+        [
+          "exterminar",
+          2
+        ],
+        [
+          "conduxo",
           2
         ]
       ]
@@ -1662,239 +1662,83 @@
         "pg52336_fi.txt"
       ],
       "total_words": 48050,
-      "total_content_words": 26483,
+      "total_content_words": 26397,
       "total_atom_alignments": 23352,
-      "avg_readiness": 0.8651,
-      "avg_lexical_coverage": 0.8368,
-      "unique_uncovered_count": 3719,
+      "avg_readiness": 0.8754,
+      "avg_lexical_coverage": 0.8626,
+      "unique_uncovered_count": 3432,
       "top_uncovered_words": [
         [
-          "tällöin",
-          18
-        ],
-        [
-          "joko",
-          11
-        ],
-        [
-          "mitenkään",
-          11
-        ],
-        [
-          "ääressä",
-          10
-        ],
-        [
-          "keskustelu",
-          10
-        ],
-        [
-          "kiitos",
-          10
-        ],
-        [
-          "alaiseksi",
-          10
-        ],
-        [
-          "inkvisiittori",
-          10
-        ],
-        [
-          "vähällä",
-          10
-        ],
-        [
-          "mukanaan",
-          10
-        ],
-        [
-          "mukana",
-          10
-        ],
-        [
-          "matkustaa",
-          10
-        ],
-        [
-          "myöntää",
-          10
-        ],
-        [
-          "markiisitar",
-          10
-        ],
-        [
-          "syleili",
-          10
-        ],
-        [
-          "konstantinopoliin",
-          10
-        ],
-        [
-          "tehneet",
-          10
-        ],
-        [
-          "viedä",
-          10
-        ],
-        [
-          "jälellä",
-          10
-        ],
-        [
-          "amiraali",
-          10
-        ],
-        [
-          "senaattori",
-          10
-        ],
-        [
-          "porsas",
+          "olevansa",
           9
         ],
         [
-          "niinkään",
+          "pakoon",
           9
         ],
         [
-          "leivoksia",
-          9
-        ],
-        [
-          "täyttää",
-          9
-        ],
-        [
-          "oman",
-          9
-        ],
-        [
-          "ryhtyi",
-          9
-        ],
-        [
-          "kylläpä",
+          "toimeen",
           8
         ],
         [
-          "yölepakoita",
+          "itkuun",
           8
         ],
         [
-          "metrin",
+          "täytyypä",
           8
         ],
         [
-          "kaukaa",
+          "kaleeriin",
           8
         ],
         [
-          "ennättänyt",
+          "kristitty",
           8
         ],
         [
-          "kimeällä",
+          "imam",
           8
         ],
         [
-          "seurue",
+          "varastanut",
           8
         ],
         [
-          "keinon",
+          "pyhyytensä",
           8
         ],
         [
-          "itsekään",
+          "henrik",
           8
         ],
         [
-          "tiuskasi",
+          "edvard",
           8
         ],
         [
-          "piipun",
-          8
+          "tilaisuus",
+          7
         ],
         [
-          "taikka",
-          8
+          "nähkääs",
+          7
         ],
         [
-          "ymmälle",
-          8
+          "purskahti",
+          7
         ],
         [
-          "suvaitsette",
-          8
+          "eivätkä",
+          7
         ],
         [
-          "pelokkaasti",
-          8
+          "paavi",
+          7
         ],
         [
-          "aivastaa",
-          8
-        ],
-        [
-          "irvisti",
-          8
-        ],
-        [
-          "röhki",
-          8
-        ],
-        [
-          "lienten",
-          8
-        ],
-        [
-          "poloinen",
-          8
-        ],
-        [
-          "hankki",
-          8
-        ],
-        [
-          "nykyään",
-          8
-        ],
-        [
-          "lahjoittanut",
-          8
-        ],
-        [
-          "punastui",
-          8
-        ],
-        [
-          "saavutti",
-          8
-        ],
-        [
-          "rakkaus",
-          8
-        ],
-        [
-          "lissabonin",
-          8
-        ],
-        [
-          "toimittivat",
-          8
-        ],
-        [
-          "inkvisitsionin",
-          8
-        ],
-        [
-          "hirressä",
-          8
+          "luota",
+          7
         ],
         [
           "hyppy",
@@ -1905,48 +1749,164 @@
           6
         ],
         [
-          "olevansa",
+          "vilisti",
           6
         ],
         [
-          "pakoon",
+          "mahdottoman",
           6
         ],
         [
-          "etteivät",
+          "jotakuinkin",
           6
         ],
         [
-          "viimeksi",
+          "yläpuolellaan",
           6
         ],
         [
-          "aikoi",
+          "krokettia",
           6
         ],
         [
-          "pääsisi",
-          5
+          "kummakseen",
+          6
         ],
         [
-          "syönyt",
-          5
+          "kopsetta",
+          6
         ],
         [
-          "myöten",
-          5
+          "ristiin",
+          6
         ],
         [
-          "itkuun",
-          5
+          "vaikeroi",
+          6
         ],
         [
-          "toimeen",
-          5
+          "naamaansa",
+          6
         ],
         [
-          "kyllästynyt",
-          5
+          "sorsa",
+          6
+        ],
+        [
+          "huh",
+          6
+        ],
+        [
+          "äreästi",
+          6
+        ],
+        [
+          "sopivaa",
+          6
+        ],
+        [
+          "mua",
+          6
+        ],
+        [
+          "murahti",
+          6
+        ],
+        [
+          "äyriäinen",
+          6
+        ],
+        [
+          "hätäisesti",
+          6
+        ],
+        [
+          "läksyjä",
+          6
+        ],
+        [
+          "pekka",
+          6
+        ],
+        [
+          "hitustakaan",
+          6
+        ],
+        [
+          "kumminsa",
+          6
+        ],
+        [
+          "yleisen",
+          6
+        ],
+        [
+          "sweitsin",
+          6
+        ],
+        [
+          "kohden",
+          6
+        ],
+        [
+          "kernaasti",
+          6
+        ],
+        [
+          "tyrmään",
+          6
+        ],
+        [
+          "kujaa",
+          6
+        ],
+        [
+          "riisti",
+          6
+        ],
+        [
+          "suklaatia",
+          6
+        ],
+        [
+          "hekin",
+          6
+        ],
+        [
+          "ihailtavia",
+          6
+        ],
+        [
+          "etenkin",
+          6
+        ],
+        [
+          "pakotettu",
+          6
+        ],
+        [
+          "ehti",
+          6
+        ],
+        [
+          "pinnalla",
+          6
+        ],
+        [
+          "piru",
+          6
+        ],
+        [
+          "palvelukseen",
+          6
+        ],
+        [
+          "molemmille",
+          6
+        ],
+        [
+          "riippuvan",
+          6
         ],
         [
           "kauemmin",
@@ -1961,47 +1921,15 @@
           5
         ],
         [
-          "keskustelun",
-          5
-        ],
-        [
-          "viime",
-          5
-        ],
-        [
           "vaipui",
           5
-        ],
-        [
-          "tilaisuus",
-          4
-        ],
-        [
-          "nähkääs",
-          4
         ],
         [
           "kummempaa",
           4
         ],
         [
-          "purskahti",
-          4
-        ],
-        [
-          "eivätkä",
-          4
-        ],
-        [
           "näkevänsä",
-          4
-        ],
-        [
-          "oma",
-          4
-        ],
-        [
-          "paavi",
           4
         ],
         [
@@ -2018,10 +1946,6 @@
         ],
         [
           "ruveta",
-          4
-        ],
-        [
-          "johtui",
           4
         ],
         [
@@ -2057,16 +1981,92 @@
           4
         ],
         [
-          "luota",
-          4
-        ],
-        [
           "kesken",
           4
         ],
         [
           "auki",
           4
+        ],
+        [
+          "hartaasti",
+          4
+        ],
+        [
+          "yleinen",
+          4
+        ],
+        [
+          "pahasta",
+          4
+        ],
+        [
+          "kannatti",
+          3
+        ],
+        [
+          "aavistustakaan",
+          3
+        ],
+        [
+          "joutua",
+          3
+        ],
+        [
+          "taa",
+          3
+        ],
+        [
+          "voivansa",
+          3
+        ],
+        [
+          "aimo",
+          3
+        ],
+        [
+          "millaisen",
+          3
+        ],
+        [
+          "joudun",
+          3
+        ],
+        [
+          "vaivaa",
+          3
+        ],
+        [
+          "viipymättä",
+          3
+        ],
+        [
+          "jonakin",
+          3
+        ],
+        [
+          "saavansa",
+          3
+        ],
+        [
+          "vahinko",
+          3
+        ],
+        [
+          "lähdössä",
+          3
+        ],
+        [
+          "ikävää",
+          3
+        ],
+        [
+          "avautui",
+          3
+        ],
+        [
+          "johonkin",
+          3
         ]
       ]
     },
@@ -2076,210 +2076,22 @@
         "pg55456_fr.txt"
       ],
       "total_words": 60307,
-      "total_content_words": 26289,
+      "total_content_words": 24438,
       "total_atom_alignments": 28472,
-      "avg_readiness": 0.8966,
-      "avg_lexical_coverage": 0.8684,
-      "unique_uncovered_count": 2052,
+      "avg_readiness": 0.9043,
+      "avg_lexical_coverage": 0.8878,
+      "unique_uncovered_count": 1730,
       "top_uncovered_words": [
         [
-          "bâton",
-          12
-        ],
-        [
-          "sixième",
-          8
-        ],
-        [
-          "sequins",
-          8
-        ],
-        [
-          "forçats",
-          8
-        ],
-        [
-          "n'avaient",
-          8
-        ],
-        [
-          "dommage",
-          8
-        ],
-        [
-          "tient",
-          8
-        ],
-        [
-          "mouvement",
-          8
-        ],
-        [
-          "crains",
-          8
-        ],
-        [
-          "humeur",
-          8
-        ],
-        [
-          "enchantée",
-          8
-        ],
-        [
-          "rosier",
-          8
-        ],
-        [
-          "promenant",
+          "ornés",
           7
         ],
         [
-          "s'évanouit",
-          7
-        ],
-        [
-          "baguette",
-          7
-        ],
-        [
-          "croyez-vous",
-          7
-        ],
-        [
-          "j'aie",
-          7
-        ],
-        [
-          "dû",
-          7
-        ],
-        [
-          "réflexion",
-          7
-        ],
-        [
-          "encyclopédique",
+          "byng",
           6
         ],
         [
-          "in-12",
-          6
-        ],
-        [
-          "naples",
-          6
-        ],
-        [
-          "reçoit",
-          6
-        ],
-        [
-          "baguettes",
-          6
-        ],
-        [
-          "cul",
-          6
-        ],
-        [
-          "ignorant",
-          6
-        ],
-        [
-          "xxxi",
-          6
-        ],
-        [
-          "tillac",
-          6
-        ],
-        [
-          "publiques",
-          6
-        ],
-        [
-          "l'inquisition",
-          6
-        ],
-        [
-          "fussions",
-          6
-        ],
-        [
-          "biscayen",
-          6
-        ],
-        [
-          "pommade",
-          6
-        ],
-        [
-          "banquier",
-          6
-        ],
-        [
-          "conclut",
-          6
-        ],
-        [
-          "impitoyablement",
-          6
-        ],
-        [
-          "pistoles",
-          6
-        ],
-        [
-          "fierté",
-          6
-        ],
-        [
-          "n'ayez",
-          6
-        ],
-        [
-          "urbain",
-          6
-        ],
-        [
-          "jeux",
-          6
-        ],
-        [
-          "gazon",
-          6
-        ],
-        [
-          "pénétrer",
-          6
-        ],
-        [
-          "lointain",
-          6
-        ],
-        [
-          "gare",
-          6
-        ],
-        [
-          "sût",
-          6
-        ],
-        [
-          "perçante",
-          6
-        ],
-        [
-          "poil",
-          6
-        ],
-        [
-          "l'archevêque",
-          6
-        ],
-        [
-          "appuyé",
+          "milton",
           6
         ],
         [
@@ -2287,55 +2099,111 @@
           6
         ],
         [
-          "s'éloigna",
-          6
-        ],
-        [
-          "crabe",
-          6
-        ],
-        [
-          "taisez-vous",
-          6
-        ],
-        [
-          "position",
-          6
-        ],
-        [
-          "cessa",
-          6
-        ],
-        [
-          "s'adressait",
-          6
-        ],
-        [
-          "j'ignorais",
-          6
-        ],
-        [
-          "bis",
-          6
-        ],
-        [
-          "enlever",
+          "faveur",
           5
         ],
         [
-          "cesse",
+          "ému",
           5
         ],
         [
-          "conclusion",
+          "nº",
           4
         ],
         [
-          "lunettes",
+          "d'icelui",
           4
         ],
         [
-          "n'osa",
+          "d'eldorado[1",
+          4
+        ],
+        [
+          "l'allemand",
+          4
+        ],
+        [
+          "août",
+          4
+        ],
+        [
+          "antoine",
+          4
+        ],
+        [
+          "renoncé",
+          4
+        ],
+        [
+          "j.-j",
+          4
+        ],
+        [
+          "additions",
+          4
+        ],
+        [
+          "physionomie",
+          4
+        ],
+        [
+          "hardiesse",
+          4
+        ],
+        [
+          "remplie",
+          4
+        ],
+        [
+          "mouchoir",
+          4
+        ],
+        [
+          "paient",
+          4
+        ],
+        [
+          "défenseur",
+          4
+        ],
+        [
+          "surlendemain",
+          4
+        ],
+        [
+          "cachot",
+          4
+        ],
+        [
+          "bande",
+          4
+        ],
+        [
+          "l'aumône",
+          4
+        ],
+        [
+          "enchaîné",
+          4
+        ],
+        [
+          "l'orateur",
+          4
+        ],
+        [
+          "répandit",
+          4
+        ],
+        [
+          "l'étable",
+          4
+        ],
+        [
+          "humain",
+          4
+        ],
+        [
+          "auguste",
           4
         ],
         [
@@ -2343,83 +2211,127 @@
           4
         ],
         [
-          "réflexions",
+          "modifications",
           4
         ],
         [
-          "couverts",
+          "traduction",
           4
         ],
         [
-          "ornés",
+          "remplacé",
           4
         ],
         [
-          "cessait",
+          "londres.--imprimerie",
           4
         ],
         [
-          "fameux",
+          "mignons",
           4
         ],
         [
-          "d'environ",
+          "magique",
           4
         ],
         [
-          "occupé",
+          "incident",
           4
         ],
         [
-          "événements",
+          "terrier",
           4
         ],
         [
-          "d'y",
-          3
+          "cocasse",
+          4
         ],
         [
-          "l'ouvrage",
-          3
+          "gousset",
+          4
         ],
         [
-          "faveur",
-          3
+          "haie",
+          4
         ],
         [
-          "couvert",
-          3
+          "garnies",
+          4
         ],
         [
-          "ému",
-          3
+          "étiquette",
+          4
+        ],
+        [
+          "latitude",
+          4
+        ],
+        [
+          "ravissant",
+          4
+        ],
+        [
+          "fraîches",
+          4
+        ],
+        [
+          "boîte",
+          4
+        ],
+        [
+          "s'exprimer",
+          4
+        ],
+        [
+          "s'étendant",
+          4
+        ],
+        [
+          "rauque",
+          4
+        ],
+        [
+          "nid",
+          4
+        ],
+        [
+          "rouet",
+          4
+        ],
+        [
+          "frisés",
+          4
+        ],
+        [
+          "désordre",
+          4
+        ],
+        [
+          "boudeur",
+          4
+        ],
+        [
+          "northumbrie",
+          4
+        ],
+        [
+          "emphase",
+          4
+        ],
+        [
+          "l'aiglon",
+          4
+        ],
+        [
+          "tînt",
+          4
         ],
         [
           "fracas",
           3
         ],
         [
-          "n'étais",
-          3
-        ],
-        [
-          "d'usage",
-          3
-        ],
-        [
           "rafraîchissements",
-          3
-        ],
-        [
-          "poètes",
-          3
-        ],
-        [
-          "convulsions",
-          3
-        ],
-        [
-          "mulâtres",
           3
         ],
         [
@@ -2431,35 +2343,7 @@
           3
         ],
         [
-          "alger",
-          3
-        ],
-        [
-          "dey",
-          3
-        ],
-        [
           "eue",
-          3
-        ],
-        [
-          "essuyé",
-          3
-        ],
-        [
-          "sérail",
-          3
-        ],
-        [
-          "janissaires",
-          3
-        ],
-        [
-          "azof",
-          3
-        ],
-        [
-          "eunuques",
           3
         ],
         [
@@ -2467,20 +2351,136 @@
           3
         ],
         [
-          "chacune",
+          "revue",
           3
         ],
         [
-          "politesses",
+          "entourent",
           3
         ],
         [
-          "fernando",
+          "permet",
           3
         ],
         [
-          "d'ibaraa",
+          "clameurs",
           3
+        ],
+        [
+          "entourés",
+          3
+        ],
+        [
+          "apercevant",
+          3
+        ],
+        [
+          "barque",
+          3
+        ],
+        [
+          "satisfaire",
+          3
+        ],
+        [
+          "sois",
+          3
+        ],
+        [
+          "j'aille",
+          3
+        ],
+        [
+          "découverte",
+          3
+        ],
+        [
+          "réduite",
+          3
+        ],
+        [
+          "ressource",
+          2
+        ],
+        [
+          "imité",
+          2
+        ],
+        [
+          "boit",
+          2
+        ],
+        [
+          "mènent",
+          2
+        ],
+        [
+          "choix",
+          2
+        ],
+        [
+          "orateur",
+          2
+        ],
+        [
+          "piteux",
+          2
+        ],
+        [
+          "délices",
+          2
+        ],
+        [
+          "novice",
+          2
+        ],
+        [
+          "meurs",
+          2
+        ],
+        [
+          "progrès",
+          2
+        ],
+        [
+          "réduit",
+          2
+        ],
+        [
+          "n'hésita",
+          2
+        ],
+        [
+          "l'arithmétique",
+          2
+        ],
+        [
+          "baïonnettes",
+          2
+        ],
+        [
+          "daigner",
+          2
+        ],
+        [
+          "exprès",
+          2
+        ],
+        [
+          "couvrent",
+          2
+        ],
+        [
+          "sexe",
+          2
+        ],
+        [
+          "débris",
+          2
+        ],
+        [
+          "universelle",
+          2
         ]
       ]
     },
@@ -2489,410 +2489,410 @@
         "pg28371_it.txt"
       ],
       "total_words": 23662,
-      "total_content_words": 11383,
+      "total_content_words": 11281,
       "total_atom_alignments": 11486,
-      "avg_readiness": 0.8507,
-      "avg_lexical_coverage": 0.8356,
-      "unique_uncovered_count": 1213,
+      "avg_readiness": 0.8654,
+      "avg_lexical_coverage": 0.8722,
+      "unique_uncovered_count": 959,
       "top_uncovered_words": [
         [
-          "avverrebbe",
-          6
-        ],
-        [
-          "dovrò",
-          6
-        ],
-        [
-          "conosceva",
-          6
-        ],
-        [
-          "vado",
-          6
-        ],
-        [
-          "rauca",
-          6
-        ],
-        [
-          "date",
-          6
-        ],
-        [
-          "frase",
-          6
-        ],
-        [
-          "verghe",
-          6
-        ],
-        [
-          "l'è",
-          6
-        ],
-        [
-          "offesa",
-          6
-        ],
-        [
-          "bentosto",
-          6
-        ],
-        [
-          "anni",
-          6
-        ],
-        [
-          "circolo",
-          6
-        ],
-        [
-          "oudinot",
-          6
-        ],
-        [
-          "napoli",
-          6
-        ],
-        [
-          "spagna",
-          6
-        ],
-        [
-          "cioè",
-          6
-        ],
-        [
-          "sieno",
-          6
-        ],
-        [
-          "udì",
-          6
-        ],
-        [
-          "confetti",
-          6
-        ],
-        [
-          "irata",
-          6
-        ],
-        [
-          "attorno",
-          6
-        ],
-        [
-          "babbo",
-          6
-        ],
-        [
-          "rimase",
-          6
-        ],
-        [
-          "purchè",
-          6
-        ],
-        [
-          "basta",
-          6
-        ],
-        [
-          "gomito",
-          6
-        ],
-        [
-          "andrò",
-          6
-        ],
-        [
-          "s'udì",
-          6
-        ],
-        [
-          "lustrissimo",
-          6
-        ],
-        [
-          "faranno",
-          3
-        ],
-        [
-          "quanta",
-          3
-        ],
-        [
-          "dispetto",
-          3
-        ],
-        [
-          "cautamente",
-          3
-        ],
-        [
-          "avrei",
-          3
-        ],
-        [
-          "l'erba",
-          3
-        ],
-        [
-          "motto",
-          3
-        ],
-        [
-          "studiai",
-          3
-        ],
-        [
-          "dì",
-          3
-        ],
-        [
-          "ebbi",
-          3
-        ],
-        [
-          "forza",
-          3
-        ],
-        [
-          "scambiate",
-          3
-        ],
-        [
-          "attimo",
-          3
-        ],
-        [
-          "sinistra",
-          3
-        ],
-        [
-          "m'è",
-          3
-        ],
-        [
-          "farne",
-          3
-        ],
-        [
-          "piacque",
-          3
-        ],
-        [
-          "glielo",
-          3
-        ],
-        [
-          "nol",
-          3
-        ],
-        [
-          "persuasa",
-          3
-        ],
-        [
-          "conoscesse",
-          3
-        ],
-        [
-          "abita",
-          3
-        ],
-        [
-          "marzo",
-          3
-        ],
-        [
-          "prego",
-          3
-        ],
-        [
-          "delicatezza",
-          3
-        ],
-        [
-          "teco",
-          3
-        ],
-        [
-          "mosse",
-          3
-        ],
-        [
-          "trarre",
-          3
-        ],
-        [
-          "facciamo",
-          3
-        ],
-        [
-          "archi",
-          3
-        ],
-        [
-          "piena",
-          3
-        ],
-        [
-          "senape",
-          3
-        ],
-        [
-          "tromba",
-          3
-        ],
-        [
-          "inforcò",
-          3
-        ],
-        [
-          "palchetto",
-          3
-        ],
-        [
-          "ognun",
-          3
-        ],
-        [
-          "taylor",
-          2
-        ],
-        [
-          "stampatori",
-          2
-        ],
-        [
-          "voghiamo",
-          2
-        ],
-        [
-          "delicate",
-          2
-        ],
-        [
-          "sponda",
-          2
-        ],
-        [
-          "conigliera",
-          2
-        ],
-        [
-          "matti",
-          2
-        ],
-        [
-          "contraddanza",
-          2
-        ],
-        [
-          "gamberi",
-          2
-        ],
-        [
-          "poggio",
-          2
-        ],
-        [
-          "dialoghi",
-          2
-        ],
-        [
           "resa",
-          2
-        ],
-        [
-          "noja",
-          2
+          4
         ],
         [
           "affisò",
+          4
+        ],
+        [
+          "accinse",
+          4
+        ],
+        [
+          "smetter",
+          4
+        ],
+        [
+          "urtò",
+          4
+        ],
+        [
+          "porporina",
+          4
+        ],
+        [
+          "piacciono",
+          4
+        ],
+        [
+          "d'averla",
+          4
+        ],
+        [
+          "produsse",
+          4
+        ],
+        [
+          "promesso",
+          4
+        ],
+        [
+          "imbarazzata",
+          4
+        ],
+        [
+          "andremo",
+          4
+        ],
+        [
+          "nodo",
+          4
+        ],
+        [
+          "baffi",
+          4
+        ],
+        [
+          "trottare",
+          4
+        ],
+        [
+          "acciocchè",
+          4
+        ],
+        [
+          "dell'ampolla",
+          4
+        ],
+        [
+          "avessi",
+          4
+        ],
+        [
+          "impiccolire",
+          4
+        ],
+        [
+          "attese",
+          4
+        ],
+        [
+          "strillo",
+          4
+        ],
+        [
+          "cetrioli",
+          4
+        ],
+        [
+          "gianni",
+          4
+        ],
+        [
+          "scavando",
+          4
+        ],
+        [
+          "dimmi",
+          4
+        ],
+        [
+          "riempie",
+          4
+        ],
+        [
+          "successe",
+          4
+        ],
+        [
+          "neppur",
+          4
+        ],
+        [
+          "quei",
+          4
+        ],
+        [
+          "calcio",
+          4
+        ],
+        [
+          "sassolini",
           2
         ],
         [
-          "divorata",
+          "sepolcrale",
           2
         ],
         [
-          "siepe",
+          "cucciolo",
           2
         ],
         [
-          "sfilava",
+          "penzoloni",
           2
         ],
         [
-          "adagino",
+          "staccò",
           2
         ],
         [
-          "bujo",
+          "alcun",
           2
         ],
         [
-          "vasettino",
+          "eppur",
           2
         ],
         [
-          "erudizione",
+          "dètte",
           2
         ],
         [
-          "latitudine",
+          "mostra",
           2
         ],
         [
-          "casca",
+          "scoppiare",
           2
         ],
         [
-          "meco",
+          "tondo",
           2
         ],
         [
-          "austera",
+          "vai",
           2
         ],
         [
-          "cascò",
+          "aveano",
           2
         ],
         [
-          "ch'ebbe",
+          "uscì",
           2
         ],
         [
-          "que",
+          "s'inchinarono",
           2
         ],
         [
-          "mezza",
+          "proruppe",
           2
         ],
         [
-          "un'ampolla",
+          "siederò",
           2
         ],
         [
-          "attaccato",
+          "titolo",
           2
         ],
         [
-          "scatola",
+          "tondi",
           2
         ],
         [
-          "molle",
+          "mancò",
           2
         ],
         [
-          "fiato",
+          "cenno",
+          2
+        ],
+        [
+          "rifiuta",
+          2
+        ],
+        [
+          "lai",
+          2
+        ],
+        [
+          "vuol",
+          2
+        ],
+        [
+          "grugnire",
+          2
+        ],
+        [
+          "grugnì",
+          2
+        ],
+        [
+          "sollevata",
+          2
+        ],
+        [
+          "sdegnosa",
+          2
+        ],
+        [
+          "sdegnosamente",
+          2
+        ],
+        [
+          "potrà",
+          2
+        ],
+        [
+          "miche",
+          2
+        ],
+        [
+          "dò",
+          2
+        ],
+        [
+          "tocco",
+          2
+        ],
+        [
+          "concerto",
+          2
+        ],
+        [
+          "risvegliati",
+          2
+        ],
+        [
+          "ammalate",
+          2
+        ],
+        [
+          "trionfo",
+          2
+        ],
+        [
+          "stropicciandosi",
+          2
+        ],
+        [
+          "stroppia",
+          2
+        ],
+        [
+          "rosso",
+          2
+        ],
+        [
+          "abbiam",
+          2
+        ],
+        [
+          "garbatezza",
+          2
+        ],
+        [
+          "ch'_io",
+          2
+        ],
+        [
+          "selvaggia",
+          2
+        ],
+        [
+          "affissandola",
+          2
+        ],
+        [
+          "mozzatele",
+          2
+        ],
+        [
+          "fè",
+          2
+        ],
+        [
+          "mostrare",
+          2
+        ],
+        [
+          "siate",
+          2
+        ],
+        [
+          "intiera",
+          2
+        ],
+        [
+          "fo",
+          2
+        ],
+        [
+          "condannati",
+          2
+        ],
+        [
+          "ruzzo",
+          2
+        ],
+        [
+          "bruttificazione",
+          2
+        ],
+        [
+          "stoia",
+          2
+        ],
+        [
+          "disdegno",
+          2
+        ],
+        [
+          "dìlle",
+          2
+        ],
+        [
+          "rovescio",
+          2
+        ],
+        [
+          "inghiottì",
+          2
+        ],
+        [
+          "adagio",
+          2
+        ],
+        [
+          "s'inzuppa",
+          2
+        ],
+        [
+          "zup--pa",
+          2
+        ],
+        [
+          "ruotolo",
+          2
+        ],
+        [
+          "pergamene",
+          2
+        ],
+        [
+          "traccia",
+          2
+        ],
+        [
+          "squilli",
+          2
+        ],
+        [
+          "ponderate",
+          2
+        ],
+        [
+          "fetta",
+          2
+        ],
+        [
+          "applauso",
+          2
+        ],
+        [
+          "dagli",
           2
         ]
       ]
@@ -3313,14 +3313,14 @@
   },
   "global": {
     "total_words": 279495,
-    "total_content_words": 125862,
-    "total_covered": 109054,
-    "total_uncovered": 16808,
+    "total_content_words": 123721,
+    "total_covered": 110127,
+    "total_uncovered": 13594,
     "total_atom_alignments": 135501,
-    "lexical_coverage_weighted": 0.8665,
-    "lexical_coverage_avg_doc": 0.8338,
-    "atom_density": 1.0766,
-    "total_unique_uncovered": 13124,
-    "analysis_time_s": 634.6
+    "lexical_coverage_weighted": 0.8901,
+    "lexical_coverage_avg_doc": 0.8544,
+    "atom_density": 1.0952,
+    "total_unique_uncovered": 11486,
+    "analysis_time_s": 625.3
   }
 }
