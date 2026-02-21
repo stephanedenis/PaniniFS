@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-21-hauru-v482-keyword-expansion.md](2026-02-21-hauru-v482-keyword-expansion.md) — 📈 v4.8.2 : Expansion massive multilingue. **81.9%→85.1% (+3.2pp)** global. EN 91.9%, FR 85.5%, FI 81.9%. 23 atomes × 7 langues, +3,306 mots-clés. Strategies 0/3/4 améliorées (numérique, composés, élisions). Stop words archaïques, noms propres littéraires.
 - [2026-02-21-hauru-v481-stemmer-coverage-82pct.md](2026-02-21-hauru-v481-stemmer-coverage-82pct.md) — 📈 v4.8.1 Round 7 : Expansion post-stemmer multi-langue. 80.3%→81.8% (+1.5pp). Stop words irréguliers (EN/DE/FR/ES/IT/FI), keywords ciblés, noms propres.
 - [2026-02-21-hauru-v481-finnish-voikko-lemmatizer.md](2026-02-21-hauru-v481-finnish-voikko-lemmatizer.md) — 🇫🇮 v4.8.1 : Lemmatiseur finnois voikko. **77.4%→81.8% (+4.4pp)** global, FI 65.8%→78.1% (+12.3pp). Cache mot-niveau ×10 perf. 178 keywords FI, 44 stop words, 14 noms propres. Snowball stemmer actif 7 langues. 110 tests ✅.
 - [2026-02-20-hauru-v48-vocabulary-coverage-77pct.md](2026-02-20-hauru-v48-vocabulary-coverage-77pct.md) — 📊 v4.8 : Couverture lexicale 67.6%→77.4% (+9.8pp). `_is_covered_enhanced()` 7 stratégies (préfixes DE, suffixes FI, composés, apostrophes). 6 rounds expansion (~1400 stop words, ~1050 keywords, ~110 noms propres). EN 84.9%, DE 83.2%, EO 81.4%, FR 80.6%.

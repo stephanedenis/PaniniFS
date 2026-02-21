@@ -71,6 +71,24 @@ except ImportError:
     PROPER_NOUNS_V481 = {}
     EXTRA_PUNCTUATION_V481 = ""
 
+# v4.8.2: Massive multilingual keyword expansion + stop words + proper nouns
+try:
+    from vocabulary_expansion_v482 import (
+        get_keywords_v482, get_stop_words_v482,
+        get_proper_nouns_v482, get_archaic_forms,
+    )
+    _KEYWORDS_V482 = get_keywords_v482()
+    _STOP_WORDS_V482 = get_stop_words_v482()
+    _PROPER_NOUNS_V482 = get_proper_nouns_v482()
+    _ARCHAIC_FORMS = get_archaic_forms()
+    _HAS_EXPANSION_V482 = True
+except ImportError:
+    _HAS_EXPANSION_V482 = False
+    _KEYWORDS_V482 = {}
+    _STOP_WORDS_V482 = {}
+    _PROPER_NOUNS_V482 = {}
+    _ARCHAIC_FORMS = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -224,6 +242,42 @@ _build_global_keyword_index()
 _extend_global_with_proper_nouns()
 _extend_global_with_v481()
 
+# v4.8.2: Extend global index with massive keyword expansion + proper nouns
+def _extend_global_with_v482():
+    """Add KEYWORDS_V482, PROPER_NOUNS_V482, and ARCHAIC_FORMS to global index."""
+    if not _HAS_EXPANSION_V482:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    # Add keywords for each atom × language
+    for atom_id, lang_words in _KEYWORDS_V482.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    # Add proper nouns
+    for lang, names in _PROPER_NOUNS_V482.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    # Add archaic forms — both old and modern forms as known words
+    for lang, mappings in _ARCHAIC_FORMS.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v482()
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
@@ -306,10 +360,11 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
     """Check if a content word is covered using multiple strategies.
 
     Strategies (in order):
+      0. Numeric token detection (years, dates, page numbers)
       1. Direct match against paragraph atom word forms
       2. Direct match against global keyword index
-      3. Compound splitting (hyphen): any component in known keywords
-      4. Apostrophe splitting (d'alice → alice, l'abbé → abbé)
+      3. Compound splitting (hyphen): any component covered (recursive)
+      4. Apostrophe/elision splitting with recursive sub-coverage
       5. Morphological suffix stripping (with language-aware min stem)
       6. German prefix stripping (ver-, ent-, be-, ge-, er-, zer-, etc.)
       7. Two-pass suffix stripping (remove suffix, then try again)
@@ -317,11 +372,17 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
       9. Voikko Finnish lemmatizer: morphological base form lookup
 
     v4.8.1: Uses word-level coverage cache and pre-merged keyword sets
-    for ~10× speedup on multi-paragraph documents.
+    v4.8.2: Number detection, recursive compound/elision resolution,
+            stop-word-aware compound splitting
 
     Args:
         atom_stems: Pre-stemmed atom_words (optional, avoids re-stemming per call)
     """
+    # 0. Numeric tokens: years, dates, page numbers, chapter numbers
+    #    e.g. "1759", "42", "1761" — always considered covered
+    if word.isdigit():
+        return True
+
     # 1. Direct match against paragraph atoms (varies per paragraph)
     if word in atom_words:
         return True
@@ -340,21 +401,70 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
         _COVERAGE_CACHE[cache_key] = True
         return True
 
-    # Helper: check if a candidate is in any known set
+    # Helper: check if a candidate is in any known set (keywords only)
     def _in_known(w):
         return w in atom_words or w in gk
 
+    # Helper: deep check — apply stemming + voikko to a sub-part (no recursion)
+    def _deep_check(w):
+        """Check a word against keywords, stems, and lemmatizers."""
+        if _in_known(w):
+            return True
+        # Snowball stemmer check
+        if _HAS_STEMMER:
+            stemmer = _get_stemmer(lang)
+            if stemmer is not None:
+                w_stem = stemmer.stemWord(w)
+                if w_stem in _get_merged_stems(lang):
+                    return True
+        # Voikko lemmatizer check (Finnish)
+        if lang == "fi" and _HAS_VOIKKO:
+            for base in _voikko_base_forms(w):
+                if _in_known(base):
+                    return True
+        # Suffix stripping check
+        for suffix in MORPHO_SUFFIXES.get(lang, []):
+            if w.endswith(suffix) and len(w) - len(suffix) >= _MIN_STEM_LEN.get(lang, 3):
+                if _in_known(w[:-len(suffix)]):
+                    return True
+        return False
+
+    # v4.8.2: Romance elision prefixes (FR/IT/ES)
+    _ELISION_PREFIXES = {"d", "l", "m", "n", "s", "c", "j", "qu",
+                         "all", "nell", "dell", "sull", "dall", "un"}
+
     # 3. Compound splitting (hyphen): rabbit-hole → rabbit, hole
+    #    v4.8.2: Use _deep_check for parts + stop-word-aware splitting
     if '-' in word:
         parts = [p for p in word.split('-') if len(p) >= 2]
-        if parts and any(_in_known(p) for p in parts):
-            _COVERAGE_CACHE[cache_key] = True
-            return True
+        if parts:
+            # Any part is a known keyword/stem → covered
+            if any(_deep_check(p) for p in parts):
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Check if parts are stop words (e.g. "disait-il": "il" is stop)
+            stops = get_stop_words(lang)
+            non_stop = [p for p in parts if p not in stops]
+            if non_stop and len(non_stop) < len(parts):
+                # Some parts are stop words; only check non-stop parts
+                if all(_deep_check(p) for p in non_stop):
+                    _COVERAGE_CACHE[cache_key] = True
+                    return True
 
-    # 4. Apostrophe splitting: d'alice → alice, l'abbé → abbé, ch'è → è
+    # 4. Apostrophe/elision splitting with recursive sub-coverage
+    #    v4.8.2: For elision prefixes (d', l', m', etc.), apply deep check
     if "'" in word:
-        parts = [p for p in word.split("'") if len(p) >= 1]
-        if parts and any(_in_known(p) for p in parts if len(p) >= 2):
+        parts = word.split("'")
+        if len(parts) == 2:
+            prefix, main = parts
+            if prefix.lower() in _ELISION_PREFIXES and len(main) >= 2:
+                # Elision: only the main part needs to be covered
+                if _deep_check(main):
+                    _COVERAGE_CACHE[cache_key] = True
+                    return True
+        # Fallback: any part ≥2 chars covered by deep check
+        valid_parts = [p for p in parts if len(p) >= 2]
+        if valid_parts and any(_deep_check(p) for p in valid_parts):
             _COVERAGE_CACHE[cache_key] = True
             return True
 
@@ -555,6 +665,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.1: Finnish stop word expansion (voikko-derived function words)
     if _HAS_EXPANSION_V481 and lang in STOP_WORDS_V481:
         base = base | STOP_WORDS_V481[lang]
+    # v4.8.2: Massive stop word expansion (archaic forms, function words)
+    if _HAS_EXPANSION_V482 and lang in _STOP_WORDS_V482:
+        base = base | _STOP_WORDS_V482[lang]
     return base
 
 
