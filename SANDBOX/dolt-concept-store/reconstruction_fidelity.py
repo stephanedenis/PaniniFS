@@ -143,6 +143,24 @@ except ImportError:
     _PROPER_NOUNS_V486 = {}
     _ARCHAIC_FORMS_V486 = {}
 
+# v4.8.7: All-languages push toward 90%+ (FI lemmas, IT/FR/ES/DE/EN/EO gaps)
+try:
+    from vocabulary_expansion_v487 import (
+        get_keywords_v487, get_stop_words_v487,
+        get_proper_nouns_v487, get_archaic_forms_v487,
+    )
+    _KEYWORDS_V487 = get_keywords_v487()
+    _STOP_WORDS_V487 = get_stop_words_v487()
+    _PROPER_NOUNS_V487 = get_proper_nouns_v487()
+    _ARCHAIC_FORMS_V487 = get_archaic_forms_v487()
+    _HAS_EXPANSION_V487 = True
+except ImportError:
+    _HAS_EXPANSION_V487 = False
+    _KEYWORDS_V487 = {}
+    _STOP_WORDS_V487 = {}
+    _PROPER_NOUNS_V487 = {}
+    _ARCHAIC_FORMS_V487 = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -437,6 +455,39 @@ def _extend_global_with_v486():
             _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
 
 _extend_global_with_v486()
+
+# v4.8.7: Extend global index — all-languages push toward 90%+
+def _extend_global_with_v487():
+    """Add KEYWORDS_V487, PROPER_NOUNS_V487, and ARCHAIC_FORMS_V487 to global."""
+    if not _HAS_EXPANSION_V487:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for atom_id, lang_words in _KEYWORDS_V487.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V487.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    for lang, mappings in _ARCHAIC_FORMS_V487.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v487()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -864,6 +915,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.6: Push toward 90% stop words
     if _HAS_EXPANSION_V486 and lang in _STOP_WORDS_V486:
         base = base | set(_STOP_WORDS_V486[lang])
+    # v4.8.7: All-languages push toward 90%+ stop words
+    if _HAS_EXPANSION_V487 and lang in _STOP_WORDS_V487:
+        base = base | set(_STOP_WORDS_V487[lang])
     return base
 
 
