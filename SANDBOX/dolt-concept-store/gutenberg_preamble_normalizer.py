@@ -879,7 +879,90 @@ def detect_foreign_citations(
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 3. FORMAT RE-SYNTHESIS — Vue unifiée multi-format d'un même ouvrage
+#
+# Principe PaniniFS : le format le plus riche (HTML) est la référence
+# canonique. Les formats plus pauvres (EPUB, TXT) sont des projections
+# qui PERDENT de l'information. La comparaison mesure cette perte par
+# dimension informationnelle.
 # ═══════════════════════════════════════════════════════════════════════════════
+
+# Richesse informationnelle par format (plus haut = plus riche)
+# HTML préserve : structure (headings), emphase (em/i/strong), images (img),
+#                  liens (a), tables, métadonnées inline
+# EPUB préserve : structure + emphase + images, mais pas les liens externes
+# TXT  perd     : tout le formatage, seul le texte brut survit
+FORMAT_RICHNESS = {
+    "html": 100,
+    "epub": 80,
+    "docx": 70,
+    "md":   50,
+    "txt":  10,
+}
+
+
+@dataclass
+class InformationLayer:
+    """Dimensions informationnelles extraites d'un format.
+    
+    Chaque dimension représente un type d'information structurelle
+    que certains formats préservent et d'autres perdent.
+    Le format le plus riche (HTML) sert de référence bit-perfect.
+    """
+    # Structure
+    headings: int = 0               # h1–h6 count
+    heading_texts: List[str] = field(default_factory=list)
+    # Emphasis (often marks foreign words, titles, key terms)
+    emphasis_spans: int = 0         # em/i count
+    strong_spans: int = 0           # strong/b count
+    emphasis_texts: List[str] = field(default_factory=list)  # first N emphasized words
+    # Media
+    images: int = 0                 # img count
+    image_alts: List[str] = field(default_factory=list)
+    # Links
+    links: int = 0                  # a[href] count
+    # Tables
+    tables: int = 0                 # table count
+    table_cells: int = 0            # td/th count
+    # Paragraphs (structural boundaries)
+    paragraphs: int = 0             # p count (explicit paragraph boundaries)
+    # Block elements
+    blockquotes: int = 0
+    preformatted: int = 0           # pre/code blocks
+    lists: int = 0                  # ol/ul count
+    list_items: int = 0             # li count
+    # Text content (the one dimension ALL formats share)
+    text_chars: int = 0             # character count of pure text
+    text_words: int = 0             # word count of pure text
+
+    @property
+    def structural_richness(self) -> int:
+        """Score composite de richesse structurelle (0–N)."""
+        return (self.headings + self.emphasis_spans + self.strong_spans +
+                self.images + self.links + self.tables + self.blockquotes +
+                self.preformatted + self.lists)
+
+    def loss_vs(self, reference: 'InformationLayer') -> Dict[str, float]:
+        """Calcule la perte informationnelle par rapport à une référence.
+        
+        Retourne un dict {dimension: ratio_perdu} où 0.0 = rien perdu,
+        1.0 = tout perdu. Les dimensions absentes des deux sont omises.
+        """
+        loss = {}
+        for dim in ('headings', 'emphasis_spans', 'strong_spans', 'images',
+                    'links', 'tables', 'table_cells', 'blockquotes',
+                    'preformatted', 'lists', 'list_items', 'paragraphs'):
+            ref_val = getattr(reference, dim)
+            self_val = getattr(self, dim)
+            if ref_val > 0:
+                lost = max(0, ref_val - self_val) / ref_val
+                loss[dim] = round(lost, 4)
+        # Text — should ideally be 0% loss (bit-perfect)
+        if reference.text_words > 0:
+            # Ratio of text preserved (can be > 1 if format adds markup text)
+            text_ratio = self.text_words / reference.text_words
+            loss["text_words"] = round(abs(1.0 - text_ratio), 4)
+        return loss
+
 
 @dataclass
 class EditionFormat:
@@ -894,7 +977,13 @@ class EditionFormat:
     zones: List[TextZone] = field(default_factory=list)
     citations: List[ForeignCitation] = field(default_factory=list)
     atom_profile: Dict[str, float] = field(default_factory=dict)
+    info_layers: Optional[InformationLayer] = None
     metadata: Dict = field(default_factory=dict)
+
+    @property
+    def richness_score(self) -> int:
+        """Score de richesse du format (FORMAT_RICHNESS)."""
+        return FORMAT_RICHNESS.get(self.format, 10)
 
 
 @dataclass
@@ -916,6 +1005,138 @@ class UnifiedWork:
     @property
     def formats(self) -> List[str]:
         return sorted(set(e.format for e in self.editions))
+
+
+def _extract_information_layers(filepath: str, fmt: str) -> InformationLayer:
+    """Extrait le profil informationnel d'un fichier selon son format.
+    
+    HTML → analyse complète (headings, emphasis, images, links, tables)
+    EPUB → via BeautifulSoup sur le contenu décompressé
+    TXT  → seuls text_chars et text_words (tout le reste = 0 = perdu)
+    
+    C'est la fonction clé du modèle de perte : ce que cette fonction
+    ne trouve PAS dans un format est de l'information perdue.
+    """
+    layers = InformationLayer()
+    
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+            raw = f.read()
+    except Exception:
+        return layers
+    
+    if fmt == 'html':
+        try:
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(raw, 'html.parser')
+            
+            # Remove script/style (not informational)
+            for tag in soup(['script', 'style']):
+                tag.decompose()
+            
+            # Structure
+            headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+            layers.headings = len(headings)
+            layers.heading_texts = [h.get_text(strip=True) for h in headings[:50]]
+            
+            # Emphasis
+            em_tags = soup.find_all(['em', 'i'])
+            layers.emphasis_spans = len(em_tags)
+            layers.emphasis_texts = [e.get_text(strip=True) for e in em_tags[:100]
+                                     if e.get_text(strip=True)]
+            strong_tags = soup.find_all(['strong', 'b'])
+            layers.strong_spans = len(strong_tags)
+            
+            # Media
+            imgs = soup.find_all('img')
+            layers.images = len(imgs)
+            layers.image_alts = [img.get('alt', '') for img in imgs if img.get('alt')]
+            
+            # Links
+            layers.links = len(soup.find_all('a', href=True))
+            
+            # Tables
+            layers.tables = len(soup.find_all('table'))
+            layers.table_cells = len(soup.find_all(['td', 'th']))
+            
+            # Paragraphs
+            layers.paragraphs = len(soup.find_all('p'))
+            
+            # Blocks
+            layers.blockquotes = len(soup.find_all('blockquote'))
+            layers.preformatted = len(soup.find_all(['pre', 'code']))
+            layers.lists = len(soup.find_all(['ol', 'ul']))
+            layers.list_items = len(soup.find_all('li'))
+            
+            # Text (pure text content — the bit-perfect reference)
+            body = soup.find('body') or soup
+            pure_text = body.get_text(separator=' ', strip=True)
+            layers.text_chars = len(pure_text)
+            layers.text_words = len(pure_text.split())
+            
+        except ImportError:
+            pass
+    
+    elif fmt == 'epub':
+        try:
+            from ebooklib import epub
+            from bs4 import BeautifulSoup
+            
+            book = epub.read_epub(filepath, options={"ignore_ncx": True})
+            all_text_parts = []
+            
+            for item in book.get_items_of_type(9):  # ITEM_DOCUMENT
+                content = item.get_content().decode('utf-8', errors='replace')
+                soup = BeautifulSoup(content, 'html.parser')
+                
+                layers.headings += len(soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6']))
+                layers.emphasis_spans += len(soup.find_all(['em', 'i']))
+                layers.strong_spans += len(soup.find_all(['strong', 'b']))
+                layers.images += len(soup.find_all('img'))
+                layers.paragraphs += len(soup.find_all('p'))
+                layers.links += len(soup.find_all('a', href=True))
+                layers.tables += len(soup.find_all('table'))
+                layers.table_cells += len(soup.find_all(['td', 'th']))
+                layers.blockquotes += len(soup.find_all('blockquote'))
+                layers.lists += len(soup.find_all(['ol', 'ul']))
+                layers.list_items += len(soup.find_all('li'))
+                
+                body = soup.find('body') or soup
+                all_text_parts.append(body.get_text(separator=' ', strip=True))
+            
+            full_text = ' '.join(all_text_parts)
+            layers.text_chars = len(full_text)
+            layers.text_words = len(full_text.split())
+            
+        except (ImportError, Exception):
+            pass
+    
+    else:
+        # TXT, MD, etc. — aucune structure, seulement du texte
+        # Tenter de récupérer les pseudo-headings (lignes courtes en majuscules)
+        lines = raw.split('\n')
+        for line in lines:
+            stripped = line.strip()
+            if (stripped and len(stripped) < 60 and
+                (stripped.isupper() or
+                 re.match(r'^(?:CHAPTER|CHAPITRE|KAPITEL)\s', stripped, re.I))):
+                layers.headings += 1
+                layers.heading_texts.append(stripped)
+        
+        # Comptage des pseudo-emphases (_italique_ ou *italique*)
+        layers.emphasis_spans = len(re.findall(r'_[^_]{2,50}_', raw))
+        layers.emphasis_spans += len(re.findall(r'\*[^*]{2,50}\*', raw))
+        
+        # Illustrations markers [Illustration: ...]
+        layers.images = len(re.findall(r'\[Illustration', raw, re.I))
+        
+        # Paragraphs = blocks separated by blank lines
+        layers.paragraphs = len(re.split(r'\n\s*\n', raw.strip()))
+        
+        layers.text_chars = len(raw)
+        layers.text_words = len(raw.split())
+    
+    return layers
 
 
 def unify_editions(
@@ -989,6 +1210,9 @@ def unify_editions(
         for bz in body_zones:
             citations.extend(detect_foreign_citations(bz.text, lang))
         
+        # Extraire le profil informationnel (dimensions structurelles)
+        info_layers = _extract_information_layers(filepath, fmt)
+        
         edition = EditionFormat(
             gutenberg_id=int(re.search(r'(\d+)', os.path.basename(filepath)).group(1))
                          if re.search(r'(\d+)', os.path.basename(filepath)) else 0,
@@ -1000,6 +1224,7 @@ def unify_editions(
             paragraph_count=extraction.total_paragraphs,
             zones=zones,
             citations=citations,
+            info_layers=info_layers,
             metadata={
                 "edition_key": edition_key,
                 "extraction_errors": extraction.errors,
@@ -1025,28 +1250,60 @@ def unify_editions(
 
 
 def _compare_editions(editions: List[EditionFormat]) -> Dict:
-    """Compare les éditions/formats d'un même ouvrage."""
+    """Compare les éditions en mesurant la perte depuis le format le plus riche.
+    
+    Philosophie PaniniFS : le format le plus riche (HTML) est la référence
+    bit-perfect. Chaque format plus pauvre est une projection qui perd
+    de l'information. On mesure cette perte par dimension.
+    """
+    # Trier par richesse décroissante — le plus riche est la référence
+    sorted_editions = sorted(editions, key=lambda e: e.richness_score, reverse=True)
+    canonical = sorted_editions[0]
+    
     comparison = {
         "edition_count": len(editions),
-        "formats": [e.format for e in editions],
-        "word_count_variance": {},
-        "paragraph_count_variance": {},
-        "zone_consistency": {},
+        "formats": [e.format for e in sorted_editions],
+        "canonical_format": canonical.format,
+        "canonical_richness": canonical.richness_score,
+        "information_loss": {},
+        "canonical_layers": {},
         "atom_similarity": {},
+        "zone_consistency": {},
     }
     
-    # Variance de word count
-    word_counts = [e.word_count for e in editions if e.word_count > 0]
-    if word_counts:
-        mean_wc = sum(word_counts) / len(word_counts)
-        comparison["word_count_variance"] = {
-            "mean": round(mean_wc),
-            "min": min(word_counts),
-            "max": max(word_counts),
-            "cv": round((sum((w - mean_wc)**2 for w in word_counts) / len(word_counts))**0.5 / max(mean_wc, 1), 4),
+    # ── Profil de référence (canonical) ──────────────────────────────────
+    if canonical.info_layers:
+        ref = canonical.info_layers
+        comparison["canonical_layers"] = {
+            "headings": ref.headings,
+            "emphasis_spans": ref.emphasis_spans,
+            "strong_spans": ref.strong_spans,
+            "images": ref.images,
+            "links": ref.links,
+            "tables": ref.tables,
+            "paragraphs": ref.paragraphs,
+            "text_words": ref.text_words,
+            "structural_richness": ref.structural_richness,
         }
+        
+        # ── Perte informationnelle par format (vs canonical) ─────────────
+        for e in sorted_editions[1:]:
+            if e.info_layers:
+                loss = e.info_layers.loss_vs(ref)
+                # Score synthétique de perte (moyenne des dimensions perdues)
+                loss_values = [v for k, v in loss.items() if k != "text_words"]
+                avg_loss = sum(loss_values) / max(len(loss_values), 1)
+                total_dims_lost = sum(1 for v in loss_values if v > 0.5)
+                
+                comparison["information_loss"][e.format] = {
+                    "per_dimension": loss,
+                    "avg_structural_loss": round(avg_loss, 4),
+                    "dimensions_mostly_lost": total_dims_lost,
+                    "text_fidelity": round(1.0 - loss.get("text_words", 0), 4),
+                    "richness_score": e.richness_score,
+                }
     
-    # Similarité cosinus des profils atomiques
+    # ── Similarité cosinus des profils atomiques ────────────────────────
     profiles = [(e.language, e.format, e.atom_profile) for e in editions if e.atom_profile]
     if len(profiles) >= 2:
         for i in range(len(profiles)):
@@ -1055,7 +1312,7 @@ def _compare_editions(editions: List[EditionFormat]) -> Dict:
                 sim = _cosine_sim(profiles[i][2], profiles[j][2])
                 comparison["atom_similarity"][key] = round(sim, 4)
     
-    # Cohérence des zones (même nombre de chapitres, etc.)
+    # ── Cohérence des zones ──────────────────────────────────────────────
     zone_counts = {}
     for e in editions:
         for z in e.zones:

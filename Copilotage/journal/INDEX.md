@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-20-hauru-v473-information-loss-model.md](2026-02-20-hauru-v473-information-loss-model.md) — 📉 v4.7.3 : Modèle de perte d'information (HTML→TXT). **`InformationLayer`** 15 dimensions, `FORMAT_RICHNESS` hiérarchie, `loss_vs()` bit-perfect. EPUB 8.3% perte, TXT 66-75%. Multi-format download. 32 tests ✅. Validé EN/FR/RU.
 - [2026-02-20-hauru-v472-multiscript-trigrams.md](2026-02-20-hauru-v472-multiscript-trigrams.md) — 🌏 v4.7.2 : Extension trigrammes multi-scripts (ru/ja/zh). **`LANGUAGE_NGRAM_CONFIG`** bigrammes CJK, trigrams cyrilliques, hiragana. Refactoring `_detect_language_trigram()` 3 phases. Re-synthèse multi-format validée (TXT/HTML/EPUB). 26 tests ✅. 0 faux positifs ru/zh/ja.
 - [2026-02-20-hauru-v47-vocabulary-expansion-interpretations-db.md](2026-02-20-hauru-v47-vocabulary-expansion-interpretations-db.md) — 📚 v4.7 : Expansion vocabulaire 44.7%→71.0% (+26.3pp), 33 atomes × 8 langues. **panini-interpretations-db** : 7 tables hiérarchiques, 11 ouvrages ingérés (7 588 paragraphes, 118K atomes, 31K concepts). DE 92.1%, EN 85.8%.
 - [2026-02-20-hauru-v47-preamble-normalizer.md](2026-02-20-hauru-v47-preamble-normalizer.md) — 🌐 v4.7 : Normalisation préambules Gutenberg multilingues. **Fingerprints 9 langues, ≡IDENTICAL_SENSE**. Détection citations étrangères (4 méthodes, 34 latin phrases). Re-synthèse multi-format via UnifiedWork. 21 tests ✅, validé pg55456(FR)/pg11(EN)/pg2229(DE).

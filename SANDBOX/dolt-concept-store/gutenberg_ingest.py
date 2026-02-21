@@ -139,6 +139,14 @@ def get_gutenberg_url(gid: int) -> str:
     return f"https://www.gutenberg.org/cache/epub/{gid}/pg{gid}.txt"
 
 
+# URLs multi-format pour Gutenberg
+GUTENBERG_FORMAT_URLS = {
+    "txt":  "https://www.gutenberg.org/cache/epub/{gid}/pg{gid}.txt",
+    "html": "https://www.gutenberg.org/cache/epub/{gid}/pg{gid}-images.html",
+    "epub": "https://www.gutenberg.org/cache/epub/{gid}/pg{gid}-images.epub",
+}
+
+
 def download_text(gid: int, lang: str, title: str, author: str) -> Optional[str]:
     """Download a Gutenberg text. Returns the local path or None on failure."""
     outdir = os.path.join(CORPUS_DIR, lang)
@@ -163,6 +171,95 @@ def download_text(gid: int, lang: str, title: str, author: str) -> Optional[str]
     except Exception as e:
         print(f"  ⚠️  Failed to download {gid} ({title}): {e}")
         return None
+
+
+def download_format(gid: int, lang: str, fmt: str) -> Optional[str]:
+    """Download a specific format of a Gutenberg text.
+    
+    Args:
+        gid: Gutenberg ID.
+        lang: Language code.
+        fmt: Format to download ("txt", "html", "epub").
+    
+    Returns:
+        Local path to the downloaded file, or None on failure.
+    """
+    outdir = os.path.join(CORPUS_DIR, lang)
+    os.makedirs(outdir, exist_ok=True)
+    
+    ext = fmt
+    outpath = os.path.join(outdir, f"pg{gid}.{ext}")
+    
+    if os.path.exists(outpath) and os.path.getsize(outpath) > 100:
+        return outpath  # Already downloaded
+    
+    url_template = GUTENBERG_FORMAT_URLS.get(fmt)
+    if not url_template:
+        return None
+    
+    url = url_template.format(gid=gid)
+    try:
+        req = urllib.request.Request(url, headers={
+            'User-Agent': 'PaniniFS-Research/4.7 (https://github.com/stephanedenis/Panini-FS)'
+        })
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = resp.read()
+            if len(data) < 100:
+                return None
+            with open(outpath, 'wb') as f:
+                f.write(data)
+        return outpath
+    except Exception:
+        return None
+
+
+def download_all_formats(
+    gids: List[int] = None,
+    formats: List[str] = None,
+    verbose: bool = True,
+) -> Dict[int, Dict[str, str]]:
+    """Download multiple formats for specified Gutenberg IDs.
+    
+    Args:
+        gids: List of Gutenberg IDs. None = all CATALOG entries.
+        formats: List of formats to download. Default = ["txt", "html"].
+        verbose: Print progress.
+    
+    Returns:
+        {gid: {fmt: filepath}} for successful downloads.
+    """
+    if formats is None:
+        formats = ["txt", "html"]
+    
+    if gids is None:
+        entries = CATALOG
+    else:
+        gid_set = set(gids)
+        entries = [(g, l, t, a) for g, l, t, a in CATALOG if g in gid_set]
+    
+    if verbose:
+        print(f"\n{'═' * 72}")
+        print(f"MULTI-FORMAT DOWNLOAD ({len(entries)} texts × {len(formats)} formats)")
+        print(f"{'═' * 72}")
+    
+    results: Dict[int, Dict[str, str]] = {}
+    
+    for i, (gid, lang, title, _) in enumerate(entries):
+        results[gid] = {}
+        for fmt in formats:
+            path = download_format(gid, lang, fmt)
+            if path:
+                results[gid][fmt] = path
+        
+        if verbose:
+            fmts_ok = list(results[gid].keys())
+            print(f"  [{i+1}/{len(entries)}] pg{gid:5d} {lang} | {', '.join(fmts_ok):15s} | {title[:40]}")
+    
+    if verbose:
+        total = sum(len(fmts) for fmts in results.values())
+        print(f"\n  Total: {total} files downloaded/cached")
+    
+    return results
 
 
 def download_all(verbose=True) -> Dict[str, List[str]]:

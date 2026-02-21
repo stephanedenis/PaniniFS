@@ -421,6 +421,79 @@ class TestIntegrationWithValidator(unittest.TestCase):
             self.skipTest("Old version or not importable")
 
 
+class TestInformationLayers(unittest.TestCase):
+    """Tests du modèle de perte informationnelle (richest → poorest)."""
+
+    def test_format_richness_hierarchy(self):
+        """HTML > EPUB > TXT dans la hiérarchie de richesse."""
+        from gutenberg_preamble_normalizer import FORMAT_RICHNESS
+        self.assertGreater(FORMAT_RICHNESS["html"], FORMAT_RICHNESS["epub"])
+        self.assertGreater(FORMAT_RICHNESS["epub"], FORMAT_RICHNESS["txt"])
+
+    def test_information_layer_loss_vs_self(self):
+        """Un format comparé à lui-même a 0% de perte."""
+        from gutenberg_preamble_normalizer import InformationLayer
+        ref = InformationLayer(
+            headings=10, emphasis_spans=50, images=3, paragraphs=100,
+            text_words=5000, text_chars=30000
+        )
+        loss = ref.loss_vs(ref)
+        for dim, val in loss.items():
+            self.assertAlmostEqual(val, 0.0, places=3,
+                                   msg=f"Self-loss should be 0 for {dim}")
+
+    def test_txt_loses_emphasis_vs_html(self):
+        """TXT perd l'emphasis par rapport à HTML."""
+        from gutenberg_preamble_normalizer import InformationLayer
+        html_ref = InformationLayer(
+            headings=12, emphasis_spans=220, strong_spans=5, images=1,
+            links=28, paragraphs=777, text_words=26000
+        )
+        txt = InformationLayer(
+            headings=0, emphasis_spans=0, strong_spans=0, images=0,
+            links=0, paragraphs=810, text_words=26000
+        )
+        loss = txt.loss_vs(html_ref)
+        self.assertEqual(loss["emphasis_spans"], 1.0)  # 100% perdu
+        self.assertEqual(loss["images"], 1.0)           # 100% perdu
+        self.assertEqual(loss["links"], 1.0)             # 100% perdu
+        self.assertAlmostEqual(loss["text_words"], 0.0, places=2)  # ~0% perdu
+
+    def test_edition_richness_score(self):
+        """EditionFormat.richness_score reflète FORMAT_RICHNESS."""
+        from gutenberg_preamble_normalizer import EditionFormat
+        e_html = EditionFormat(gutenberg_id=11, format="html", filepath="", language="en", title="")
+        e_txt = EditionFormat(gutenberg_id=11, format="txt", filepath="", language="en", title="")
+        self.assertGreater(e_html.richness_score, e_txt.richness_score)
+
+    def test_extract_info_layers_html(self):
+        """_extract_information_layers extrait les dimensions HTML."""
+        import os
+        html_path = os.path.join(os.path.dirname(__file__),
+                                 "gutenberg_corpus", "en", "pg11.html")
+        if not os.path.exists(html_path):
+            self.skipTest("pg11.html not downloaded")
+        from gutenberg_preamble_normalizer import _extract_information_layers
+        layers = _extract_information_layers(html_path, "html")
+        self.assertGreater(layers.headings, 10)
+        self.assertGreater(layers.emphasis_spans, 100)
+        self.assertGreater(layers.text_words, 20000)
+
+    def test_extract_info_layers_txt(self):
+        """_extract_information_layers sur TXT : pas d'emphasis HTML."""
+        import os
+        txt_path = os.path.join(os.path.dirname(__file__),
+                                "gutenberg_corpus", "en", "pg11.txt")
+        if not os.path.exists(txt_path):
+            self.skipTest("pg11.txt not downloaded")
+        from gutenberg_preamble_normalizer import _extract_information_layers
+        layers = _extract_information_layers(txt_path, "txt")
+        # TXT ne devrait pas avoir de links ni de tables
+        self.assertEqual(layers.links, 0)
+        self.assertEqual(layers.tables, 0)
+        self.assertGreater(layers.text_words, 20000)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CLI
 # ═══════════════════════════════════════════════════════════════════════════════
