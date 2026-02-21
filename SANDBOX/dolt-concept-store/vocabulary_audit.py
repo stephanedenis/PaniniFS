@@ -196,22 +196,37 @@ def audit_corpus(
     total_words = sum(info["total_words"] for info in per_lang.values())
     total_content = sum(info["total_content_words"] for info in per_lang.values())
     total_atoms = sum(info["total_atom_alignments"] for info in per_lang.values())
+    total_uncov = sum(info["total_uncovered"] for info in per_lang.values())
+    # Weighted lex coverage: (total_content - total_uncov) / total_content
+    global_weighted_lex = (total_content - total_uncov) / max(total_content, 1)
+    # Simple average (legacy)
+    total_n_docs = sum(info["n_docs"] for info in per_lang.values())
+    global_lex_sum = sum(info["lex_cov_sum"] for info in per_lang.values())
+    global_avg_lex = global_lex_sum / max(total_n_docs, 1)
     
     print(f"\n{'═' * 72}")
     print(f"GLOBAL SUMMARY")
     print(f"{'═' * 72}")
     print(f"  Total words:           {total_words:,}")
     print(f"  Total content words:   {total_content:,}")
+    print(f"  Total covered:         {total_content - total_uncov:,}")
+    print(f"  Total uncovered:       {total_uncov:,}")
     print(f"  Total atom alignments: {total_atoms:,}")
-    print(f"  Global lex coverage:   {total_atoms / max(total_content, 1) * 100:.1f}%")
+    print(f"  Lex coverage (weighted): {global_weighted_lex * 100:.1f}%")
+    print(f"  Lex coverage (avg/doc):  {global_avg_lex * 100:.1f}%")
+    print(f"  Atom density:          {total_atoms / max(total_content, 1) * 100:.1f}% (atoms/content)")
     print(f"  Unique uncov words:    {total_unique_uncov:,} across {len(per_lang)} languages")
     print(f"  Analysis time:         {time.time() - t_start:.1f}s")
     
     audit_data["global"] = {
         "total_words": total_words,
         "total_content_words": total_content,
+        "total_covered": total_content - total_uncov,
+        "total_uncovered": total_uncov,
         "total_atom_alignments": total_atoms,
-        "global_lexical_coverage": round(total_atoms / max(total_content, 1), 4),
+        "lexical_coverage_weighted": round(global_weighted_lex, 4),
+        "lexical_coverage_avg_doc": round(global_avg_lex, 4),
+        "atom_density": round(total_atoms / max(total_content, 1), 4),
         "total_unique_uncovered": total_unique_uncov,
         "analysis_time_s": round(time.time() - t_start, 1),
     }

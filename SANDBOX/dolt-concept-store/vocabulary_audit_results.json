@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-20T11:57:38",
+  "timestamp": "2026-02-20T21:19:21",
   "corpus_dir": "gutenberg_corpus",
   "total_files": 11,
   "languages": {
@@ -7,132 +7,32 @@
       "files": [
         "pg19778_de.txt"
       ],
-      "total_words": 25800,
-      "total_content_words": 13497,
-      "total_atom_alignments": 11547,
-      "avg_readiness": 0.8484,
-      "avg_lexical_coverage": 0.9212,
-      "unique_uncovered_count": 2477,
+      "total_words": 25687,
+      "total_content_words": 10415,
+      "total_atom_alignments": 13366,
+      "avg_readiness": 0.8469,
+      "avg_lexical_coverage": 0.8029,
+      "unique_uncovered_count": 1232,
       "top_uncovered_words": [
         [
-          "alice",
-          762
+          "thee",
+          22
         ],
         [
-          "schildkröte",
-          106
+          "könne",
+          10
         ],
         [
-          "konnte",
-          102
+          "befand",
+          8
         ],
         [
-          "bin",
-          102
+          "steckte",
+          8
         ],
         [
-          "kaninchen",
-          86
-        ],
-        [
-          "illustration",
-          84
-        ],
-        [
-          "maus",
-          72
-        ],
-        [
-          "murmelthier",
-          72
-        ],
-        [
-          "sei",
-          68
-        ],
-        [
-          "gern",
-          62
-        ],
-        [
-          "mehr",
-          62
-        ],
-        [
-          "katze",
-          56
-        ],
-        [
-          "muß",
-          52
-        ],
-        [
-          "hast",
-          52
-        ],
-        [
-          "raupe",
-          52
-        ],
-        [
-          "faselhase",
-          50
-        ],
-        [
-          "thun",
-          48
-        ],
-        [
-          "also",
-          48
-        ],
-        [
-          "arme",
-          48
-        ],
-        [
-          "dabei",
-          46
-        ],
-        [
-          "davon",
-          44
-        ],
-        [
-          "kannst",
-          42
-        ],
-        [
-          "hätte",
-          40
-        ],
-        [
-          "natürlich",
-          40
-        ],
-        [
-          "willst",
-          40
-        ],
-        [
-          "geschwornen",
-          40
-        ],
-        [
-          "damit",
-          38
-        ],
-        [
-          "weiße",
-          38
-        ],
-        [
-          "ab",
-          38
-        ],
-        [
-          "oh",
-          38
+          "führte",
+          8
         ]
       ]
     },
@@ -141,132 +41,32 @@
         "pg11_en.txt",
         "pg19942_en.txt"
       ],
-      "total_words": 62349,
-      "total_content_words": 30669,
-      "total_atom_alignments": 27844,
-      "avg_readiness": 0.8561,
-      "avg_lexical_coverage": 0.8578,
-      "unique_uncovered_count": 4209,
+      "total_words": 62320,
+      "total_content_words": 26207,
+      "total_atom_alignments": 32170,
+      "avg_readiness": 0.8926,
+      "avg_lexical_coverage": 0.873,
+      "unique_uncovered_count": 2468,
       "top_uncovered_words": [
         [
-          "candide",
-          800
+          "grin",
+          12
         ],
         [
-          "alice",
-          766
+          "said",
+          12
         ],
         [
-          "cunegonde",
-          258
+          "sneezing",
+          12
         ],
         [
-          "“i",
-          242
+          "wow",
+          12
         ],
         [
-          "martin",
-          236
-        ],
-        [
-          "about",
-          230
-        ],
-        [
-          "cacambo",
-          164
-        ],
-        [
-          "over",
-          122
-        ],
-        [
-          "“and",
-          110
-        ],
-        [
-          "gryphon",
-          110
-        ],
-        [
-          "hatter",
-          108
-        ],
-        [
-          "turtle",
-          108
-        ],
-        [
-          "let",
-          87
-        ],
-        [
-          "rabbit",
-          86
-        ],
-        [
-          "“you",
-          80
-        ],
-        [
-          "“but",
-          78
-        ],
-        [
-          "duchess",
-          74
-        ],
-        [
-          "“what",
-          72
-        ],
-        [
-          "dormouse",
-          72
-        ],
-        [
-          "i’m",
-          70
-        ],
-        [
-          "mouse",
-          70
-        ],
-        [
-          "cat",
-          66
-        ],
-        [
-          "white",
-          64
-        ],
-        [
-          "it’s",
-          62
-        ],
-        [
-          "hare",
-          62
-        ],
-        [
-          "sheep",
-          60
-        ],
-        [
-          "“it",
-          58
-        ],
-        [
-          "caterpillar",
-          56
-        ],
-        [
-          "near",
-          55
-        ],
-        [
-          "can’t",
-          54
+          "library",
+          12
         ]
       ]
     },
@@ -274,132 +74,32 @@
       "files": [
         "pg17482_eo.txt"
       ],
-      "total_words": 25445,
-      "total_content_words": 14261,
-      "total_atom_alignments": 9646,
-      "avg_readiness": 0.7813,
-      "avg_lexical_coverage": 0.6805,
-      "unique_uncovered_count": 2308,
+      "total_words": 25383,
+      "total_content_words": 12086,
+      "total_atom_alignments": 11680,
+      "avg_readiness": 0.849,
+      "avg_lexical_coverage": 0.8227,
+      "unique_uncovered_count": 1585,
       "top_uncovered_words": [
         [
-          "alicio",
-          706
+          "jena",
+          12
         ],
         [
-          "se",
-          218
+          "ovojn",
+          12
         ],
         [
-          "damo",
-          130
+          "eligi",
+          12
         ],
         [
-          "pro",
-          124
+          "cxesxsxa",
+          12
         ],
         [
-          "povas",
-          122
-        ],
-        [
-          "kelonio",
-          116
-        ],
-        [
-          "cxapelisto",
-          104
-        ],
-        [
-          "povis",
-          86
-        ],
-        [
-          "devas",
-          82
-        ],
-        [
-          "kuniklo",
-          80
-        ],
-        [
-          "muso",
-          78
-        ],
-        [
-          "gliro",
-          74
-        ],
-        [
-          "nepre",
-          74
-        ],
-        [
-          "min",
-          74
-        ],
-        [
-          "dukino",
-          74
-        ],
-        [
-          "ol",
-          70
-        ],
-        [
-          "kato",
-          70
-        ],
-        [
-          "tuta",
-          68
-        ],
-        [
-          "nu",
-          64
-        ],
-        [
-          "martleporo",
-          62
-        ],
-        [
-          "povus",
-          60
-        ],
-        [
-          "rauxpo",
-          60
-        ],
-        [
-          "for",
-          60
-        ],
-        [
-          "sxia",
-          60
-        ],
-        [
-          "kiun",
-          56
-        ],
-        [
-          "plu",
-          48
-        ],
-        [
-          "sia",
-          44
-        ],
-        [
-          "devis",
-          44
-        ],
-        [
-          "sian",
-          42
-        ],
-        [
-          "kvazaux",
-          42
+          "uxaux",
+          12
         ]
       ]
     },
@@ -407,132 +107,32 @@
       "files": [
         "pg7109_es.txt"
       ],
-      "total_words": 32673,
-      "total_content_words": 17063,
-      "total_atom_alignments": 10850,
-      "avg_readiness": 0.7982,
-      "avg_lexical_coverage": 0.6056,
-      "unique_uncovered_count": 3294,
+      "total_words": 32648,
+      "total_content_words": 14546,
+      "total_atom_alignments": 13501,
+      "avg_readiness": 0.8739,
+      "avg_lexical_coverage": 0.7865,
+      "unique_uncovered_count": 2566,
       "top_uncovered_words": [
         [
-          "candido",
-          774
+          "echado",
+          14
         ],
         [
-          "cunegunda",
-          248
+          "repuso",
+          14
         ],
         [
-          "martin",
-          212
+          "dan",
+          12
         ],
         [
-          "panglós",
-          200
+          "alemania",
+          12
         ],
         [
-          "quando",
-          182
-        ],
-        [
-          "cacambo",
-          172
-        ],
-        [
-          "qué",
-          162
-        ],
-        [
-          "cap",
-          116
-        ],
-        [
-          "qual",
-          90
-        ],
-        [
-          "tenia",
-          70
-        ],
-        [
-          "ménos",
-          70
-        ],
-        [
-          "quanto",
-          70
-        ],
-        [
-          "tanto",
-          68
-        ],
-        [
-          "hay",
-          66
-        ],
-        [
-          "tiene",
-          56
-        ],
-        [
-          "mis",
-          56
-        ],
-        [
-          "abate",
-          50
-        ],
-        [
-          "da",
-          48
-        ],
-        [
-          "soy",
-          48
-        ],
-        [
-          "eran",
-          46
-        ],
-        [
-          "puede",
-          46
-        ],
-        [
-          "miéntras",
-          46
-        ],
-        [
-          "cabo",
-          46
-        ],
-        [
-          "hasta",
-          46
-        ],
-        [
-          "cómo",
-          46
-        ],
-        [
-          "navío",
-          46
-        ],
-        [
-          "duros",
-          44
-        ],
-        [
-          "quinta",
-          42
-        ],
-        [
-          "jesuita",
-          42
-        ],
-        [
-          "hubiera",
-          42
+          "esas",
+          12
         ]
       ]
     },
@@ -541,132 +141,32 @@
         "pg46569_fi.txt",
         "pg52336_fi.txt"
       ],
-      "total_words": 48062,
-      "total_content_words": 34706,
-      "total_atom_alignments": 19061,
-      "avg_readiness": 0.7395,
-      "avg_lexical_coverage": 0.5542,
-      "unique_uncovered_count": 7506,
+      "total_words": 48050,
+      "total_content_words": 27768,
+      "total_atom_alignments": 22912,
+      "avg_readiness": 0.8047,
+      "avg_lexical_coverage": 0.6896,
+      "unique_uncovered_count": 5945,
       "top_uncovered_words": [
         [
-          "liisa",
-          692
+          "tohtori",
+          22
         ],
         [
-          "candide",
-          552
+          "pyhä",
+          22
         ],
         [
-          "ne",
-          188
+          "pystyyn",
+          20
         ],
         [
-          "martin",
-          140
+          "mirri",
+          20
         ],
         [
-          "kunigunda",
-          124
-        ],
-        [
-          "pangloss",
-          124
-        ],
-        [
-          "vähän",
-          118
-        ],
-        [
-          "ettei",
-          118
-        ],
-        [
-          "heti",
-          112
-        ],
-        [
-          "cacambo",
-          110
-        ],
-        [
-          "candiden",
-          108
-        ],
-        [
-          "itse",
-          102
-        ],
-        [
-          "jonka",
-          100
-        ],
-        [
-          "hatuntekijä",
-          94
-        ],
-        [
-          "molemmat",
-          92
-        ],
-        [
-          "kovin",
-          83
-        ],
-        [
-          "valekilpikonna",
-          82
-        ],
-        [
-          "näin",
-          82
-        ],
-        [
-          "liisan",
-          80
-        ],
-        [
-          "aarnikotka",
-          78
-        ],
-        [
-          "nuo",
-          77
-        ],
-        [
-          "hiiri",
-          76
-        ],
-        [
-          "eivät",
-          76
-        ],
-        [
-          "erään",
-          74
-        ],
-        [
-          "neiti",
-          74
-        ],
-        [
-          "jälleen",
-          71
-        ],
-        [
-          "vihdoin",
-          69
-        ],
-        [
-          "jota",
-          68
-        ],
-        [
-          "kunigundan",
-          68
-        ],
-        [
-          "ensin",
-          67
+          "filosofi",
+          20
         ]
       ]
     },
@@ -675,132 +175,32 @@
         "pg4650_fr.txt",
         "pg55456_fr.txt"
       ],
-      "total_words": 60338,
-      "total_content_words": 32907,
-      "total_atom_alignments": 24015,
-      "avg_readiness": 0.8213,
-      "avg_lexical_coverage": 0.7176,
-      "unique_uncovered_count": 4723,
+      "total_words": 60307,
+      "total_content_words": 26878,
+      "total_atom_alignments": 28185,
+      "avg_readiness": 0.8578,
+      "avg_lexical_coverage": 0.7709,
+      "unique_uncovered_count": 3360,
       "top_uncovered_words": [
         [
-          "candide",
-          804
+          "sciences",
+          14
         ],
         [
-          "alice",
-          740
+          "métier",
+          14
         ],
         [
-          "tous",
-          284
+          "nommé",
+          14
         ],
         [
-          "qu’il",
-          278
+          "violée",
+          14
         ],
         [
-          "cunégonde",
-          262
-        ],
-        [
-          "martin",
-          232
-        ],
-        [
-          "quand",
-          226
-        ],
-        [
-          "pangloss",
-          202
-        ],
-        [
-          "c’est",
-          182
-        ],
-        [
-          "cacambo",
-          172
-        ],
-        [
-          "j’ai",
-          154
-        ],
-        [
-          "aussi",
-          146
-        ],
-        [
-          "qu’on",
-          142
-        ],
-        [
-          "d’un",
-          134
-        ],
-        [
-          "faut",
-          116
-        ],
-        [
-          "chapelier",
-          110
-        ],
-        [
-          "alors",
-          104
-        ],
-        [
-          "lapin",
-          104
-        ],
-        [
-          "pouvait",
-          98
-        ],
-        [
-          "vu",
-          91
-        ],
-        [
-          "ainsi",
-          90
-        ],
-        [
-          "d’une",
-          84
-        ],
-        [
-          "mit",
-          82
-        ],
-        [
-          "illustration",
-          82
-        ],
-        [
-          "n'y",
-          78
-        ],
-        [
-          "oh",
-          74
-        ],
-        [
-          "n’y",
-          72
-        ],
-        [
-          "près",
-          71
-        ],
-        [
-          "vaisseau",
-          70
-        ],
-        [
-          "loir",
-          68
+          "aient",
+          14
         ]
       ]
     },
@@ -808,132 +208,32 @@
       "files": [
         "pg28371_it.txt"
       ],
-      "total_words": 23730,
-      "total_content_words": 13998,
-      "total_atom_alignments": 9109,
-      "avg_readiness": 0.7738,
-      "avg_lexical_coverage": 0.713,
-      "unique_uncovered_count": 2539,
+      "total_words": 23662,
+      "total_content_words": 11695,
+      "total_atom_alignments": 11305,
+      "avg_readiness": 0.8218,
+      "avg_lexical_coverage": 0.7641,
+      "unique_uncovered_count": 1691,
       "top_uncovered_words": [
         [
-          "alice",
-          776
+          "mica",
+          10
         ],
         [
-          "coniglio",
-          98
+          "bere",
+          10
         ],
         [
-          "illustrazione",
-          84
+          "mutamento",
+          10
         ],
         [
-          "sorcio",
-          78
+          "accorse",
+          10
         ],
         [
-          "ghiro",
-          74
-        ],
-        [
-          "quì",
-          72
-        ],
-        [
-          "no",
-          64
-        ],
-        [
-          "de",
-          64
-        ],
-        [
-          "oh",
-          62
-        ],
-        [
-          "gatto",
-          62
-        ],
-        [
-          "lepre-marzolina",
-          62
-        ],
-        [
-          "stava",
-          60
-        ],
-        [
-          "bruco",
-          58
-        ],
-        [
-          "quale",
-          52
-        ],
-        [
-          "forse",
-          52
-        ],
-        [
-          "faccia",
-          52
-        ],
-        [
-          "mise",
-          50
-        ],
-        [
-          "sul",
-          46
-        ],
-        [
-          "giù",
-          46
-        ],
-        [
-          "quanto",
-          46
-        ],
-        [
-          "appena",
-          44
-        ],
-        [
-          "sino",
-          44
-        ],
-        [
-          "giurati",
-          44
-        ],
-        [
-          "c'è",
-          42
-        ],
-        [
-          "me",
-          42
-        ],
-        [
-          "bianco",
-          40
-        ],
-        [
-          "fuori",
-          40
-        ],
-        [
-          "vorrei",
-          40
-        ],
-        [
-          "nulla",
-          38
-        ],
-        [
-          "meglio",
-          38
+          "benchè",
+          10
         ]
       ]
     },
@@ -941,142 +241,46 @@
       "files": [
         "pg9000_sa.txt"
       ],
-      "total_words": 1454,
-      "total_content_words": 1413,
-      "total_atom_alignments": 438,
-      "avg_readiness": 0.4947,
-      "avg_lexical_coverage": 0.3111,
-      "unique_uncovered_count": 901,
+      "total_words": 1438,
+      "total_content_words": 1368,
+      "total_atom_alignments": 599,
+      "avg_readiness": 0.555,
+      "avg_lexical_coverage": 0.4371,
+      "unique_uncovered_count": 752,
       "top_uncovered_words": [
         [
-          "vishnum",
-          8
-        ],
-        [
-          "vishnur",
-          8
-        ],
-        [
-          "stuvan",
-          6
-        ],
-        [
-          "maadhavo",
-          6
-        ],
-        [
-          "vaasudevo",
-          6
-        ],
-        [
-          "shreyah",
-          6
-        ],
-        [
-          "srinivasan",
+          "yamah",
           4
         ],
         [
-          "karthik",
+          "pranavah",
           4
         ],
         [
-          "krishnan",
+          "daxo",
           4
         ],
         [
-          "formatted",
+          "xaamah",
           4
         ],
         [
-          "proofed",
-          4
-        ],
-        [
-          "venkat-ramani",
-          4
-        ],
-        [
-          "etext",
-          4
-        ],
-        [
-          "using",
-          4
-        ],
-        [
-          "at",
-          4
-        ],
-        [
-          "chaturbhujam",
-          4
-        ],
-        [
-          "asheshena",
-          4
-        ],
-        [
-          "matah",
-          4
-        ],
-        [
-          "bhaktyaa",
-          4
-        ],
-        [
-          "me",
-          4
-        ],
-        [
-          "vishnor",
-          4
-        ],
-        [
-          "evacha",
-          4
-        ],
-        [
-          "yogo",
-          4
-        ],
-        [
-          "shrimaan",
-          4
-        ],
-        [
-          "pushkaraaxo",
-          4
-        ],
-        [
-          "krshno",
-          4
-        ],
-        [
-          "vikramah",
-          4
-        ],
-        [
-          "ahah",
-          4
-        ],
-        [
-          "samvatsaro",
-          4
-        ],
-        [
-          "siddhah",
+          "ya~na",
           4
         ]
       ]
     }
   },
   "global": {
-    "total_words": 279851,
-    "total_content_words": 158514,
-    "total_atom_alignments": 112510,
-    "global_lexical_coverage": 0.7098,
-    "total_unique_uncovered": 27957,
-    "analysis_time_s": 451.0
+    "total_words": 279495,
+    "total_content_words": 130963,
+    "total_covered": 101337,
+    "total_uncovered": 29626,
+    "total_atom_alignments": 133718,
+    "lexical_coverage_weighted": 0.7738,
+    "lexical_coverage_avg_doc": 0.7528,
+    "atom_density": 1.021,
+    "total_unique_uncovered": 19599,
+    "analysis_time_s": 641.8
   }
 }

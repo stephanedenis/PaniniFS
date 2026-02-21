@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-20-hauru-v48-vocabulary-coverage-77pct.md](2026-02-20-hauru-v48-vocabulary-coverage-77pct.md) — 📊 v4.8 : Couverture lexicale 67.6%→77.4% (+9.8pp). `_is_covered_enhanced()` 7 stratégies (préfixes DE, suffixes FI, composés, apostrophes). 6 rounds expansion (~1400 stop words, ~1050 keywords, ~110 noms propres). EN 84.9%, DE 83.2%, EO 81.4%, FR 80.6%.
 - [2026-02-20-hauru-v474-schema-v12-export.md](2026-02-20-hauru-v474-schema-v12-export.md) — 📦 v4.7.4 : Schema v1.2 export enrichi. `information_layers` + `format_consistency` dans SemanticExport. Illustrations multilingues (8 variantes). `InformationLayer.to_dict()`. Batch multi-format. 39 tests ✅.
 - [2026-02-20-hauru-v473-information-loss-model.md](2026-02-20-hauru-v473-information-loss-model.md) — 📉 v4.7.3 : Modèle de perte d'information (HTML→TXT). **`InformationLayer`** 15 dimensions, `FORMAT_RICHNESS` hiérarchie, `loss_vs()` bit-perfect. EPUB 8.3% perte, TXT 66-75%. Multi-format download. 32 tests ✅. Validé EN/FR/RU.
 - [2026-02-20-hauru-v472-multiscript-trigrams.md](2026-02-20-hauru-v472-multiscript-trigrams.md) — 🌏 v4.7.2 : Extension trigrammes multi-scripts (ru/ja/zh). **`LANGUAGE_NGRAM_CONFIG`** bigrammes CJK, trigrams cyrilliques, hiragana. Refactoring `_detect_language_trigram()` 3 phases. Re-synthèse multi-format validée (TXT/HTML/EPUB). 26 tests ✅. 0 faux positifs ru/zh/ja.

@@ -123,6 +123,35 @@ try:
 except ImportError:
     HAS_EXPANSION = False
 
+# v4.8: Round 2 massive vocabulary expansion — proper nouns, animals, contractions
+try:
+    from vocabulary_expansion_v48 import (
+        EXPANSION_KEYWORDS_V48, STOP_WORDS_V48,
+        PROPER_NOUN_AGENTS, LITERARY_STOP_WORDS,
+        EXTRA_PUNCTUATION_V48,
+    )
+    # Merge v48 expansion keywords into ATOM_KEYWORDS
+    for _atom, _langs in EXPANSION_KEYWORDS_V48.items():
+        if _atom in ATOM_KEYWORDS:
+            for _lang, _words in _langs.items():
+                if _lang in ATOM_KEYWORDS[_atom]:
+                    _existing = set(ATOM_KEYWORDS[_atom][_lang])
+                    _new = [w for w in _words if w not in _existing]
+                    ATOM_KEYWORDS[_atom][_lang].extend(_new)
+                else:
+                    ATOM_KEYWORDS[_atom][_lang] = list(_words)
+        else:
+            ATOM_KEYWORDS[_atom] = {_l: list(_w) for _l, _w in _langs.items()}
+    # Merge proper noun agents into AGENT atom keywords (all languages)
+    if "AGENT" in ATOM_KEYWORDS:
+        for _lang in ATOM_KEYWORDS["AGENT"]:
+            _existing = set(ATOM_KEYWORDS["AGENT"][_lang])
+            _new = [w for w in PROPER_NOUN_AGENTS if w not in _existing]
+            ATOM_KEYWORDS["AGENT"][_lang].extend(_new)
+    HAS_EXPANSION_V48 = True
+except ImportError:
+    HAS_EXPANSION_V48 = False
+
 # Same concept mappings as v3-alpha (for paragraph_concepts)
 # v2.4: all 95 multi-atom concepts including ABS-dependent ones
 # ABS atoms (MESURE, STRUCTURE, RELATION, RÉCURRENCE, INVARIANCE, ORDRE)

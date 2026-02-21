@@ -43,6 +43,192 @@ except ImportError:
     EXTRA_STOP_WORDS = {}
     EXTRA_PUNCTUATION_CHARS = ""
 
+# v4.8: Round 2 expansion — more stop words, proper nouns, literary words
+try:
+    from vocabulary_expansion_v48 import (
+        STOP_WORDS_V48, PROPER_NOUN_AGENTS, LITERARY_STOP_WORDS,
+        EXTRA_PUNCTUATION_V48,
+    )
+    _HAS_EXPANSION_V48 = True
+except ImportError:
+    _HAS_EXPANSION_V48 = False
+    STOP_WORDS_V48 = {}
+    PROPER_NOUN_AGENTS = set()
+    LITERARY_STOP_WORDS = set()
+    EXTRA_PUNCTUATION_V48 = ""
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# v4.8: MORPHOLOGICAL SUFFIX STRIPPING (for inflected form coverage)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+MORPHO_SUFFIXES = {
+    "en": ["ingness", "lessly", "ingly", "ously", "edly", "ically", "ally",
+           "ation", "ment", "ness", "tion", "sion", "ous", "ful", "less",
+           "able", "ible", "ive", "ity", "ise", "ize", "ling",
+           "ing", "ed", "ly", "er", "est", "al", "es", "s"],
+    "fr": ["issement", "erait", "eront", "erais", "erions", "eriez",
+           "aient", "ement", "tion", "sion", "ité", "ment",
+           "ais", "ait", "ons", "ez", "ant", "eur", "euse", "eurs",
+           "ées", "ée", "és", "ère", "ères", "eux", "eaux",
+           "ât", "ît", "ût", "ent", "ais", "ait"],
+    "de": ["ungen", "ieren", "ierte", "ierten", "lich", "keit", "heit",
+           "isch", "ische", "ischen", "iges", "iger",
+           "ung", "bar", "sam", "ern", "eln", "ten", "en", "te",
+           "ig", "ige", "es", "er", "em", "et", "st", "t", "e", "n"],
+    "es": ["ción", "sión", "mente", "ieron", "aron", "aban", "ando", "iendo",
+           "ados", "adas", "ado", "ada", "ía", "ían", "ible", "able", "aba",
+           "ó", "án", "ás", "é", "ió", "emos", "éis"],
+    "it": ["zione", "mente", "izzare", "izzato", "eggiare", "ibile", "abile",
+           "ando", "endo", "ato", "ata", "ati", "ate", "ava", "ò",
+           "arono", "ire", "ere", "are", "ire", "ì", "arono"],
+    "fi": ["ttiin", "ssaan", "ssään", "llaan", "lleen", "staan", "stään",
+           "ttaan", "ttään", "matta", "iseen",
+           "mme", "tte", "vat", "vät", "nsa", "nsä", "ssa", "ssä",
+           "lla", "llä", "sta", "stä", "lle", "lta", "ltä", "tta", "ttä",
+           "ksi", "nut", "nyt", "neet", "isi",
+           "kin", "kaan", "kään", "han", "hän", "kö", "pä",
+           "aan", "ään", "een", "oon",
+           "in", "an", "en", "ön", "nä", "on", "ät", "öt",
+           "aa", "ää", "ta", "tä", "na", "nä", "n", "t", "a", "ä"],
+    "eo": ["ojn", "inta", "anta", "igxi", "igxas", "igi", "igxis",
+           "ita", "ata", "inta", "anta",
+           "as", "is", "os", "us", "oj", "on", "an", "in",
+           "ajn", "ejn", "oj", "ajxo", "ejo"],
+    "sa": [],
+}
+
+# German prefixes that may be stripped for compound matching
+_DE_PREFIXES = ["ver", "ent", "be", "ge", "er", "zer", "miss",
+                "an", "auf", "aus", "ein", "um", "vor", "zu",
+                "ab", "hin", "her", "nach", "über", "unter", "mit",
+                "durch", "wider", "wieder"]
+
+# Minimum stem length per language (Finnish/Esperanto allow shorter stems)
+_MIN_STEM_LEN = {
+    "fi": 2, "eo": 2, "sa": 2,
+    "en": 3, "fr": 3, "de": 3, "es": 3, "it": 3,
+}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# v4.8: GLOBAL KEYWORD INDEX (all known atom keywords, per language)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_GLOBAL_KEYWORDS = {}  # {lang: set(keywords), "_all": set(all)}
+
+
+def _build_global_keyword_index():
+    """Build a per-language set of all known atom keywords for coverage checks."""
+    global _GLOBAL_KEYWORDS
+    try:
+        from seven_layers_engine import ATOM_KEYWORDS
+        for atom_id, langs in ATOM_KEYWORDS.items():
+            for lang, words in langs.items():
+                if lang not in _GLOBAL_KEYWORDS:
+                    _GLOBAL_KEYWORDS[lang] = set()
+                if isinstance(words, (list, set, tuple)):
+                    _GLOBAL_KEYWORDS[lang].update(w.lower() for w in words)
+                elif isinstance(words, str):
+                    _GLOBAL_KEYWORDS[lang].add(words.lower())
+        # Build "all" set as union of all languages
+        all_kw = set()
+        for s in _GLOBAL_KEYWORDS.values():
+            all_kw.update(s)
+        _GLOBAL_KEYWORDS["_all"] = all_kw
+    except ImportError:
+        pass
+
+# Also include proper nouns in global index
+def _extend_global_with_proper_nouns():
+    """Add PROPER_NOUN_AGENTS to global keyword index for coverage."""
+    if _HAS_EXPANSION_V48 and PROPER_NOUN_AGENTS:
+        if "_all" not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS["_all"] = set()
+        _GLOBAL_KEYWORDS["_all"].update(w.lower() for w in PROPER_NOUN_AGENTS)
+
+_build_global_keyword_index()
+_extend_global_with_proper_nouns()
+
+
+def _is_covered_enhanced(word: str, atom_words: set, lang: str) -> bool:
+    """Check if a content word is covered using multiple strategies.
+
+    Strategies (in order):
+      1. Direct match against paragraph atom word forms
+      2. Direct match against global keyword index
+      3. Compound splitting (hyphen): any component in known keywords
+      4. Apostrophe splitting (d'alice → alice, l'abbé → abbé)
+      5. Morphological suffix stripping (with language-aware min stem)
+      6. German prefix stripping (ver-, ent-, be-, ge-, er-, zer-, etc.)
+      7. Two-pass suffix stripping (remove suffix, then try again)
+    """
+    # 1. Direct match against paragraph atoms
+    if word in atom_words:
+        return True
+
+    # 2. Check against global keyword index (language-specific + all)
+    gk = _GLOBAL_KEYWORDS.get(lang, set()) | _GLOBAL_KEYWORDS.get("_all", set())
+    if word in gk:
+        return True
+
+    # Helper: check if a candidate is in any known set
+    def _in_known(w):
+        return w in atom_words or w in gk
+
+    # 3. Compound splitting (hyphen): rabbit-hole → rabbit, hole
+    if '-' in word:
+        parts = [p for p in word.split('-') if len(p) >= 2]
+        if parts and any(_in_known(p) for p in parts):
+            return True
+
+    # 4. Apostrophe splitting: d'alice → alice, l'abbé → abbé, ch'è → è
+    if "'" in word:
+        parts = [p for p in word.split("'") if len(p) >= 1]
+        if parts and any(_in_known(p) for p in parts if len(p) >= 2):
+            return True
+
+    # Suffix list for this language
+    suffixes = MORPHO_SUFFIXES.get(lang, [])
+    min_stem = _MIN_STEM_LEN.get(lang, 3)
+
+    # 5. Suffix stripping (single pass)
+    for suffix in suffixes:
+        if word.endswith(suffix) and len(word) - len(suffix) >= min_stem:
+            stem = word[:-len(suffix)]
+            if _in_known(stem):
+                return True
+
+    # 6. German prefix stripping: ver|ent|be|ge|er|zer + root → root
+    if lang == "de":
+        for prefix in _DE_PREFIXES:
+            if word.startswith(prefix) and len(word) - len(prefix) >= 3:
+                root = word[len(prefix):]
+                if _in_known(root):
+                    return True
+                # Prefix + suffix combo: ver-wirr-t → wirr
+                for suffix in suffixes:
+                    if root.endswith(suffix) and len(root) - len(suffix) >= 2:
+                        inner = root[:-len(suffix)]
+                        if _in_known(inner):
+                            return True
+
+    # 7. Two-pass suffix stripping: remove one suffix, then try another
+    #    e.g. "hastily" → "hasti" → fail, but "filled" → "fill" → match
+    #    Also handles double-inflected forms like "ungen" → "ung" + base
+    for suffix1 in suffixes:
+        if word.endswith(suffix1) and len(word) - len(suffix1) >= min_stem:
+            stem1 = word[:-len(suffix1)]
+            for suffix2 in suffixes:
+                if (stem1.endswith(suffix2)
+                        and len(stem1) - len(suffix2) >= min_stem
+                        and suffix2 != suffix1):
+                    stem2 = stem1[:-len(suffix2)]
+                    if _in_known(stem2):
+                        return True
+
+    return False
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # STOP WORDS — function words that carry no semantic content
@@ -151,10 +337,16 @@ DEFAULT_STOP_WORDS = {".", ",", ";", ":", "!", "?", "(", ")", "[", "]", "{", "}"
 
 
 def get_stop_words(lang: str) -> set:
-    """Get stop words for a language, with fallback + v4.7 expansion."""
+    """Get stop words for a language, with fallback + v4.7/v4.8 expansion."""
     base = STOP_WORDS.get(lang, set()) | DEFAULT_STOP_WORDS
     if _HAS_EXPANSION and lang in EXTRA_STOP_WORDS:
         base = base | EXTRA_STOP_WORDS[lang]
+    # v4.8: additional stop words and literary words (but NOT proper nouns:
+    # proper nouns are content words mapped to AGENT atom, not stop words)
+    if _HAS_EXPANSION_V48:
+        if lang in STOP_WORDS_V48:
+            base = base | set(STOP_WORDS_V48[lang])
+        base = base | LITERARY_STOP_WORDS
     return base
 
 
@@ -188,6 +380,13 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
     CJK-aware: treats each character as a potential word."""
     # Extended punctuation chars (v4.7)
     _strip = EXTRA_PUNCTUATION_CHARS if _HAS_EXPANSION else ".,;:!?\"'()-–—…[]{}«»"
+    # v4.8: extend with additional quote/dash characters
+    if _HAS_EXPANSION_V48:
+        _strip = _strip + EXTRA_PUNCTUATION_V48
+    # v4.8: normalize curly/smart apostrophes to straight apostrophe
+    # This ensures contractions like I'm/qu'il match stop words consistently
+    text = text.replace('\u2019', "'").replace('\u2018', "'")
+    text = text.replace('\u201c', '"').replace('\u201d', '"')
     if lang in ("ja", "zh"):
         content = []
         for ch in text:
@@ -335,14 +534,40 @@ def analyze_paragraph_fidelity(
     # L2: Atom alignments
     atoms = layer.get("atoms", [])
     pf.atom_alignments = len(atoms)
-    atom_words = {a.get("word", "").lower().strip(".,;:!?\"'()-") for a in atoms}
+    # Use same strip chars as get_content_words for consistent matching
+    _atom_strip = EXTRA_PUNCTUATION_CHARS if _HAS_EXPANSION else ".,;:!?\"'()-–—…[]{}«»"
+    if _HAS_EXPANSION_V48:
+        _atom_strip = _atom_strip + EXTRA_PUNCTUATION_V48
+    atom_words = set()
+    for a in atoms:
+        w = a.get("word", "").lower().strip(_atom_strip)
+        # Normalize curly apostrophes (same as get_content_words)
+        w = w.replace('\u2019', "'").replace('\u2018', "'")
+        if w:
+            atom_words.add(w)
     pf.atoms_unique = len(set(a.get("atom", "") for a in atoms))
-    pf.lexical_coverage = pf.atom_alignments / max(pf.content_word_count, 1)
+    # Also collect keyword forms from atoms (e.g., keyword="rabbit" for word="rabbit-hole")
+    for a in atoms:
+        kw = a.get("keyword", "")
+        if isinstance(kw, str) and kw:
+            kw_clean = kw.lower().strip(_atom_strip)
+            if kw_clean:
+                atom_words.add(kw_clean)
+        elif isinstance(kw, list):
+            for k in kw:
+                k_clean = str(k).lower().strip(_atom_strip)
+                if k_clean:
+                    atom_words.add(k_clean)
+    # Lexical coverage = unique content words that are covered
+    # Uses enhanced matching: atom words + global keywords + suffix stripping + compound splitting
+    covered_count = sum(1 for cw in content_words
+                        if _is_covered_enhanced(cw, atom_words, lang))
+    pf.lexical_coverage = covered_count / max(pf.content_word_count, 1)
     pf.atom_density = pf.atom_alignments / max(pf.word_count, 1)
     
-    # Find uncovered content words
+    # Find uncovered content words (using enhanced matching)
     for cw in content_words:
-        if cw not in atom_words:
+        if not _is_covered_enhanced(cw, atom_words, lang):
             pf.uncovered_content_words.append(cw)
     
     # L3: Morphology
