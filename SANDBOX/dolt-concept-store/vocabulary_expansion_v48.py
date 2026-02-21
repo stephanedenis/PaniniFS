@@ -2717,3 +2717,186 @@ PROPER_NOUN_AGENTS_R6 = {
 }
 
 PROPER_NOUN_AGENTS.update(PROPER_NOUN_AGENTS_R6)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ROUND 7 (v4.8.1) — Post-stemmer targeted expansion
+# Targets: irregular verb forms, common nouns/adjectives missed by stemmers,
+# remaining stop words. Based on v4.8.1 audit (80.3% weighted).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+STOP_WORDS_V48_R7 = {
+    "en": {"said", "wow", "dr", "mr", "mrs", "sir", "ma'am", "oh", "ah",
+           "found", "got", "went", "came", "done", "gone", "seen", "taken",
+           "told", "gave", "made", "let", "put", "kept", "left", "held",
+           "brought", "thought", "set", "sat", "stood", "lay", "fell",
+           "grew", "knew", "drew", "wore", "bore", "spoke", "broke",
+           "chose", "forgot", "arose", "began", "became", "upon"},
+    "de": {"thee", "mehre", "unsere", "euer", "eurem", "euern", "wißt",
+           "möchtest", "könne", "könntet", "solle", "müsse", "dürfe",
+           "zwischen", "unserer", "unseres", "unserem", "unseren",
+           "jene", "jener", "jenem", "jenes", "jenen",
+           "dessen", "deren", "derer", "gar", "doch", "etwa",
+           "lieber", "bitte", "sogar", "solch", "solche", "solcher",
+           "mancher", "manches", "manchem", "welches", "welchem", "welchen"},
+    "fr": {"aient", "eût", "eussent", "fût", "fussent",
+           "avait-il", "dit-il", "dit-elle", "faut-il",
+           "n'aviez", "n'avait", "n'avais", "n'ai", "n'est",
+           "qu'elle", "qu'il", "qu'ils", "qu'elles", "qu'on",
+           "c'était", "c'est-à-dire", "celui-ci", "celle-ci",
+           "jusqu'à", "jusque", "lorsque", "tandis", "puisque",
+           "quoique", "parmi", "malgré", "certes", "guère",
+           "voilà", "voici", "aussitôt", "sitôt", "bientôt",
+           "d'abord", "d'ailleurs", "d'après", "d'autre",
+           "d'angleterre", "d'honneur", "l'honneur", "l'on",
+           "tiens"},
+    "es": {"dan", "esas", "esos", "aquel", "aquella", "aquellos",
+           "conmigo", "contigo", "consigo", "vos",
+           "habían", "estaban", "podian", "tenían", "hacían",
+           "había", "hubo", "hemos", "habéis", "dieron",
+           "cuyo", "cuya", "cuyos", "cuyas",
+           "demás", "tampoco", "acaso", "apenas", "quizá",
+           "siempre", "nunca", "jamás", "todavía", "aún",
+           "según", "incluso", "luego", "pues", "sino"},
+    "it": {"mica", "benchè", "sinchè", "potrò", "dovrei",
+           "debbo", "fanno", "vuoi", "fossi",
+           "n'è", "l'ho", "l'avea", "l'ha", "s'accorse",
+           "l'usciolino", "qualcuno", "qualcosa", "ognuno",
+           "ciascuno", "nessuno", "chiunque", "dovunque",
+           "affinchè", "cosicchè", "nonostante", "sebbene",
+           "eppure", "dunque", "perciò", "anzichè", "giacchè"},
+    "fi": {"paitsi", "varten", "mukaan", "välillä", "hiukan",
+           "minkätähden", "senvuoksi", "taaskin", "ikään",
+           "tahansa", "muka", "myöskään", "kyllin",
+           "sinulla", "sinulle", "sinua", "sinun",
+           "hänelle", "hänellä", "hänestä", "häneen",
+           "meillä", "meille", "meidän", "heillä", "heille",
+           "minulla", "minulle", "minua", "minun",
+           "kenellä", "kenelle", "ketään", "kukaan",
+           "mikään", "missään", "mitään", "milloin",
+           "joskin", "vaikka", "vaikkei", "silti", "kuitenkin"},
+    "eo": {"ia", "sx", "uxaux", "cxesxsxa", "tiamaniere",
+           "plue", "necese", "sxakto", "jena", "jenaj"},
+}
+
+for _lang, _words in STOP_WORDS_V48_R7.items():
+    if _lang in STOP_WORDS_V48:
+        existing = set(STOP_WORDS_V48[_lang])
+        existing.update(_words)
+        STOP_WORDS_V48[_lang] = list(existing)
+    else:
+        STOP_WORDS_V48[_lang] = list(_words)
+
+
+EXPANSION_KEYWORDS_V48_R7 = {
+    "COMMUNICATION": {
+        "en": ["library", "service", "merit", "exercise", "virtue",
+               "sciences", "praise", "praised", "prove", "shown",
+               "amend", "amended", "ransom", "chorus", "cured"],
+        "de": ["behaupten", "chor", "brummte", "entzücken"],
+        "fr": ["sciences", "métier", "nommé", "termes", "affaires",
+               "mérite", "canons", "cordelier", "tragédies",
+               "éprouvé", "élevé", "suffisante"],
+        "es": ["respeto", "mérito", "tragedia", "idioma", "consejo",
+               "gobierno", "visita", "siguiente", "plaza",
+               "repuso", "encuentra"],
+        "it": ["esempio", "quistione"],
+        "fi": ["neuvoa", "mestari", "tohtori"],
+        "eo": ["rimedo", "konstatis", "profitis", "dankas",
+               "aplauxdis", "klinis", "manko"],
+    },
+    "AGENT": {
+        "en": ["admiral", "senator", "human", "kid"],
+        "de": ["fräulein", "bube", "laune"],
+        "fr": ["bourreau", "gueux", "flamant"],
+        "es": ["forasteros", "alguacil", "sugeto"],
+        "it": ["cagnolino", "meschina", "rose", "rosajo"],
+        "fi": ["eukko", "käärme"],
+        "eo": ["fenikopteron", "kapablon"],
+    },
+    "MOUVEMENT": {
+        "en": ["waving", "blows", "redoubled", "sneezing", "seat"],
+        "de": ["befand", "steckte", "führte", "anfängt", "erhob",
+               "sitzen", "trug", "rieb", "verwandelt"],
+        "fr": ["debout", "rapetisser"],
+        "es": ["echado", "cogió", "ofreció", "aportáron"],
+        "it": ["accorse", "colse", "scosse", "rimise", "depose",
+               "ritornò", "picchiare", "rassomigliava"],
+        "fi": ["pystyyn", "vietiin", "pisti", "kiireesti", "äkäisesti"],
+        "eo": ["eligi", "eligis", "ekscitite", "eksciteco",
+               "petegas", "enigxi", "mirigite"],
+    },
+    "PERCEPTION": {
+        "en": ["naked", "grey", "green", "black", "flames"],
+        "de": ["teleskop", "sorgfältig", "furchtsam"],
+        "fr": ["oiseaux", "cochons", "lézard", "hérisson", "brou"],
+        "es": ["atónito", "izquierda", "vinagre"],
+        "it": ["tuono", "pipa", "oriuolo", "mazzo"],
+        "fi": ["pyhä", "laiva", "laivan", "laivaan", "viitonen",
+               "hassu", "ranskan", "espanjan"],
+    },
+    "LIEU": {
+        "en": ["chimney", "america"],
+        "de": ["pfuhl", "wohnen", "rosenstrauch"],
+        "fr": ["soixante"],
+        "es": ["alemania", "aleman", "meson", "enramada"],
+        "eo": ["hejmo", "posxo"],
+        "fi": ["mahdotonta"],
+    },
+    "CHOSE": {
+        "en": ["hookah", "eggs", "prizes"],
+        "de": ["tasche", "ellbogen", "stäbchen", "fläschchen",
+               "töpfe", "athem"],
+        "fr": ["porc"],
+        "es": ["setenta", "cuitas", "abaros"],
+        "it": ["bere", "bevi", "scommetto", "gioja", "arruffata",
+               "casettina", "pajo"],
+        "fi": ["piasteria", "kunnon", "tahdon", "tahdotte"],
+        "eo": ["pipon", "dekstran", "tauxgan", "sxuojn",
+               "brovojn", "geregxoj"],
+    },
+    "QUAL": {
+        "en": ["badly"],
+        "de": ["unnütz"],
+        "fr": ["aisément", "violée"],
+        "es": ["linda", "violada", "tuviéron"],
+        "it": ["osò"],
+        "fi": ["luullakseni"],
+    },
+    "DESTRUCTION": {
+        "fr": ["bourreau"],
+        "es": ["dexado"],
+    },
+    "COGNITION": {
+        "en": ["sciences"],
+        "de": ["vervielfraßen"],
+        "eo": ["melankolie", "preferus"],
+    },
+    "DOMINATION": {
+        "es": ["cesar"],
+    },
+    "POSSESSION": {
+        "fi": ["raha"],
+        "eo": ["ovojn"],
+    },
+}
+
+for _atom, _langs in EXPANSION_KEYWORDS_V48_R7.items():
+    if _atom not in EXPANSION_KEYWORDS_V48:
+        EXPANSION_KEYWORDS_V48[_atom] = {}
+    for _lang, _words in _langs.items():
+        if _lang in EXPANSION_KEYWORDS_V48[_atom]:
+            existing = set(EXPANSION_KEYWORDS_V48[_atom][_lang])
+            existing.update(_words)
+            EXPANSION_KEYWORDS_V48[_atom][_lang] = list(existing)
+        else:
+            EXPANSION_KEYWORDS_V48[_atom][_lang] = list(_words)
+
+
+PROPER_NOUN_AGENTS_R7 = {
+    "edward", "clara", "marianne", "guillaume", "andalusian",
+    "acmet", "cesar", "voltaire", "vilhelmo",
+    "america", "alemania",
+}
+
+PROPER_NOUN_AGENTS.update(PROPER_NOUN_AGENTS_R7)
