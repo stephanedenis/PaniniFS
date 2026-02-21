@@ -521,6 +521,9 @@ SCRIPT_PROFILES = {
 }
 
 # Trigrams de haute fréquence par langue pour identification rapide
+# Pour les langues CJK, on utilise des bigrammes (plus significatifs que les trigrammes
+# pour des écritures idéographiques). La clé "ngram_size" dans LANGUAGE_NGRAM_CONFIG
+# indique la taille à utiliser.
 LANGUAGE_TRIGRAMS = {
     "en": {"the", "and", "ing", "ion", "tio", "ent", "ati", "for", "her", "ter",
            "hat", "tha", "ere", "his", "not", "was", "all", "ons",
@@ -543,6 +546,39 @@ LANGUAGE_TRIGRAMS = {
            "oor", "ijk", "ver", "sch"},
     "la": {"que", "ium", "unt", "tur", "ent", "tis", "est", "ati", "bus",
            "ris", "rum", "ere", "ens", "ant"},
+    # ── Cyrillic (broadly common — function words, suffixes, particles) ───
+    "ru": {"что", "его", "все", "как", "это", "она", "они", "или", "так",
+           "при", "про", "ого", "его", "ной", "ала", "ать", "ить", "ост",
+           "сть", "ени", "ень", "тво", "ест", "ств", "пре", "енн", "стр",
+           "тся", "сво", "ска", "ком", "ова", "был", "ыла", "ыло", "ыли",
+           "ого", "ому", "ным", "ных", "ной", "ное", "ний", "гов", "ово",
+           "каз", "пос", "сле", "ред", "пер", "чер", "еще", "ожн", "жно"},
+    # ── Japanese (hiragana trigrams — most distinctive functional words) ──
+    "ja": {"であ", "ある", "てい", "いた", "って", "てい", "なが", "がら",
+           "よう", "うに", "ので", "のよ", "たの", "して", "ばか", "かり",
+           "そう", "うし", "する", "ると", "しか", "かし", "さっ", "っき",
+           "です", "ます", "した", "から", "こと", "それ", "この", "もの"},
+    # ── Chinese (CJK bigrams — high-frequency function pairs) ────────────
+    "zh": {"的是", "不是", "一個", "了一", "也不", "什么", "我們", "那里",
+           "起來", "出來", "來了", "怎么", "如今", "不知", "只見", "去了",
+           "不過", "這個", "那個", "人的", "他的", "心中", "自己", "已經",
+           "可以", "就是", "所以", "因為", "但是", "還是", "沒有", "只是"},
+}
+
+# Configuration n-gram par langue : taille du n-gram à extraire
+# Les langues CJK utilisent des bigrammes (caractères individuels portent
+# plus de sens), les autres utilisent des trigrammes (syllabiques).
+LANGUAGE_NGRAM_CONFIG = {
+    "zh": 2,    # bigrammes CJK
+    # Toutes les autres langues : trigrammes (défaut = 3)
+}
+
+# Regex par script pour extraction de "mots" (séquences de caractères du même script)
+_WORD_EXTRACTORS = {
+    "latin": re.compile(r'[a-zàâäéèêëïîôùûüçœæñ¿¡áíóúäöüß]+'),
+    "cyrillic": re.compile(r'[\u0400-\u04FF]+'),
+    "hiragana": re.compile(r'[\u3040-\u309F]+'),
+    "cjk": re.compile(r'[\u4E00-\u9FFF\u3400-\u4DBF]+'),
 }
 
 
@@ -561,9 +597,13 @@ class ForeignCitation:
 
 
 def _detect_language_trigram(text: str, exclude_lang: str = "") -> Tuple[str, float]:
-    """Détecte la langue d'un court texte par analyse de trigrammes.
+    """Détecte la langue d'un court texte par analyse de n-grammes multi-scripts.
     
     Plus adapté que langdetect pour les textes courts (< 100 mots).
+    Supporte les écritures latine, cyrillique, hiragana et CJK.
+    
+    Pour les langues sans trigram (devanagari, grec, arabe, hébreu),
+    retombe sur la détection de script seule.
     
     Args:
         text: Texte à analyser (idéalement 20–200 mots).
@@ -574,46 +614,108 @@ def _detect_language_trigram(text: str, exclude_lang: str = "") -> Tuple[str, fl
     """
     text_lower = text.lower()
     
-    # Vérifier d'abord le script
+    # ── Phase 1 : Détection de script dominant ───────────────────────────
+    # Comptage des caractères par script
+    script_counts = {}
     for script_name, pattern in SCRIPT_PROFILES.items():
         matches = pattern.findall(text_lower)
-        ratio = len(matches) / max(len(text_lower), 1)
-        if script_name == "cyrillic" and ratio > 0.3:
-            return "ru", 0.9
-        if script_name == "cjk" and ratio > 0.1:
-            return "zh", 0.85
-        if script_name == "hiragana" and ratio > 0.05:
-            return "ja", 0.9
-        if script_name == "devanagari" and ratio > 0.3:
-            return "hi", 0.85
-        if script_name == "greek" and ratio > 0.3:
-            return "el", 0.85
-        if script_name == "arabic" and ratio > 0.3:
-            return "ar", 0.8
+        if matches:
+            script_counts[script_name] = len(matches)
     
-    # Analyse par trigrammes
-    # Extraire les trigrammes du texte
-    text_trigrams = set()
-    words = re.findall(r'[a-zàâäéèêëïîôùûüçœæñ¿¡áíóúäöüß]+', text_lower)
-    for word in words:
-        for i in range(len(word) - 2):
-            text_trigrams.add(word[i:i+3])
+    text_len = max(len(text_lower), 1)
     
-    if not text_trigrams:
+    # Scripts sans trigrams → détection directe
+    for script_name, threshold, lang in [
+        ("devanagari", 0.3, "hi"),
+        ("greek", 0.3, "el"),
+        ("arabic", 0.3, "ar"),
+        ("hebrew", 0.3, "he"),
+    ]:
+        if script_counts.get(script_name, 0) / text_len > threshold:
+            return lang, 0.85
+    
+    # ── Phase 2 : Extraction de n-grammes multi-scripts ──────────────────
+    # Déterminer le script dominant pour choisir le bon extracteur
+    dominant_script = None
+    cyrillic_ratio = script_counts.get("cyrillic", 0) / text_len
+    cjk_ratio = script_counts.get("cjk", 0) / text_len
+    hiragana_ratio = script_counts.get("hiragana", 0) / text_len
+    katakana_ratio = script_counts.get("katakana", 0) / text_len
+    
+    if cyrillic_ratio > 0.3:
+        dominant_script = "cyrillic"
+    elif cjk_ratio > 0.1:
+        dominant_script = "cjk"
+    elif hiragana_ratio > 0.05 or katakana_ratio > 0.05:
+        dominant_script = "hiragana"
+    
+    # Extraire les n-grammes selon le script
+    text_ngrams_by_size: Dict[int, set] = {}  # {ngram_size: set_of_ngrams}
+    
+    if dominant_script and dominant_script in _WORD_EXTRACTORS:
+        # Non-Latin script dominant → extraire des n-grammes de ce script
+        extractor = _WORD_EXTRACTORS[dominant_script]
+        raw_words = extractor.findall(text_lower)
+        # Normaliser ё→е pour le cyrillique (variante orthographique fréquente)
+        if dominant_script == "cyrillic":
+            raw_words = [w.replace('ё', 'е') for w in raw_words]
+        words = raw_words
+        for ngram_size in (2, 3):  # Extraire les deux tailles
+            ngrams = set()
+            for word in words:
+                for i in range(len(word) - ngram_size + 1):
+                    ngrams.add(word[i:i + ngram_size])
+            if ngrams:
+                text_ngrams_by_size[ngram_size] = ngrams
+    else:
+        # Latin script (défaut) → trigrammes classiques
+        words = _WORD_EXTRACTORS["latin"].findall(text_lower)
+        ngrams = set()
+        for word in words:
+            for i in range(len(word) - 2):
+                ngrams.add(word[i:i + 3])
+        if ngrams:
+            text_ngrams_by_size[3] = ngrams
+    
+    if not text_ngrams_by_size:
         return "unknown", 0.0
     
+    # ── Phase 3 : Scoring par langue ─────────────────────────────────────
     scores = {}
-    for lang, ref_trigrams in LANGUAGE_TRIGRAMS.items():
+    for lang, ref_ngrams in LANGUAGE_TRIGRAMS.items():
         if lang == exclude_lang:
             continue
-        overlap = text_trigrams & ref_trigrams
-        scores[lang] = len(overlap) / max(len(ref_trigrams), 1)
+        # Déterminer la taille de n-gramme pour cette langue
+        ngram_size = LANGUAGE_NGRAM_CONFIG.get(lang, 3)
+        text_ngrams = text_ngrams_by_size.get(ngram_size)
+        if text_ngrams is None:
+            continue  # Pas de n-grammes de la bonne taille extraits
+        overlap = text_ngrams & ref_ngrams
+        scores[lang] = len(overlap) / max(len(ref_ngrams), 1)
     
     if not scores:
+        # Aucun score n-gramme → fallback sur la détection de script
+        if dominant_script:
+            _SCRIPT_DEFAULT_LANG = {
+                "cyrillic": "ru", "cjk": "zh", "hiragana": "ja",
+            }
+            fallback = _SCRIPT_DEFAULT_LANG.get(dominant_script, "unknown")
+            if fallback != exclude_lang:
+                return fallback, 0.75
         return "unknown", 0.0
     
     best_lang = max(scores, key=scores.get)
     best_score = scores[best_lang]
+    
+    # Si le meilleur score est très bas mais qu'on a un script dominant,
+    # fallback sur le script (les trigrams ne discriminent pas assez)
+    if best_score < 0.05 and dominant_script:
+        _SCRIPT_DEFAULT_LANG = {
+            "cyrillic": "ru", "cjk": "zh", "hiragana": "ja",
+        }
+        fallback = _SCRIPT_DEFAULT_LANG.get(dominant_script, best_lang)
+        if fallback != exclude_lang:
+            return fallback, 0.75
     
     # Normaliser la confiance
     # Si le meilleur score est très proche du deuxième, confiance basse

@@ -329,6 +329,49 @@ class TestLanguageTrigramDetection(unittest.TestCase):
         )
         self.assertNotEqual(lang, "en")
 
+    def test_detect_russian(self):
+        """Détecte le russe via trigrammes cyrilliques."""
+        lang, conf = _detect_language_trigram(
+            "Всё смешалось в доме Облонских. Жена узнала, что муж был в "
+            "связи с бывшею в их доме француженкою"
+        )
+        self.assertEqual(lang, "ru")
+        self.assertGreater(conf, 0.1)  # Script detection reliable, trigrams add precision
+
+    def test_detect_japanese(self):
+        """Détecte le japonais via trigrammes hiragana."""
+        lang, conf = _detect_language_trigram(
+            "むかしむかし、あるところに、おじいさんとおばあさんが住んでいました。"
+            "おじいさんは山へしばかりに、おばあさんは川へせんたくに行きました。"
+        )
+        self.assertEqual(lang, "ja")
+        self.assertGreater(conf, 0.3)
+
+    def test_detect_chinese(self):
+        """Détecte le chinois via bigrammes CJK."""
+        lang, conf = _detect_language_trigram(
+            "紅樓夢是中國古典四大名著之一。這個故事描述了一個大家族的興衰。"
+            "寶玉和黛玉的故事是其中最著名的。"
+        )
+        self.assertEqual(lang, "zh")
+        self.assertGreater(conf, 0.1)
+
+    def test_russian_in_french_context(self):
+        """Détecte une citation russe dans un contexte français."""
+        lang, conf = _detect_language_trigram(
+            "Всё смешалось в доме Облонских",
+            exclude_lang="fr"
+        )
+        self.assertEqual(lang, "ru")
+        self.assertGreater(conf, 0.3)
+
+    def test_cjk_vs_hiragana_discrimination(self):
+        """Le CJK pur donne zh, le texte avec hiragana donne ja."""
+        lang_zh, _ = _detect_language_trigram("中國古典四大名著之一")
+        lang_ja, _ = _detect_language_trigram("おじいさんとおばあさんが住んでいました")
+        self.assertEqual(lang_zh, "zh")
+        self.assertEqual(lang_ja, "ja")
+
 
 class TestZoneClassification(unittest.TestCase):
     """Tests de classification des zones."""
