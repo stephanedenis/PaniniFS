@@ -6,6 +6,7 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026
 
+- [2026-02-21-hauru-v489-it-fi-last-stretch.md](2026-02-21-hauru-v489-it-fi-last-stretch.md) — 📈 v4.8.9 : Dernière ligne droite IT/FI. **90.5%→90.8% (+0.3pp)** global. IT **89.6%** (+0.8), FI **89.2%** (+0.7). 113 entrées (74 kw + 22 sw + 10 pn + 7 af). FI lemmes voikko (35), IT keywords + 7 formes archaïques. 5/7 ≥90%, IT et FI imminents.
 - [2026-02-21-hauru-v488-fr-crosses-90pct.md](2026-02-21-hauru-v488-fr-crosses-90pct.md) — 📈 v4.8.8 : FR franchit 90% ! **90.1%→90.5% (+0.4pp)** global. FR **90.1%** (5e langue ≥90%). IT 88.8% (+0.6), FI 88.5% (+0.8). 136 entrées (100 kw + 30 sw + 3 pn + 3 af). FI lemmes voikko, FR noms/verbes freq≥4, IT apocopés. Cumulé v4.8.2→v4.8.8 **+5.4pp**.
 - [2026-02-21-hauru-v487-90pct-global.md](2026-02-21-hauru-v487-90pct-global.md) — 🎯 v4.8.7 : **90.1% global** (+0.7pp). Objectif 90% ATTEINT. ES **90.1%** (4e langue ≥90%). EN 94.8%, EO 93.2%, DE 91.1%. FR 89.7%, IT 88.2%, FI 87.7%. 308 entrées (240 kw + 40 sw + 8 pn + 19 af). FI lemmes voikko, IT/ES/FR verbes irréguliers directs, EO x-notation. Cumulé v4.8.2→v4.8.7 **+5.0pp**.
 - [2026-02-21-hauru-v486-push-90pct.md](2026-02-21-hauru-v486-push-90pct.md) — 📈 v4.8.6 : Expansion ciblée push 90%. **89.0%→89.4% (+0.4pp)** global. DE **90.1%** (1er non-EN ≥90%). EN 94.4%, EO 92.4%, ES 89.5%, FR 89.0%, IT 87.5%, FI 86.8%. 400 entrées (335 kw + 31 sw + 20 pn + 14 af). 178/178 mots cibles résolus. 8 atomes × 7 langues.
