@@ -252,6 +252,28 @@ except ImportError:
     _PROPER_NOUNS_V4812 = {}
     _ARCHAIC_FORMS_V4812 = {}
 
+# v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
+try:
+    from diachronic_rules import (
+        diachronic_modernize, cognate_candidates,
+        detect_epoch_lightweight, DIACHRONIC_RULES,
+    )
+    _HAS_DIACHRONIC = True
+except ImportError:
+    _HAS_DIACHRONIC = False
+    def diachronic_modernize(w, l, e=""): return []
+    def cognate_candidates(w, l): return []
+    def detect_epoch_lightweight(t, l): return ""
+
+# v4.8.13: Document-level epoch state (set per analysis run)
+_DOC_EPOCH = ""  # e.g. "letterario", "pre_1901", "classique"
+
+
+def set_doc_epoch(epoch: str):
+    """Set the detected epoch for the current document analysis."""
+    global _DOC_EPOCH
+    _DOC_EPOCH = epoch
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -849,11 +871,14 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
       7. Two-pass suffix stripping (remove suffix, then try again)
       8. Snowball stemmer: stem word ↔ stem keyword match (7 languages)
       9. Voikko Finnish lemmatizer: morphological base form lookup
+     10. Diachronic modernization: apply sound change rules for detected epoch
+     11. Cognate bridge: try sibling-language cognate correspondences
 
     v4.8.1: Uses word-level coverage cache and pre-merged keyword sets
     v4.8.2: Number detection, recursive compound/elision resolution,
             stop-word-aware compound splitting
     v4.8.13: OpenCC traditional→simplified Chinese normalization
+    v4.8.13: Diachronic rules + cognate bridging (Strategies 10-11)
 
     Args:
         atom_stems: Pre-stemmed atom_words (optional, avoids re-stemming per call)
@@ -867,6 +892,12 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
     # Keywords and stop words are in simplified; corpus may be traditional
     if lang == "zh" and _HAS_OPENCC:
         word = _CC_T2S.convert(word)
+
+    # v4.8.13: Strip diaeresis marks (ï→i, ë→e, etc.) common in old IT/FR texts
+    # e.g. "fïata"→"fiata", "coscïenza"→"coscienza", "Israël"→"Israel"
+    _DIAERESIS_MAP = str.maketrans("ïëüö", "ieuo")
+    if any(c in word for c in "ïëüö"):
+        word = word.translate(_DIAERESIS_MAP)
 
     # 1. Direct match against paragraph atoms (varies per paragraph)
     if word in atom_words:
@@ -1052,6 +1083,43 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
                 if stemmer and stemmer.stemWord(base) in _get_merged_stems("fi"):
                     _COVERAGE_CACHE[cache_key] = True
                     return True
+
+    # 10. Diachronic modernization: apply sound change rules for the detected epoch
+    #     e.g. IT "foco"→"fuoco", DE "Thal"→"Tal", FR "étoit"→"était"
+    #     Uses ~100 rules instead of ~200 manual dictionary entries
+    if _HAS_DIACHRONIC and lang in DIACHRONIC_RULES:
+        candidates = diachronic_modernize(word, lang, _DOC_EPOCH)
+        for candidate in candidates:
+            if _in_known(candidate):
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Also try stemming the modernized candidate
+            if _HAS_STEMMER:
+                stemmer = _get_stemmer(lang)
+                if stemmer is not None:
+                    c_stem = stemmer.stemWord(candidate)
+                    if c_stem in _get_merged_stems(lang):
+                        _COVERAGE_CACHE[cache_key] = True
+                        return True
+
+    # 11. Cognate bridge: try resolving via sibling-language correspondences
+    #     e.g. IT "nazione" → FR "nation" (known keyword)
+    #     Only for languages with cognate rules defined
+    if _HAS_DIACHRONIC:
+        for candidate, target_lang in cognate_candidates(word, lang):
+            tgt_kw = _GLOBAL_KEYWORDS.get(target_lang, set())
+            if candidate in tgt_kw:
+                _COVERAGE_CACHE[cache_key] = True
+                return True
+            # Stem the cognate candidate in target language
+            if _HAS_STEMMER:
+                stemmer = _get_stemmer(target_lang)
+                if stemmer is not None:
+                    c_stem = stemmer.stemWord(candidate)
+                    tgt_stems = _STEMMED_KEYWORDS.get(target_lang, set())
+                    if c_stem in tgt_stems:
+                        _COVERAGE_CACHE[cache_key] = True
+                        return True
 
     _COVERAGE_CACHE[cache_key] = False
     return False
@@ -1566,6 +1634,21 @@ def analyze_document_fidelity(
         
         if not rich_layers:
             raise ValueError("No rich layer data — rich_mode failed")
+        
+        # v4.8.13: Detect epoch from first paragraphs for diachronic rules
+        if _HAS_DIACHRONIC:
+            # Gather text from first few paragraphs for epoch detection
+            sample_text = " ".join(
+                layer.get("text", "") for layer in rich_layers[:10]
+            )
+            detected_epoch = detect_epoch_lightweight(sample_text, detected_lang)
+            set_doc_epoch(detected_epoch)
+            if verbose and detected_epoch:
+                print(f"  📜 Detected epoch: {detected_epoch} (diachronic rules active)")
+        else:
+            set_doc_epoch("")
+        # Clear coverage cache for new document (epoch changes affect results)
+        _COVERAGE_CACHE.clear()
         
         if verbose:
             print(f"  🔬 Analyzing {len(rich_layers)} paragraphs in rich mode...")

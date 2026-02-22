@@ -70,6 +70,12 @@ Généré: 2026-02-20T20:00:00-05:00
 - [2025-08-30-hauru-pid74498-session.md](2025-08-30-hauru-pid74498-session.md)
 - [2025-08-30-ci-stabilisation-merge.md](2025-08-30-ci-stabilisation-merge.md)
 
+### 2026-02-22
+- [2026-02-22-hauru-panini-web-decentralise.md](2026-02-22-hauru-panini-web-decentralise.md)
+- [2026-02-22-hauru-v4812-expanded-corpus.md](2026-02-22-hauru-v4812-expanded-corpus.md)
+- [2026-02-22-hauru-zh-opencc-mur-mandarin.md](2026-02-22-hauru-zh-opencc-mur-mandarin.md) — **v4.8.13**: OpenCC trad→simp, zh 33.8%→48.0% (+14.2pp)
+- [2026-02-22-hauru-v4813-diachronic-rules.md](2026-02-22-hauru-v4813-diachronic-rules.md) — **v4.8.13**: Règles diachroniques (sūtra vs koṣa), Strategies 10-11, DE→90.1%
+
 ---
 
 > 🔄 = Reconstitué rétrospectivement depuis `git log` le 2026-02-18
