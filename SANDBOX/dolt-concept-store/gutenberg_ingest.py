@@ -42,6 +42,16 @@ try:
 except ImportError:
     HAS_PREAMBLE_NORMALIZER = False
 
+# v4.8: Text normalization — NFC + epoch/script metadata for downloaded texts
+try:
+    from text_normalizer import normalize_text, normalize_nfc, TextMeta
+    HAS_TEXT_NORMALIZER = True
+except ImportError:
+    import unicodedata as _unicodedata
+    def normalize_nfc(text: str) -> str:
+        return _unicodedata.normalize('NFC', text)
+    HAS_TEXT_NORMALIZER = False
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # GUTENBERG CATALOG — curated multilingual corpus
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -149,7 +159,12 @@ GUTENBERG_FORMAT_URLS = {
 
 
 def download_text(gid: int, lang: str, title: str, author: str) -> Optional[str]:
-    """Download a Gutenberg text. Returns the local path or None on failure."""
+    """Download a Gutenberg text. Returns the local path or None on failure.
+    
+    v4.8: NFC-normalizes the downloaded text before saving. Also writes
+    a .meta.json sidecar with script/epoch/BCP47 metadata if text_normalizer
+    is available.
+    """
     outdir = os.path.join(CORPUS_DIR, lang)
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, f"pg{gid}.txt")
@@ -166,8 +181,38 @@ def download_text(gid: int, lang: str, title: str, author: str) -> Optional[str]
             data = resp.read()
             if len(data) < 100:
                 return None
-            with open(outpath, 'wb') as f:
-                f.write(data)
+
+            # v4.8: Decode → NFC normalize → re-encode for storage
+            text = data.decode('utf-8', errors='replace')
+            text = normalize_nfc(text)
+
+            # Write NFC-normalized text
+            with open(outpath, 'w', encoding='utf-8') as f:
+                f.write(text)
+
+            # Write metadata sidecar if full normalizer is available
+            if HAS_TEXT_NORMALIZER:
+                try:
+                    # Use first 10K chars for metadata detection (fast)
+                    _, meta = normalize_text(text[:10000], lang_hint=lang)
+                    meta_path = outpath.replace('.txt', '.meta.json')
+                    meta_dict = {
+                        'gutenberg_id': gid,
+                        'lang_iso639_1': meta.lang_iso639_1,
+                        'lang_iso639_3': meta.lang_iso639_3,
+                        'bcp47': meta.bcp47_tag,
+                        'scripts': meta.scripts,
+                        'epoch': meta.epoch,
+                        'epoch_confidence': meta.epoch_confidence,
+                        'original_encoding': meta.original_encoding,
+                        'nfc_changes': meta.nfc_changes,
+                        'normalizer_version': '4.8',
+                    }
+                    with open(meta_path, 'w', encoding='utf-8') as mf:
+                        json.dump(meta_dict, mf, indent=2, ensure_ascii=False)
+                except Exception:
+                    pass  # metadata is optional — don't fail download
+
         return outpath
     except Exception as e:
         print(f"  ⚠️  Failed to download {gid} ({title}): {e}")

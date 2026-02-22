@@ -78,6 +78,16 @@ try:
     HAS_EXOTIC = True
 except ImportError:
     HAS_EXOTIC = False
+
+# v4.8: Unicode NFC normalization — canonical form for keyword matching
+try:
+    from text_normalizer import normalize_nfc
+    HAS_TEXT_NORMALIZER = True
+except ImportError:
+    import unicodedata as _unicodedata
+    def normalize_nfc(text: str) -> str:
+        return _unicodedata.normalize('NFC', text)
+    HAS_TEXT_NORMALIZER = False
     def is_cjk_language(lang): return False
     def is_cjk_char(c): return False
     def cjk_tokenize(t, l, a): return t.split()
@@ -1299,7 +1309,10 @@ def analyze_syntax(text, lang):
     
     No NLP library — uses language-specific closed-class word lists +
     positional heuristics for open-class words.
+    v4.8: NFC normalization before word comparison to closed-class lists.
     """
+    # v4.8: NFC normalize before POS tagging — accented words must match
+    text = normalize_nfc(text)
     profile = LANGUAGE_PROFILES.get(lang, LANGUAGE_PROFILES["en"])
 
     # v4.3: CJK-aware tokenization for syntax analysis
@@ -1508,6 +1521,10 @@ def align_words_to_atoms(text, lang, syntax_results=None):
     text_for_matching = text
     if lang == "eo" and has_bridge:
         text_for_matching = normalize_eo_x_notation(text)
+
+    # v4.8: NFC normalize — a word in NFD (e + U+0301) won't match
+    # its NFC form (é = U+00E9) in ATOM_KEYWORDS → silent false negatives
+    text_for_matching = normalize_nfc(text_for_matching)
 
     # v4.3: CJK-aware tokenization
     if is_cjk_language(lang):

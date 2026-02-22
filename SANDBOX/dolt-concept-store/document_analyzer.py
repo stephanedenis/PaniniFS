@@ -29,6 +29,14 @@ from seven_layers_engine import (
     analyze_discourse, analyze_prosody,
 )
 
+# v4.8: Unicode NFC normalization for language detection accuracy
+try:
+    from text_normalizer import normalize_nfc
+except ImportError:
+    import unicodedata
+    def normalize_nfc(text: str) -> str:
+        return unicodedata.normalize('NFC', text)
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LANGUAGE DETECTION
@@ -42,10 +50,14 @@ def detect_language(text: str, hint: str = None) -> str:
     """Detect the language of a text string.
     
     Uses langdetect with fallback to trigram heuristic.
-    Returns ISO 639-1 code (en, fr, de, it, es, fi, eo).
+    Returns ISO 639-1 code (en, fr, de, it, es, fi, eo, pt, nl, zh, ja, ru, hi, sa).
+    v4.8: NFC normalization before detection + fixed stale fallback mapping.
     """
     if hint and hint in SUPPORTED_LANGS:
         return hint
+
+    # v4.8: NFC normalize — accented chars in NFD confuse langdetect
+    text = normalize_nfc(text)
 
     # Try langdetect first
     try:
@@ -54,14 +66,14 @@ def detect_language(text: str, hint: str = None) -> str:
         detected = detect(text[:5000])  # first 5K chars is enough
         if detected in SUPPORTED_LANGS:
             return detected
-        # Map close variants
+        # Map close variants — v4.8: removed pt→es and nl→de (both now supported)
         lang_map = {
             "ca": "es",  # Catalan → Spanish (closest supported)
-            "pt": "es",  # Portuguese → Spanish
-            "nl": "de",  # Dutch → German
             "sv": "fi",  # Swedish → Finnish (closest supported)
             "no": "de",  # Norwegian → German
             "da": "de",  # Danish → German
+            "af": "nl",  # Afrikaans → Dutch (closest supported)
+            "gl": "pt",  # Galician → Portuguese (closest supported)
         }
         return lang_map.get(detected, "en")
     except Exception:

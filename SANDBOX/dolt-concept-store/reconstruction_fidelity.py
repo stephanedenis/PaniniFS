@@ -25,6 +25,7 @@ import argparse
 import json
 import os
 import sys
+import tempfile
 import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field, asdict
@@ -233,6 +234,24 @@ except ImportError:
     _PROPER_NOUNS_V4811 = {}
     _ARCHAIC_FORMS_V4811 = {}
 
+# v4.8.12: Expanded corpus (62 files, 5.9M words) — proper nouns + archaic IT
+try:
+    from vocabulary_expansion_v4812 import (
+        get_keywords_v4812, get_stop_words_v4812,
+        get_proper_nouns_v4812, get_archaic_forms_v4812,
+    )
+    _KEYWORDS_V4812 = get_keywords_v4812()
+    _STOP_WORDS_V4812 = get_stop_words_v4812()
+    _PROPER_NOUNS_V4812 = get_proper_nouns_v4812()
+    _ARCHAIC_FORMS_V4812 = get_archaic_forms_v4812()
+    _HAS_EXPANSION_V4812 = True
+except ImportError:
+    _HAS_EXPANSION_V4812 = False
+    _KEYWORDS_V4812 = {}
+    _STOP_WORDS_V4812 = {}
+    _PROPER_NOUNS_V4812 = {}
+    _ARCHAIC_FORMS_V4812 = {}
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: SNOWBALL STEMMERS + VOIKKO FINNISH LEMMATIZER
@@ -267,6 +286,18 @@ try:
 except (ImportError, OSError):
     _VOIKKO = None
     _HAS_VOIKKO = False
+
+# OpenCC — Traditional→Simplified Chinese converter (v4.8.13)
+# The Gutenberg zh corpus uses traditional characters (說,來,這) but our
+# ATOM_KEYWORDS contain simplified forms (说,来,这). OpenCC normalizes
+# traditional→simplified so keyword matching and stop word filtering work.
+try:
+    from opencc import OpenCC as _OpenCC_cls
+    _CC_T2S = _OpenCC_cls('t2s')
+    _HAS_OPENCC = True
+except ImportError:
+    _CC_T2S = None
+    _HAS_OPENCC = False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -693,6 +724,38 @@ def _extend_global_with_v4811():
 
 _extend_global_with_v4811()
 
+def _extend_global_with_v4812():
+    """Add KEYWORDS_V4812, PROPER_NOUNS_V4812, and ARCHAIC_FORMS_V4812 to global."""
+    if not _HAS_EXPANSION_V4812:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for atom_id, lang_words in _KEYWORDS_V4812.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4812.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower() if isinstance(name, str) else name[0].lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    for lang, mappings in _ARCHAIC_FORMS_V4812.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v4812()
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
@@ -776,6 +839,7 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
 
     Strategies (in order):
       0. Numeric token detection (years, dates, page numbers)
+      0b. CJK normalization: traditional→simplified Chinese (OpenCC)
       1. Direct match against paragraph atom word forms
       2. Direct match against global keyword index
       3. Compound splitting (hyphen): any component covered (recursive)
@@ -789,6 +853,7 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
     v4.8.1: Uses word-level coverage cache and pre-merged keyword sets
     v4.8.2: Number detection, recursive compound/elision resolution,
             stop-word-aware compound splitting
+    v4.8.13: OpenCC traditional→simplified Chinese normalization
 
     Args:
         atom_stems: Pre-stemmed atom_words (optional, avoids re-stemming per call)
@@ -797,6 +862,11 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
     #    e.g. "1759", "42", "1761" — always considered covered
     if word.isdigit():
         return True
+
+    # v4.8.13: Normalize traditional→simplified Chinese for keyword matching
+    # Keywords and stop words are in simplified; corpus may be traditional
+    if lang == "zh" and _HAS_OPENCC:
+        word = _CC_T2S.convert(word)
 
     # 1. Direct match against paragraph atoms (varies per paragraph)
     if word in atom_words:
@@ -1057,7 +1127,21 @@ STOP_WORDS = {
            "他", "她", "它", "这", "那", "个", "一", "与", "为", "被",
            "对", "从", "到", "会", "能", "可以", "就", "都", "而", "但",
            "如果", "因为", "所以", "或", "又", "等", "把", "让", "用",
-           "着", "过", "中", "上", "下", "里", "以", "及"},
+           "着", "过", "中", "上", "下", "里", "以", "及",
+           # v4.8.13: pronouns, particles, adverbs, conjunctions
+           "你", "自", "其", "此", "每",               # pronouns/determiners
+           "之", "得", "所", "著",                     # structural particles (著=zhe aspect)
+           "没", "无", "未",                           # negation
+           "只", "已", "更", "亦", "甚", "才",         # adverbs
+           "却", "便", "则", "若", "故", "且", "因",   # conjunctions (classical)
+           "于", "后", "给", "如",                     # prepositions/postpositions
+           "呢", "吧", "吗", "么",                     # sentence-final particles
+           "要", "可", "将",                           # modal verbs
+           "们", "些",                                 # plural/quantifier particles
+           # Chinese numerals (analogous to digit detection in strategy 0)
+           "二", "三", "四", "五", "六", "七", "八", "九", "十",
+           "百", "千", "万", "两", "半", "零",
+           },
     "ru": {"и", "в", "на", "с", "по", "для", "не", "что", "это", "как",
            "он", "она", "они", "его", "её", "их", "но", "а", "или",
            "из", "от", "до", "при", "за", "об", "же", "бы", "ли",
@@ -1134,6 +1218,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.11: 7/7 European languages ≥90% stop words
     if _HAS_EXPANSION_V4811 and lang in _STOP_WORDS_V4811:
         base = base | set(_STOP_WORDS_V4811[lang])
+    # v4.8.12: Expanded corpus (62 files) stop words + archaic forms
+    if _HAS_EXPANSION_V4812 and lang in _STOP_WORDS_V4812:
+        base = base | set(_STOP_WORDS_V4812[lang])
     return base
 
 
@@ -1178,15 +1265,25 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
     text = text.replace('\u2019', "'").replace('\u2018', "'")
     text = text.replace('\u201c', '"').replace('\u201d', '"')
     if lang in ("ja", "zh"):
+        # v4.8.13: Normalize traditional→simplified Chinese before processing
+        # so that stop words (simplified) and keywords (simplified) match
+        if lang == "zh" and _HAS_OPENCC:
+            text = _CC_T2S.convert(text)
         content = []
         for ch in text:
             if _is_cjk(ch) and ch not in stop_words:
                 content.append(ch)
         # Also check non-CJK words in the text
+        # v4.8.13: include CJK punctuation in strip set to avoid ：「 etc.
+        _cjk_punct = "：；，。、！？「」『』（）【】《》〈〉〔〕""''…—─\uff01\uff0c\uff1a\uff1b\uff1f"
+        _strip_cjk = _strip + _cjk_punct
         non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
         for w in non_cjk.split():
-            w_lower = w.lower().strip(_strip)
+            w_lower = w.lower().strip(_strip_cjk)
             if w_lower and len(w_lower) >= 2 and w_lower not in stop_words:
+                # Skip tokens that are pure punctuation
+                if all(c in _strip_cjk for c in w_lower):
+                    continue
                 content.append(w_lower)
         return content
     else:
@@ -1415,6 +1512,7 @@ def analyze_document_fidelity(
     filepath: str,
     lang: str = None,
     verbose: bool = False,
+    strip_boilerplate: bool = False,
 ) -> DocumentFidelity:
     """Run rich analysis on a document and compute fidelity metrics.
     
@@ -1424,6 +1522,9 @@ def analyze_document_fidelity(
         filepath: Path to the document.
         lang: Force language.
         verbose: Print progress.
+        strip_boilerplate: If True, strip Gutenberg header/footer boilerplate
+            before analysis to avoid counting English preamble as uncovered
+            content words in non-English texts.
     
     Returns:
         DocumentFidelity with per-paragraph and aggregate metrics.
@@ -1436,82 +1537,103 @@ def analyze_document_fidelity(
         print(f"{'═' * 72}")
         print(f"  📄 {os.path.basename(filepath)}")
     
-    # Run rich analysis
-    report = analyze_document(filepath, lang=lang, verbose=verbose, rich_mode=True)
+    # v4.8.12: Optionally strip Gutenberg boilerplate before analysis
+    _temp_path = None
+    if strip_boilerplate:
+        try:
+            from gutenberg_preamble_normalizer import strip_gutenberg_boilerplate
+            with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+                raw_text = f.read()
+            stripped = strip_gutenberg_boilerplate(raw_text, declared_lang=lang or 'en')
+            if len(stripped) < len(raw_text) * 0.98:  # Only use if actually stripped
+                fd, _temp_path = tempfile.mkstemp(suffix='.txt', prefix='panini_stripped_')
+                with os.fdopen(fd, 'w', encoding='utf-8') as tf:
+                    tf.write(stripped)
+                filepath = _temp_path
+        except ImportError:
+            pass  # No preamble normalizer available
     
-    if "error" in report:
-        raise ValueError(f"Analysis failed: {report['error']}")
+    try:
+        # Run rich analysis
+        report = analyze_document(filepath, lang=lang, verbose=verbose, rich_mode=True)
     
-    detected_lang = report["language"]
-    stop_words = get_stop_words(detected_lang)
-    rich_layers = report.get("rich_layers", [])
-    
-    if not rich_layers:
-        raise ValueError("No rich layer data — rich_mode failed")
-    
-    if verbose:
-        print(f"  🔬 Analyzing {len(rich_layers)} paragraphs in rich mode...")
-    
-    # Analyze each paragraph
-    doc = DocumentFidelity()
-    doc.filepath = filepath
-    doc.language = detected_lang
-    doc.total_paragraphs = len(rich_layers)
-    
-    uncovered_counter = Counter()
-    readiness_scores = []
-    
-    for layer in rich_layers:
-        pf = analyze_paragraph_fidelity(layer, detected_lang, stop_words)
-        doc.paragraphs.append(pf)
+        if "error" in report:
+            raise ValueError(f"Analysis failed: {report['error']}")
         
-        doc.total_words += pf.word_count
-        doc.total_content_words += pf.content_word_count
-        doc.total_atom_alignments += pf.atom_alignments
-        doc.total_uncovered_content_words += len(pf.uncovered_content_words)
+        detected_lang = report["language"]
+        stop_words = get_stop_words(detected_lang)
+        rich_layers = report.get("rich_layers", [])
         
-        if pf.atom_alignments > 0:
-            doc.paragraphs_with_atoms += 1
-        if pf.concept_count > 0:
-            doc.paragraphs_with_concepts += 1
-        if pf.has_discourse:
-            doc.paragraphs_with_discourse += 1
-        if pf.has_prosody:
-            doc.paragraphs_with_prosody += 1
+        if not rich_layers:
+            raise ValueError("No rich layer data — rich_mode failed")
         
-        readiness_scores.append(pf.reconstruction_readiness)
+        if verbose:
+            print(f"  🔬 Analyzing {len(rich_layers)} paragraphs in rich mode...")
         
-        for w in pf.uncovered_content_words:
-            uncovered_counter[w] += 1
-    
-    # Aggregate metrics
-    n = max(doc.total_paragraphs, 1)
-    doc.avg_lexical_coverage = sum(p.lexical_coverage for p in doc.paragraphs) / n
-    doc.avg_atom_density = sum(p.atom_density for p in doc.paragraphs) / n
-    doc.avg_syntax_coverage = sum(p.syntax_coverage for p in doc.paragraphs) / n
-    doc.avg_morpho_coverage = sum(p.morpho_coverage for p in doc.paragraphs) / n
-    
-    doc.atom_paragraph_coverage = doc.paragraphs_with_atoms / n
-    doc.concept_paragraph_coverage = doc.paragraphs_with_concepts / n
-    doc.discourse_paragraph_coverage = doc.paragraphs_with_discourse / n
-    doc.prosody_paragraph_coverage = doc.paragraphs_with_prosody / n
-    
-    doc.information_retention_ratio = (
-        doc.total_atom_alignments / max(doc.total_content_words, 1)
-    )
-    
-    doc.avg_reconstruction_readiness = sum(readiness_scores) / n
-    doc.min_reconstruction_readiness = min(readiness_scores) if readiness_scores else 0
-    doc.max_reconstruction_readiness = max(readiness_scores) if readiness_scores else 0
-    
-    doc.top_uncovered_words = uncovered_counter.most_common(30)
-    
-    doc.analysis_time_s = round(time.time() - t_start, 2)
-    
-    if verbose:
-        print_fidelity_report(doc)
-    
-    return doc
+        # Analyze each paragraph
+        doc = DocumentFidelity()
+        doc.filepath = filepath
+        doc.language = detected_lang
+        doc.total_paragraphs = len(rich_layers)
+        
+        uncovered_counter = Counter()
+        readiness_scores = []
+        
+        for layer in rich_layers:
+            pf = analyze_paragraph_fidelity(layer, detected_lang, stop_words)
+            doc.paragraphs.append(pf)
+            
+            doc.total_words += pf.word_count
+            doc.total_content_words += pf.content_word_count
+            doc.total_atom_alignments += pf.atom_alignments
+            doc.total_uncovered_content_words += len(pf.uncovered_content_words)
+            
+            if pf.atom_alignments > 0:
+                doc.paragraphs_with_atoms += 1
+            if pf.concept_count > 0:
+                doc.paragraphs_with_concepts += 1
+            if pf.has_discourse:
+                doc.paragraphs_with_discourse += 1
+            if pf.has_prosody:
+                doc.paragraphs_with_prosody += 1
+            
+            readiness_scores.append(pf.reconstruction_readiness)
+            
+            for w in pf.uncovered_content_words:
+                uncovered_counter[w] += 1
+        
+        # Aggregate metrics
+        n = max(doc.total_paragraphs, 1)
+        doc.avg_lexical_coverage = sum(p.lexical_coverage for p in doc.paragraphs) / n
+        doc.avg_atom_density = sum(p.atom_density for p in doc.paragraphs) / n
+        doc.avg_syntax_coverage = sum(p.syntax_coverage for p in doc.paragraphs) / n
+        doc.avg_morpho_coverage = sum(p.morpho_coverage for p in doc.paragraphs) / n
+        
+        doc.atom_paragraph_coverage = doc.paragraphs_with_atoms / n
+        doc.concept_paragraph_coverage = doc.paragraphs_with_concepts / n
+        doc.discourse_paragraph_coverage = doc.paragraphs_with_discourse / n
+        doc.prosody_paragraph_coverage = doc.paragraphs_with_prosody / n
+        
+        doc.information_retention_ratio = (
+            doc.total_atom_alignments / max(doc.total_content_words, 1)
+        )
+        
+        doc.avg_reconstruction_readiness = sum(readiness_scores) / n
+        doc.min_reconstruction_readiness = min(readiness_scores) if readiness_scores else 0
+        doc.max_reconstruction_readiness = max(readiness_scores) if readiness_scores else 0
+        
+        doc.top_uncovered_words = uncovered_counter.most_common(30)
+        
+        doc.analysis_time_s = round(time.time() - t_start, 2)
+        
+        if verbose:
+            print_fidelity_report(doc)
+        
+        return doc
+    finally:
+        # v4.8.12: Clean up temp file from boilerplate stripping
+        if _temp_path and os.path.exists(_temp_path):
+            os.unlink(_temp_path)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

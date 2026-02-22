@@ -42,3 +42,7 @@ issues_packs/
 SANDBOX/dolt-concept-store/gutenberg_corpus/
 SANDBOX/dolt-concept-store/wikipedia_corpus/
 SANDBOX/dolt-concept-store/wikipedia_exports/
+
+# Wikipedia dumps (large binary files)
+SANDBOX/dolt-concept-store/wikipedia_dumps/
+SANDBOX/dolt-concept-store/wikipedia_fullcorpus/

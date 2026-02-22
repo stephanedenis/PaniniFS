@@ -11,6 +11,9 @@ Extracts structured text (paragraphs) from multiple document formats:
 
 Each extractor returns a list of ExtractedParagraph dataclasses.
 
+v4.8: Unicode NFC normalization at the chokepoint (_clean_paragraphs)
+      guarantees consistent keyword matching downstream.
+
 Usage:
     from text_extractor import extract_document
     result = extract_document("/path/to/file.pdf")
@@ -25,6 +28,16 @@ import zipfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
+
+# v4.8: Unicode NFC normalization — canonical form for consistent keyword matching
+try:
+    from text_normalizer import normalize_nfc
+    HAS_NORMALIZER = True
+except ImportError:
+    import unicodedata
+    def normalize_nfc(text: str) -> str:
+        return unicodedata.normalize('NFC', text)
+    HAS_NORMALIZER = False
 
 # v4.7: Optional preamble normalizer for language-aware Gutenberg stripping
 try:
@@ -142,9 +155,14 @@ def _clean_paragraphs(raw_text: str, min_length: int = 10) -> list[str]:
     
     Splits on double newlines, normalizes whitespace within paragraphs,
     and filters out very short fragments.
+    v4.8: NFC normalization ensures canonical Unicode forms (é = U+00E9,
+    not e + U+0301) so downstream keyword matching is consistent.
     """
     # Normalize line endings
     text = raw_text.replace('\r\n', '\n').replace('\r', '\n')
+
+    # v4.8: Unicode NFC normalization — MUST come before any text comparison
+    text = normalize_nfc(text)
 
     # Split on double newlines (paragraph boundaries)
     raw_paras = re.split(r'\n\s*\n', text)
@@ -531,6 +549,10 @@ def _extract_txt(filepath: str) -> ExtractionResult:
         result.metadata['encoding_confidence'] = detected.get('confidence', 0)
 
         text = raw.decode(encoding, errors='replace')
+
+        # v4.8: NFC normalize immediately after decode — repairs mojibake
+        # from cp1252/latin-1 misdetection and ensures canonical forms
+        text = normalize_nfc(text)
 
         # Strip Gutenberg-style headers/footers if present
         text_lower = text[:3000].lower()

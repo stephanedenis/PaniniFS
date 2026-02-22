@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""vocabulary_audit.py — v4.7: Deep audit of uncovered vocabulary per language.
+"""vocabulary_audit.py — v4.8.12: Deep audit of uncovered vocabulary per language.
 
 Runs fidelity analysis on the Gutenberg corpus with FORCED language codes
 (extracted from filenames) to avoid misdetection. Produces a detailed report
 of uncovered content words per language, suitable for vocabulary expansion.
+
+v4.8.12: Scans subdirectories (zh/, ja/, ru/, etc.) to include all corpus files.
 
 Usage:
     python vocabulary_audit.py [--top N] [--output PATH]
@@ -13,6 +15,7 @@ Part of PaniniFS concept store — vocabulary expansion support.
 
 import json
 import os
+import pathlib
 import re
 import sys
 import time
@@ -50,13 +53,61 @@ LANG_MAP = {
 }
 
 
-def detect_lang_from_filename(fname: str) -> str:
-    """Extract language code from filename, fallback to regex."""
-    if fname in LANG_MAP:
-        return LANG_MAP[fname]
-    m = FILENAME_LANG_RE.search(fname)
+def detect_lang_from_filename(fname: str, subdir: str = None) -> str:
+    """Extract language code from filename or subdirectory name."""
+    # Check top-level LANG_MAP first (basename only)
+    basename = os.path.basename(fname)
+    if basename in LANG_MAP:
+        return LANG_MAP[basename]
+    # If file is in a language subdirectory (e.g., zh/pg23839.txt), use dir name
+    if subdir:
+        return subdir
+    # Fallback to regex pattern pg<id>_<lang>.txt
+    m = FILENAME_LANG_RE.search(basename)
     if m:
         return m.group(1)
+    return None
+
+
+# v4.8.12: Gutenberg metadata language detection (safety net)
+_GUTENBERG_LANG_MAP = {
+    "english": "en", "french": "fr", "german": "de", "spanish": "es",
+    "italian": "it", "portuguese": "pt", "dutch": "nl", "russian": "ru",
+    "japanese": "ja", "chinese": "zh", "finnish": "fi", "esperanto": "eo",
+    "sanskrit": "sa", "latin": "la", "greek": "el", "swedish": "sv",
+    "norwegian": "no", "danish": "da", "polish": "pl", "czech": "cs",
+    "hungarian": "hu", "korean": "ko", "arabic": "ar", "hebrew": "he",
+    "tagalog": "tl", "catalan": "ca", "romanian": "ro",
+}
+
+def detect_lang_from_gutenberg_metadata(filepath: str, hint_lang: str = None) -> str | None:
+    """Read 'Language:' field from Gutenberg header (first 40 lines).
+    
+    If the file lists multiple languages (e.g. "English, Spanish") and
+    hint_lang matches one of them, returns hint_lang to keep the file
+    in its directory.  Otherwise returns the first listed language.
+    
+    Returns 2-letter code or None if not found.
+    """
+    try:
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
+            for _ in range(40):
+                line = f.readline()
+                if not line:
+                    break
+                if line.strip().lower().startswith("language:"):
+                    lang_str = line.strip().split(":", 1)[1].strip().lower()
+                    parts = [p.strip() for p in lang_str.split(",")]
+                    codes = [_GUTENBERG_LANG_MAP.get(p) for p in parts]
+                    codes = [c for c in codes if c]  # filter None
+                    if not codes:
+                        return None
+                    # If hint matches any listed language, keep it
+                    if hint_lang and hint_lang in codes:
+                        return hint_lang
+                    return codes[0]
+    except OSError:
+        pass
     return None
 
 
@@ -76,16 +127,22 @@ def audit_corpus(
     """
     t_start = time.time()
     
-    txt_files = sorted(
-        f for f in os.listdir(corpus_dir)
-        if f.endswith('.txt') and not f.startswith('_')
-    )
+    # ── Collect all .txt files: top-level AND subdirectories ──
+    file_entries = []  # list of (relative_path, subdir_or_None)
+    corpus_root = pathlib.Path(corpus_dir)
+    for path in sorted(corpus_root.rglob("*.txt")):
+        if path.name.startswith("_"):
+            continue
+        rel = path.relative_to(corpus_root)
+        parts = rel.parts
+        subdir = parts[0] if len(parts) > 1 else None
+        file_entries.append((str(rel), subdir))
     
     print(f"\n{'═' * 72}")
-    print(f"VOCABULARY AUDIT — v4.7")
+    print(f"VOCABULARY AUDIT — v4.8.12")
     print(f"{'═' * 72}")
     print(f"  📂 Corpus: {corpus_dir}")
-    print(f"  📚 {len(txt_files)} files")
+    print(f"  📚 {len(file_entries)} files (top-level + subdirectories)")
     print()
     
     # Per-language aggregates
@@ -103,18 +160,26 @@ def audit_corpus(
     
     results = {}
     
-    for i, fname in enumerate(txt_files):
-        fpath = os.path.join(corpus_dir, fname)
-        lang = detect_lang_from_filename(fname)
+    for i, (rel_path, subdir) in enumerate(file_entries):
+        fpath = os.path.join(corpus_dir, rel_path)
+        fname = os.path.basename(rel_path)
+        lang = detect_lang_from_filename(fname, subdir=subdir)
         
-        print(f"  [{i+1}/{len(txt_files)}] {fname} (lang={lang})...", end=" ", flush=True)
+        # v4.8.12: Validate against Gutenberg metadata (safety net)
+        meta_lang = detect_lang_from_gutenberg_metadata(fpath, hint_lang=lang)
+        if meta_lang and lang and meta_lang != lang:
+            print(f"\n  ⚠️  LANG MISMATCH: {rel_path} — dir={lang}, metadata={meta_lang}. Using metadata.")
+            lang = meta_lang
+        
+        display_name = rel_path if subdir else fname
+        print(f"  [{i+1}/{len(file_entries)}] {display_name} (lang={lang})...", end=" ", flush=True)
         
         try:
-            doc = analyze_document_fidelity(fpath, lang=lang, verbose=False)
-            results[fname] = doc
+            doc = analyze_document_fidelity(fpath, lang=lang, verbose=False, strip_boilerplate=True)
+            results[rel_path] = doc
             
             info = per_lang[lang]
-            info["files"].append(fname)
+            info["files"].append(display_name)
             info["total_words"] += doc.total_words
             info["total_content_words"] += doc.total_content_words
             info["total_atom_alignments"] += doc.total_atom_alignments
@@ -146,7 +211,7 @@ def audit_corpus(
     audit_data = {
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "corpus_dir": corpus_dir,
-        "total_files": len(txt_files),
+        "total_files": len(file_entries),
         "languages": {},
     }
     
