@@ -268,6 +268,24 @@ except ImportError:
     _STOP_WORDS_V4813 = {}
     _PROPER_NOUNS_V4813 = {}
 
+# v4.8.14: Japanese/Russian/Dutch expansion — keywords, stop words, proper nouns,
+# furigana stripping
+try:
+    from vocabulary_expansion_v4814 import (
+        get_keywords_v4814, get_stop_words_v4814,
+        get_proper_nouns_v4814, strip_furigana,
+    )
+    _KEYWORDS_V4814 = get_keywords_v4814()
+    _STOP_WORDS_V4814 = get_stop_words_v4814()
+    _PROPER_NOUNS_V4814 = get_proper_nouns_v4814()
+    _HAS_EXPANSION_V4814 = True
+except ImportError:
+    _HAS_EXPANSION_V4814 = False
+    _KEYWORDS_V4814 = {}
+    _STOP_WORDS_V4814 = {}
+    _PROPER_NOUNS_V4814 = {}
+    def strip_furigana(text): return text
+
 # v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
 try:
     from diachronic_rules import (
@@ -302,6 +320,8 @@ try:
         "en": "english", "fr": "french", "de": "german",
         "es": "spanish", "it": "italian", "fi": "finnish",
         "eo": "esperanto",
+        # v4.8.14: Enable Russian and Dutch stemmers
+        "ru": "russian", "nl": "dutch",
     }
     _STEMMERS = {}  # lazy init per language
     _HAS_STEMMER = True
@@ -820,6 +840,35 @@ def _extend_global_with_v4813():
 _extend_global_with_v4813()
 
 
+def _extend_global_with_v4814():
+    """Add KEYWORDS_V4814 and PROPER_NOUNS_V4814 to global keyword index.
+
+    v4814 format: {lang: {atom: [words]}} — different from v4813's {atom: {lang: [words]}}.
+    Covers ja (kanji), ru (Cyrillic), nl (Dutch) keywords and proper nouns.
+    """
+    if not _HAS_EXPANSION_V4814:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for lang, atom_dict in _KEYWORDS_V4814.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for atom_id, words in atom_dict.items():
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4814.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+
+_extend_global_with_v4814()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -931,7 +980,8 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
 
     # v4.8.13: Normalize traditional→simplified Chinese for keyword matching
     # Keywords and stop words are in simplified; corpus may be traditional
-    if lang == "zh" and _HAS_OPENCC:
+    # v4.8.14: Also apply to Japanese (kyūjitai 旧字体 → simplified)
+    if lang in ("zh", "ja") and _HAS_OPENCC:
         word = _CC_T2S.convert(word)
 
     # v4.8.13: Strip diaeresis marks (ï→i, ë→e, etc.) common in old IT/FR texts
@@ -1333,12 +1383,29 @@ def get_stop_words(lang: str) -> set:
     # v4.8.13: Chinese vocabulary expansion stop words
     if _HAS_EXPANSION_V4813 and lang in _STOP_WORDS_V4813:
         base = base | set(_STOP_WORDS_V4813[lang])
+    # v4.8.14: Japanese/Russian/Dutch stop words
+    if _HAS_EXPANSION_V4814 and lang in _STOP_WORDS_V4814:
+        base = base | set(_STOP_WORDS_V4814[lang])
     return base
+
+
+def _is_kanji(ch: str) -> bool:
+    """Check if a character is a CJK ideograph (kanji/hanzi).
+    Does NOT include hiragana or katakana.
+    Used for Japanese kanji-only tokenization (v4.8.14)."""
+    cp = ord(ch)
+    return (
+        (0x4E00 <= cp <= 0x9FFF) or     # CJK Unified
+        (0x3400 <= cp <= 0x4DBF) or     # CJK Extension A
+        (0xF900 <= cp <= 0xFAFF) or     # CJK Compatibility
+        (0x20000 <= cp <= 0x2A6DF)      # CJK Extension B
+    )
 
 
 # CJK character ranges
 def _is_cjk(ch: str) -> bool:
-    """Check if a character is CJK (Chinese/Japanese/Korean)."""
+    """Check if a character is CJK (Chinese/Japanese/Korean).
+    Includes kanji, hiragana, katakana."""
     cp = ord(ch)
     return (
         (0x4E00 <= cp <= 0x9FFF) or     # CJK Unified
@@ -1350,9 +1417,35 @@ def _is_cjk(ch: str) -> bool:
     )
 
 
+def _is_hiragana(ch: str) -> bool:
+    """Check if a character is Hiragana (U+3040-U+309F)."""
+    return 0x3040 <= ord(ch) <= 0x309F
+
+
+def _is_katakana(ch: str) -> bool:
+    """Check if a character is Katakana (U+30A0-U+30FF)."""
+    return 0x30A0 <= ord(ch) <= 0x30FF
+
+
+import re as _re
+_KATAKANA_RUN_RE = _re.compile(r'[\u30A0-\u30FF]{2,}')
+
+
 def count_words(text: str, lang: str) -> int:
-    """Language-aware word count. CJK counts characters; others split on spaces."""
-    if lang in ("ja", "zh"):
+    """Language-aware word count. CJK counts characters; others split on spaces.
+    v4.8.14: For ja, strip furigana and count only kanji + katakana runs + Latin."""
+    if lang == "ja":
+        # Strip furigana 《》 before counting
+        text = strip_furigana(text)
+        # Count kanji characters (NOT individual hiragana)
+        kanji_count = sum(1 for ch in text if _is_kanji(ch))
+        # Count katakana runs (each run = 1 word)
+        katakana_count = len(_KATAKANA_RUN_RE.findall(text))
+        # Count non-CJK words (Latin text)
+        non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
+        non_cjk_words = len([w for w in non_cjk.split() if len(w) >= 2])
+        return kanji_count + katakana_count + non_cjk_words
+    if lang == "zh":
         # Count CJK characters + non-CJK tokens
         cjk_chars = sum(1 for ch in text if _is_cjk(ch))
         non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
@@ -1377,9 +1470,39 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
     text = text.replace('\u2019', "'").replace('\u2018', "'")
     text = text.replace('\u201c', '"').replace('\u201d', '"')
     if lang in ("ja", "zh"):
+        _cjk_punct = "：；，。、！？「」『』（）【】《》〈〉〔〕""''…—─\uff01\uff0c\uff1a\uff1b\uff1f"
+        _strip_cjk = _strip + _cjk_punct
+
+        if lang == "ja":
+            # v4.8.14: Japanese-specific tokenization
+            # 1. Strip furigana 《》 annotations (reading annotations in Gutenberg ja)
+            text = strip_furigana(text)
+            # 2. Apply OpenCC t2s for kyūjitai (旧字体) → simplified kanji
+            if _HAS_OPENCC:
+                text = _CC_T2S.convert(text)
+            content = []
+            # 3. Extract kanji ONLY (not individual hiragana — they're syllables, not morphemes)
+            for ch in text:
+                if _is_kanji(ch) and ch not in stop_words:
+                    content.append(ch)
+            # 4. Extract katakana runs (loanwords, each run = 1 word)
+            for run in _KATAKANA_RUN_RE.findall(text):
+                if run not in stop_words:
+                    content.append(run)
+            # 5. Also extract non-CJK words (Latin text from headers etc.)
+            non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
+            for w in non_cjk.split():
+                w_lower = w.lower().strip(_strip_cjk)
+                if w_lower and len(w_lower) >= 2 and w_lower not in stop_words:
+                    if all(c in _strip_cjk for c in w_lower):
+                        continue
+                    content.append(w_lower)
+            return content
+
+        # Chinese (zh) — unchanged from v4.8.13
         # v4.8.13: Normalize traditional→simplified Chinese before processing
         # so that stop words (simplified) and keywords (simplified) match
-        if lang == "zh" and _HAS_OPENCC:
+        if _HAS_OPENCC:
             text = _CC_T2S.convert(text)
         content = []
         for ch in text:
@@ -1387,8 +1510,6 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
                 content.append(ch)
         # Also check non-CJK words in the text
         # v4.8.13: include CJK punctuation in strip set to avoid ：「 etc.
-        _cjk_punct = "：；，。、！？「」『』（）【】《》〈〉〔〕""''…—─\uff01\uff0c\uff1a\uff1b\uff1f"
-        _strip_cjk = _strip + _cjk_punct
         non_cjk = ''.join(' ' if _is_cjk(ch) else ch for ch in text)
         for w in non_cjk.split():
             w_lower = w.lower().strip(_strip_cjk)
