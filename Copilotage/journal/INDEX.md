@@ -7,6 +7,7 @@ Généré: 2026-02-20T20:00:00-05:00
 ### 2026
 
 - [2026-02-22-hauru-panini-web-decentralise.md](2026-02-22-hauru-panini-web-decentralise.md) — 🌐 **PaniniWeb** : Étude de faisabilité — PaniniFS comme web sémantique décentralisé. Architecture 5 couches, Semantic Block Chain (SBC), Preuve de Cohérence Sémantique (PoSC), URI scheme `panini://`, stockage par blocs orientés sémantique, communication P2P multilingue. Roadmap 5 phases (~18 mois). Capitalise sur hash sémantique + Dolt cascade + 34 atomes × 14 langues.
+- [2026-02-22-hauru-panini-web-persistence-dolt-14lang-libp2p.md](2026-02-22-hauru-panini-web-persistence-dolt-14lang-libp2p.md) — 🦀 **PaniniWeb Rust** : 4 étapes enchaînées — persistence JSON (ChainSnapshot v1), bridge Dolt (SQL+CSV export), expansion 7→14 langues (pt,it,nl,fi,hi,sa,ar), crate panini-net (libp2p mDNS+Gossipsub+Kademlia+Identify). **71 tests** (58 core + 11 net + 2 doc). 4 crates workspace.
 - [2026-02-22-hauru-v4812-expanded-corpus.md](2026-02-22-hauru-v4812-expanded-corpus.md) — 📊 v4.8.12 : Corpus élargi **62 fichiers, 5.9M mots, 12 langues**. 544 entrées (164 noms propres, 201 kw, 150 sw, 29 archaïques). Zarathustra 81.5%→**89.1%**, Don Quijote 78.7%→**86.0%**, Jules Verne →**90.1%**. Dante Divina Commedia 82.0%→81.2% (rendements décroissants sur italien médiéval XIVe s.).
 - [2026-02-21-hauru-wikipedia-dumps-panlang.md](2026-02-21-hauru-wikipedia-dumps-panlang.md) — 📥 Wikipedia dumps complets : **14 langues, 63.6 GB compressé** (~65M articles). aria2c multi-connexion + SAX streaming extractor + mwparserfromhell. Fondation encyclopédique pour PanLang. Débit ~10-12 MB/s. Scripts `wikipedia_dump_downloader.py` + `wikipedia_dump_extractor.py` créés.
 - [2026-02-21-hauru-roadmap-panini-fs-fonctionnel.md](2026-02-21-hauru-roadmap-panini-fs-fonctionnel.md) — 🗺️ Roadmap complet : **6 phases** pour atteindre un Panini-FS fonctionnel. Audit réalité vs vision : 0 Rust, 29/31 CI désactivés, 10 submodules inexistants. Décision : Python d'abord, monorepo, `pyproject.toml` + CLI + API FastAPI. Phase 0 = assainissement (SANDBOX→panini/), Phase 5 = `panini index` + `panini search`.
@@ -72,8 +73,9 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026-02-22
 - [2026-02-22-hauru-panini-web-decentralise.md](2026-02-22-hauru-panini-web-decentralise.md)
+- [2026-02-22-hauru-panini-web-persistence-dolt-14lang-libp2p.md](2026-02-22-hauru-panini-web-persistence-dolt-14lang-libp2p.md)
 - [2026-02-22-hauru-v4812-expanded-corpus.md](2026-02-22-hauru-v4812-expanded-corpus.md)
-- [2026-02-22-hauru-zh-opencc-mur-mandarin.md](2026-02-22-hauru-zh-opencc-mur-mandarin.md) — **v4.8.13**: OpenCC trad→simp, zh 33.8%→48.0% (+14.2pp)
+- [2026-02-22-hauru-zh-opencc-mur-mandarin.md](2026-02-22-hauru-zh-opencc-mur-mandarin.md) — 🇨🇳 **v4.8.13**: Mur du mandarin — zh **33.8%→73.9% (+40.1pp)** 🔥🔥🔥 OpenCC + 471 entrées vocab (3 vagues). Global 70.6% / 62 fichiers.
 - [2026-02-22-hauru-v4813-diachronic-rules.md](2026-02-22-hauru-v4813-diachronic-rules.md) — **v4.8.13**: Règles diachroniques (sūtra vs koṣa), Strategies 10-11, DE→90.1%
 
 ---

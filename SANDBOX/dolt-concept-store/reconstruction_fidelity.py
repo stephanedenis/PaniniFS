@@ -252,6 +252,22 @@ except ImportError:
     _PROPER_NOUNS_V4812 = {}
     _ARCHAIC_FORMS_V4812 = {}
 
+# v4.8.13: Chinese vocabulary expansion — zh keywords, proper nouns, stop words
+try:
+    from vocabulary_expansion_v4813 import (
+        get_keywords_v4813, get_stop_words_v4813,
+        get_proper_nouns_v4813,
+    )
+    _KEYWORDS_V4813 = get_keywords_v4813()
+    _STOP_WORDS_V4813 = get_stop_words_v4813()
+    _PROPER_NOUNS_V4813 = get_proper_nouns_v4813()
+    _HAS_EXPANSION_V4813 = True
+except ImportError:
+    _HAS_EXPANSION_V4813 = False
+    _KEYWORDS_V4813 = {}
+    _STOP_WORDS_V4813 = {}
+    _PROPER_NOUNS_V4813 = {}
+
 # v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
 try:
     from diachronic_rules import (
@@ -779,6 +795,31 @@ def _extend_global_with_v4812():
 _extend_global_with_v4812()
 
 
+def _extend_global_with_v4813():
+    """Add KEYWORDS_V4813 and PROPER_NOUNS_V4813 to global keyword index."""
+    if not _HAS_EXPANSION_V4813:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for atom_id, lang_words in _KEYWORDS_V4813.items():
+        for lang, words in lang_words.items():
+            if lang not in _GLOBAL_KEYWORDS:
+                _GLOBAL_KEYWORDS[lang] = set()
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4813.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower() if isinstance(name, str) else name[0].lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+
+_extend_global_with_v4813()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1289,6 +1330,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.12: Expanded corpus (62 files) stop words + archaic forms
     if _HAS_EXPANSION_V4812 and lang in _STOP_WORDS_V4812:
         base = base | set(_STOP_WORDS_V4812[lang])
+    # v4.8.13: Chinese vocabulary expansion stop words
+    if _HAS_EXPANSION_V4813 and lang in _STOP_WORDS_V4813:
+        base = base | set(_STOP_WORDS_V4813[lang])
     return base
 
 
