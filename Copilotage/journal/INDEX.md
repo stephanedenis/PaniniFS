@@ -83,6 +83,8 @@ Généré: 2026-02-20T20:00:00-05:00
 
 ### 2026-02-23
 - [2026-02-23-hauru-v4815-european-expansion.md](2026-02-23-hauru-v4815-european-expansion.md) — **v4.8.15**: Expansion européenne ciblée (560 entrées), aphérèse IT, EN +0.8%, FR +0.6%
+- [2026-02-22-hauru-ja-ru-nl-wall-breakthrough.md](2026-02-22-hauru-ja-ru-nl-wall-breakthrough.md) — 🇯🇵🇷🇺🇳🇱 **v4.8.14**: Percée ja/ru/nl — ja 18.8%→74.1%, ru 16.5%→40.4%, nl 28.4%→38.7%. Furigana strip, OpenCC kyūjitai, Snowball ru/nl.
+- [2026-02-23-hauru-v4816-prereform-ru-nl-expansion.md](2026-02-23-hauru-v4816-prereform-ru-nl-expansion.md) — 🇷🇺🇳🇱 **v4.8.16**: Orthographe pré-réforme russe (ъ/ѣ/і/ѳ) + expansion massive ru/nl — ru 40.4%→56.3%, nl 38.8%→55.9% 🔥
 
 ---
 

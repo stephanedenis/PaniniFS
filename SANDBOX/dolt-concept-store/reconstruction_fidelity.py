@@ -305,6 +305,26 @@ except ImportError:
     _PROPER_NOUNS_V4815 = {}
     _ARCHAIC_FORMS_V4815 = {}
 
+# v4.8.16: Russian pre-reform orthography normalizer + RU/NL deep expansion
+try:
+    from vocabulary_expansion_v4816 import (
+        get_keywords_v4816, get_stop_words_v4816,
+        get_proper_nouns_v4816, get_old_dutch_forms_v4816,
+        normalize_prereform_ru,
+    )
+    _KEYWORDS_V4816 = get_keywords_v4816()
+    _STOP_WORDS_V4816 = get_stop_words_v4816()
+    _PROPER_NOUNS_V4816 = get_proper_nouns_v4816()
+    _OLD_DUTCH_FORMS_V4816 = get_old_dutch_forms_v4816()
+    _HAS_EXPANSION_V4816 = True
+except ImportError:
+    _HAS_EXPANSION_V4816 = False
+    _KEYWORDS_V4816 = {}
+    _STOP_WORDS_V4816 = {}
+    _PROPER_NOUNS_V4816 = {}
+    _OLD_DUTCH_FORMS_V4816 = {}
+    def normalize_prereform_ru(w): return w
+
 # v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
 try:
     from diachronic_rules import (
@@ -925,6 +945,44 @@ def _extend_global_with_v4815():
 _extend_global_with_v4815()
 
 
+def _extend_global_with_v4816():
+    """Add KEYWORDS_V4816, PROPER_NOUNS_V4816, OLD_DUTCH_FORMS to global keyword index.
+
+    v4816 format: {lang: {atom: [words]}} — same as v4814/v4815.
+    Covers ru (religious/literary/general) and nl (maritime/exploration/general) keywords.
+    Also registers old Dutch spelling forms as keywords.
+    """
+    if not _HAS_EXPANSION_V4816:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for lang, atom_dict in _KEYWORDS_V4816.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for atom_id, words in atom_dict.items():
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4816.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    # Register old Dutch forms as keywords (both old and modern forms)
+    if "nl" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["nl"] = set()
+    for old_form, modern_form in _OLD_DUTCH_FORMS_V4816.items():
+        _GLOBAL_KEYWORDS["nl"].add(old_form.lower())
+        _GLOBAL_KEYWORDS["nl"].add(modern_form.lower())
+        _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+        _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v4816()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1025,6 +1083,7 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
             stop-word-aware compound splitting
     v4.8.13: OpenCC traditional→simplified Chinese normalization
     v4.8.13: Diachronic rules + cognate bridging (Strategies 10-11)
+    v4.8.16: Pre-reform Russian orthography normalization (ъ, ѣ, і, ѳ)
 
     Args:
         atom_stems: Pre-stemmed atom_words (optional, avoids re-stemming per call)
@@ -1039,6 +1098,12 @@ def _is_covered_enhanced(word: str, atom_words: set, lang: str,
     # v4.8.14: Also apply to Japanese (kyūjitai 旧字体 → simplified)
     if lang in ("zh", "ja") and _HAS_OPENCC:
         word = _CC_T2S.convert(word)
+
+    # v4.8.16: Normalize pre-reform Russian orthography (pre-1918)
+    # ъ at end → stripped, ѣ→е, і→и, ѳ→ф
+    # Enables Snowball stemmer to work on pre-reform texts (pg30774)
+    if lang == "ru" and _HAS_EXPANSION_V4816:
+        word = normalize_prereform_ru(word)
 
     # v4.8.13: Strip diaeresis marks (ï→i, ë→e, etc.) common in old IT/FR texts
     # e.g. "fïata"→"fiata", "coscïenza"→"coscienza", "Israël"→"Israel"
@@ -1445,6 +1510,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.15: European language gaps (62-file corpus) stop words
     if _HAS_EXPANSION_V4815 and lang in _STOP_WORDS_V4815:
         base = base | set(_STOP_WORDS_V4815[lang])
+    # v4.8.16: Russian pre-reform + RU/NL deep expansion stop words
+    if _HAS_EXPANSION_V4816 and lang in _STOP_WORDS_V4816:
+        base = base | set(_STOP_WORDS_V4816[lang])
     return base
 
 
@@ -1582,6 +1650,10 @@ def get_content_words(text: str, lang: str, stop_words: set) -> list:
         content = []
         for w in text.split():
             w_lower = w.lower().strip(_strip)
+            # v4.8.16: Normalize pre-reform Russian orthography before stop word check
+            # This ensures pre-reform stop words (въ→в, ихъ→их) are properly filtered
+            if lang == "ru" and _HAS_EXPANSION_V4816:
+                w_lower = normalize_prereform_ru(w_lower)
             if w_lower and len(w_lower) >= 2 and w_lower not in stop_words:
                 content.append(w_lower)
         return content
