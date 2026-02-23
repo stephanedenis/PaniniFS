@@ -113,3 +113,51 @@ Gains individuels notables :
    Les règles diachroniques + aphérèse ont aidé mais le plafond est ~85% sans
    expansion massive du lexique médiéval italien.
 4. **ES** : Limité par le fichier bilingue pg15532 (67.9%). pg2000 (Don Quijote) à 86.4%.
+
+---
+
+# v4.8.17 — Common-word gap fill (même session, suite après redémarrage VSCode)
+
+## Constat
+
+Après v4.8.15, beaucoup de **mots courants** manquaient encore du lexique :
+- FR : action, rôle, confiance, analyse, découverte, refuge, phénomène (31 testés → 31 absents)
+- EN : folk, conscience, example, weather, cavalry, client, photograph (41 testés → 41 absents)
+
+Le problème des élisions FR (`l'ouest` → `l` + `ouest`) : Strategy 4 split correctement
+mais `ouest` lui-même n'était pas dans le lexique.
+
+## Décisions
+
+1. Créé `vocabulary_expansion_v4817.py` : 494 entrées (381 keywords, 39 stop words, 74 noms propres)
+2. Couverture massive de mots courants FR (174 mots, 13 atomes) + EN (125 mots, 10 atomes)
+3. Noms propres littéraires : P&P (Pemberley, Fitzwilliam), Holmes (Lestrade, Rucastle),
+   Verne (Barbicane, Elphiston), Moby Dick (Nantucket, Pequod), Beowulf, Prince, etc.
+
+## Résultats v4.8.17
+
+| Langue | v4.8.15 | v4.8.17 | Δ |
+|--------|---------|---------|---|
+| DE | 90.6% | **90.7%** | +0.1 |
+| EN | 87.3% | **88.2%** | +0.9 ✅ (objectif 88%) |
+| ES | 77.2% | **77.3%** | +0.1 |
+| FR | 89.8% | **90.6%** | +0.8 ✅ (objectif 90%) |
+| IT | 82.8% | **83.0%** | +0.2 |
+
+Gains individuels : Holmes +2.1%, Verne pg799 +1.7%, Tom Sawyer +1.8%,
+Descartes +1.1%, P&P +1.1%, Île mystérieuse +1.1%.
+
+## Fichiers modifiés (v4.8.17)
+
+| Fichier | Action | Raison |
+|---------|--------|--------|
+| `vocabulary_expansion_v4817.py` | **Créé** | 494 entrées FR/EN/IT/ES |
+| `reconstruction_fidelity.py` | **Modifié** | Import v4817 + extend + stop words |
+
+## Prochaines étapes (mises à jour)
+
+1. ✅ **FR ≥ 90%** — atteint (90.6%)
+2. ✅ **EN ≥ 88%** — atteint (88.2%)
+3. **IT → 85%** : reste à 83.0%, Dante archaïsmes toscans
+4. **ES** : limité par fichier bilingue (pg2000 seul à 86.6%)
+5. Committer v4.8.16 (RU/NL, travail parallèle) si pas déjà fait

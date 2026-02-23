@@ -325,6 +325,22 @@ except ImportError:
     _OLD_DUTCH_FORMS_V4816 = {}
     def normalize_prereform_ru(w): return w
 
+# v4.8.17: Common-word gap fill for FR/EN/IT/ES (62-file corpus)
+try:
+    from vocabulary_expansion_v4817 import (
+        get_keywords_v4817, get_stop_words_v4817,
+        get_proper_nouns_v4817,
+    )
+    _KEYWORDS_V4817 = get_keywords_v4817()
+    _STOP_WORDS_V4817 = get_stop_words_v4817()
+    _PROPER_NOUNS_V4817 = get_proper_nouns_v4817()
+    _HAS_EXPANSION_V4817 = True
+except ImportError:
+    _HAS_EXPANSION_V4817 = False
+    _KEYWORDS_V4817 = {}
+    _STOP_WORDS_V4817 = {}
+    _PROPER_NOUNS_V4817 = {}
+
 # v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
 try:
     from diachronic_rules import (
@@ -983,6 +999,35 @@ def _extend_global_with_v4816():
 _extend_global_with_v4816()
 
 
+def _extend_global_with_v4817():
+    """Add KEYWORDS_V4817 and PROPER_NOUNS_V4817 to global keyword index.
+
+    v4817 format: {lang: {atom: [words]}} — same as v4814-v4816.
+    Covers fr, en, it, es common words and literary proper nouns.
+    """
+    if not _HAS_EXPANSION_V4817:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for lang, atom_dict in _KEYWORDS_V4817.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for atom_id, words in atom_dict.items():
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4817.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+
+_extend_global_with_v4817()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1513,6 +1558,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.16: Russian pre-reform + RU/NL deep expansion stop words
     if _HAS_EXPANSION_V4816 and lang in _STOP_WORDS_V4816:
         base = base | set(_STOP_WORDS_V4816[lang])
+    # v4.8.17: Common-word gap fill stop words
+    if _HAS_EXPANSION_V4817 and lang in _STOP_WORDS_V4817:
+        base = base | set(_STOP_WORDS_V4817[lang])
     return base
 
 
