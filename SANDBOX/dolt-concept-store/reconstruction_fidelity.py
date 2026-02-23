@@ -286,6 +286,25 @@ except ImportError:
     _PROPER_NOUNS_V4814 = {}
     def strip_furigana(text): return text
 
+# v4.8.15: European language gaps (62-file corpus) — keywords, stop words,
+# proper nouns, archaic forms (IT apheresis, DE archaic)
+try:
+    from vocabulary_expansion_v4815 import (
+        get_keywords_v4815, get_stop_words_v4815,
+        get_proper_nouns_v4815, get_archaic_forms_v4815,
+    )
+    _KEYWORDS_V4815 = get_keywords_v4815()
+    _STOP_WORDS_V4815 = get_stop_words_v4815()
+    _PROPER_NOUNS_V4815 = get_proper_nouns_v4815()
+    _ARCHAIC_FORMS_V4815 = get_archaic_forms_v4815()
+    _HAS_EXPANSION_V4815 = True
+except ImportError:
+    _HAS_EXPANSION_V4815 = False
+    _KEYWORDS_V4815 = {}
+    _STOP_WORDS_V4815 = {}
+    _PROPER_NOUNS_V4815 = {}
+    _ARCHAIC_FORMS_V4815 = {}
+
 # v4.8.13: Diachronic sound change rules (replaces brute-force archaic lists)
 try:
     from diachronic_rules import (
@@ -869,6 +888,43 @@ def _extend_global_with_v4814():
 _extend_global_with_v4814()
 
 
+def _extend_global_with_v4815():
+    """Add KEYWORDS_V4815, PROPER_NOUNS_V4815, and ARCHAIC_FORMS_V4815 to global.
+
+    v4815 format: {lang: {atom: [words]}} — same as v4814.
+    Covers de, en, es, fr, it keywords, proper nouns, and archaic forms.
+    """
+    if not _HAS_EXPANSION_V4815:
+        return
+    if "_all" not in _GLOBAL_KEYWORDS:
+        _GLOBAL_KEYWORDS["_all"] = set()
+    for lang, atom_dict in _KEYWORDS_V4815.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for atom_id, words in atom_dict.items():
+            for w in words:
+                wl = w.lower()
+                _GLOBAL_KEYWORDS[lang].add(wl)
+                _GLOBAL_KEYWORDS["_all"].add(wl)
+    for lang, names in _PROPER_NOUNS_V4815.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for name in names:
+            nl = name.lower()
+            _GLOBAL_KEYWORDS[lang].add(nl)
+            _GLOBAL_KEYWORDS["_all"].add(nl)
+    for lang, mappings in _ARCHAIC_FORMS_V4815.items():
+        if lang not in _GLOBAL_KEYWORDS:
+            _GLOBAL_KEYWORDS[lang] = set()
+        for old_form, modern_form in mappings.items():
+            _GLOBAL_KEYWORDS[lang].add(old_form.lower())
+            _GLOBAL_KEYWORDS[lang].add(modern_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(old_form.lower())
+            _GLOBAL_KEYWORDS["_all"].add(modern_form.lower())
+
+_extend_global_with_v4815()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # v4.8.1: STEMMED KEYWORD INDEX (stem all known keywords for fuzzy matching)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1386,6 +1442,9 @@ def get_stop_words(lang: str) -> set:
     # v4.8.14: Japanese/Russian/Dutch stop words
     if _HAS_EXPANSION_V4814 and lang in _STOP_WORDS_V4814:
         base = base | set(_STOP_WORDS_V4814[lang])
+    # v4.8.15: European language gaps (62-file corpus) stop words
+    if _HAS_EXPANSION_V4815 and lang in _STOP_WORDS_V4815:
+        base = base | set(_STOP_WORDS_V4815[lang])
     return base
 
 

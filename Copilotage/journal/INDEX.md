@@ -81,6 +81,9 @@ Généré: 2026-02-20T20:00:00-05:00
 - [2026-02-22-hauru-zh-opencc-mur-mandarin.md](2026-02-22-hauru-zh-opencc-mur-mandarin.md) — 🇨🇳 **v4.8.13**: Mur du mandarin — zh **33.8%→73.9% (+40.1pp)** 🔥🔥🔥 OpenCC + 471 entrées vocab (3 vagues). Global 70.6% / 62 fichiers.
 - [2026-02-22-hauru-v4813-diachronic-rules.md](2026-02-22-hauru-v4813-diachronic-rules.md) — **v4.8.13**: Règles diachroniques (sūtra vs koṣa), Strategies 10-11, DE→90.1%
 
+### 2026-02-23
+- [2026-02-23-hauru-v4815-european-expansion.md](2026-02-23-hauru-v4815-european-expansion.md) — **v4.8.15**: Expansion européenne ciblée (560 entrées), aphérèse IT, EN +0.8%, FR +0.6%
+
 ---
 
 > 🔄 = Reconstitué rétrospectivement depuis `git log` le 2026-02-18

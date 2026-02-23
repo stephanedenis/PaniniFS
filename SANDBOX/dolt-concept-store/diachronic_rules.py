@@ -246,6 +246,13 @@ GENERATIVE_RULES: Dict[str, Dict[str, List[Tuple[str, str, str]]]] = {
 
     "it": {
         "letterario": [
+            # Verse apheresis: elision (l'inferno, d'intorno) tokenizes as
+            # nferno, ntorno — restore the initial vowel
+            (r'^n([bcdfglmnprstvz])', r'in\1',
+             "apheresis reversal: nferno→inferno, ntorno→intorno"),
+            (r'^m([bp])', r'im\1',
+             "apheresis reversal: mpero→impero"),
+
             # Tuscan diphthongization: any 'o' before single consonant + vowel
             # This is the most productive rule for Dante
             (r'^(.+?)o([bcdfglmnprstvz])([aeio])$', r'\1uo\2\3',
