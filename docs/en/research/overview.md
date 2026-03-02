@@ -22,7 +22,7 @@ This page summarizes active research streams and links back to `RESEARCH/` sourc
 
 ## Full reading (book)
 
-- Web version, continuous reading: [Book > Full reading](../../en/livre/lecture-integrale.md)
+- Web version, continuous reading: [Book > Full reading](../livre/lecture-integrale.md)
 
 ## What’s new (14 days)
 

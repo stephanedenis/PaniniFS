@@ -8,7 +8,7 @@ Cette section reflète la structure du manuscrit Leanpub. Pour une lecture fluid
 
 ## Accès rapide
 - Lecture intégrale (FR): [Lire maintenant](lecture-integrale.md)
-- Full reading (EN): [Read now](../en/livre/lecture-integrale.md)
+- Full reading (EN): [Read now](/en/livre/lecture-integrale/)
 
 ## Table des matières (extrait)
 - Volume I — Genèse et fondements

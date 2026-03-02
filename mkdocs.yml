@@ -55,6 +55,7 @@ plugins:
         - fr
         - en
   - i18n:
+      docs_structure: folder
       languages:
         - locale: fr
           name: Français
@@ -163,7 +164,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/stephanedenis
     - icon: fontawesome/brands/linkedin
-  link: https://www.linkedin.com/in/neuronspikes
+      link: https://www.linkedin.com/in/neuronspikes
   alternate:
     - name: Français
       link: /

@@ -1,9 +1,9 @@
 # Pāṇini File System
 
-Plateforme modulaire pour traitement et stockage d’information métalinguistique.
+Plateforme modulaire pour traitement et stockage d'information métalinguistique.
 
 - Vision: [Fondations linguistiques](linguistic-foundations.md), [Cadre Dhātu](dhatu-framework.md)
-- Architecture: voir l’aperçu dans la section Écosystème et les dépôts concernés.
+- Architecture: voir l'aperçu dans la section Écosystème et les dépôts concernés.
 - Documentation: [Processus](doc-process.md), [Style](style-guide.md), [Références](references.md)
 - Schémas: [Diagrams (PlantUML)](diagrams.md)
 - Modules: [Index docs modules](modules/index.md)
@@ -12,7 +12,7 @@ Plateforme modulaire pour traitement et stockage d’information métalinguistiq
 
 ## Vision sociale et éthique
 
-Ce projet place la société avant la technique. Objectif: rendre l’information réellement utile, accessible et traçable pour tous.
+Ce projet place la société avant la technique. Objectif: rendre l'information réellement utile, accessible et traçable pour tous.
 
 - Inclusion et accessibilité par défaut
 - Attribution et provenance des idées (mémoire collective)
@@ -22,11 +22,13 @@ Détails: voir [Vision sociale](vision-sociale.md) et [Références externes](re
 
 ## Avancement de la recherche
 
-Synthèse des résultats et chantiers en cours:
+Résultats validés (février 2026) :
 
-- Découverte et validation des 7 dhātu informationnels (universaux conceptuels)
-- Déduplication conceptuelle et compression sémantique (preuves de concept)
-- Orchestrateur d’exécution unifié (local/colab/cloud)
+- **34 atomes universels** validés sur **14 langues**, dont 7/7 langues européennes ≥ 90%
+- **Percées majeures** : japonais 18.8%→74.1%, chinois 33.8%→73.9%, russe 16.5%→56.3%, néerlandais 28.4%→55.9%
+- **Couverture globale** : 76.8% sur 62 textes Gutenberg + 973 articles Wikipédia (~8M mots)
+- Corpus Wikipedia multi-langue : 14 langues, 63.6 GB disponibles
+- PaniniWeb Rust v0.1 : 4 crates, 71 tests, réseau P2P libp2p
 
 Plus: [Avancement & feuille de route](avancement.md) et [Recherche](research/index.md).
 
@@ -38,8 +40,8 @@ Plus: [Avancement & feuille de route](avancement.md) et [Recherche](research/ind
 
 ---
 
-Actualités:
-- La documentation est désormais la source prioritaire; les tâches GitHub sont extraites automatiquement des TODO: de cette doc.
-- Le site est bilingue FR/EN (menu English).
-
-Note de déploiement: mise à jour le 2025-09-03.
+Actualités (mars 2026) :
+- 7/7 langues européennes franchissent le seuil de 90% de couverture lexicale
+- Percée japonaise (+55pp) grâce à la tokenisation kanji et suppression des furigana
+- La documentation est désormais la source prioritaire
+- Le site est bilingue FR/EN (menu de langue en haut à droite)
