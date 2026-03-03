@@ -1,10 +1,13 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-02-20T20:00:00-05:00
+Généré: 2026-03-02T17:45:00Z
 
 ## Entrées
 
 ### 2026
+
+- [2026-03-02-hauru-research-details-universaux.md](2026-03-02-hauru-research-details-universaux.md) — 📊 **Recherche détaillée** : 4 nouvelles pages (FR+EN) — `resultats-couverture.md` (tableaux version-par-version, percées multilingues, spillover), `atomes-universaux.md` (34 atomes avec couches, primitives NSM, dhātu sanscrit, Jackendoff, exemples d'encodage), overview.md mis à jour. Nav réorganisé.
+- [2026-03-02-hauru-website-update-bilingual.md](2026-03-02-hauru-website-update-bilingual.md) — 🌐 **Site paninifs.org** : Mise à jour complète du site bilingue. Activation `docs_structure: folder` dans mkdocs-static-i18n → navigation EN opérationnelle. Fix build bloquant (cloud-free-compute.md include cassé). Fix YAML LinkedIn. Mise à jour 8 pages clés (FR+EN) : avancement, index, dhatu-framework, whats-new avec métriques Feb 2026 (34 atomes/14 langues, 7/7 EU≥90%, percées ja/zh/ru/nl). Création pages manquantes en/livre/index.md et en/dashboard.md.
 
 - [2026-02-22-hauru-ja-ru-nl-wall-breakthrough.md](2026-02-22-hauru-ja-ru-nl-wall-breakthrough.md) — 🔥🔥🔥 **v4.8.14** : Percée ja/ru/nl — les 3 langues les plus faibles. **ja 18.8%→74.1% (+55.3pp)** via tokenisation kanji-only + suppression furigana 《》 + OpenCC kyūjitai. **ru 16.5%→40.4% (+23.9pp)** via stemmer Snowball russe + 149 stop words + 300 keywords. **nl 28.4%→38.7% (+10.3pp)** via stemmer Snowball néerlandais + 150 stop words + 250 keywords. **Global 70.6%→76.0% (+5.4pp)** sur 62 fichiers / 12 langues / 5.8M mots. Effets de bord positifs : eo +5.9, fi +5.7, de +2.8, zh +2.7, fr +2.6. Insight : l'atome sémantique traverse les écritures (kanji ja ↔ hanzi zh).
 - [2026-02-22-hauru-zh-opencc-mur-mandarin.md](2026-02-22-hauru-zh-opencc-mur-mandarin.md) — 🔥🔥 **v4.8.13** : Mur du Mandarin — zh 33.8%→73.9% (+40.1pp). Triple fix : OpenCC t2s (traditionnel→simplifié), CJK punctuation filter, vocabulary_expansion_v4813.py (471 entrées : 347 kw, 64 sw, 60 noms propres en 3 vagues). Couverture globale 70.6% sur 62 fichiers / 12 langues / 3.2M mots.

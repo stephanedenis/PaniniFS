@@ -55,6 +55,7 @@ plugins:
         - fr
         - en
   - i18n:
+      docs_structure: folder
       languages:
         - locale: fr
           name: Français
@@ -148,11 +149,13 @@ nav:
       - Vue d'ensemble: research/overview.md
       - Quoi de neuf (14 jours): research/whats-new.md
       - Flux (RSS): research/whats-new-feed.html
+      - Résultats de couverture: research/resultats-couverture.md
+      - Atomes universaux (34): research/atomes-universaux.md
       - Universaux sémantiques: research/universaux-semantique.md
+      - Expériences Dhātu v0.1 et typologie: research/experiences-dhatu-typologie-v0-1.md
+      - Inventaire Dhātu v0.1: research/inventaire-dhatu-v0-1.md
       - Langage humain et développement: research/langage-humain-developpement.md
       - Compression sémantique: research/compression-semantique.md
-  - Expériences Dhātu v0.1 et typologie: research/experiences-dhatu-typologie-v0-1.md
-  - Inventaire Dhātu v0.1: research/inventaire-dhatu-v0-1.md
   - Livre:
     - livre/index.md
   - Lecture intégrale: livre/lecture-integrale.md
@@ -163,7 +166,7 @@ extra:
     - icon: fontawesome/brands/github
       link: https://github.com/stephanedenis
     - icon: fontawesome/brands/linkedin
-  link: https://www.linkedin.com/in/neuronspikes
+      link: https://www.linkedin.com/in/neuronspikes
   alternate:
     - name: Français
       link: /

@@ -3,7 +3,7 @@ title: Publications
 ---
 # Publications
 
-- Book (Leanpub) — Full reading (EN): [Read now](en/livre/lecture-integrale.md)
+- Book (Leanpub) — Full reading (EN): [Read now](/en/livre/lecture-integrale/)
 - Medium (articles): https://medium.com/@neuronspikes
 
 ## Site multilingue
