@@ -46,3 +46,7 @@ SANDBOX/dolt-concept-store/wikipedia_exports/
 # Wikipedia dumps (large binary files)
 SANDBOX/dolt-concept-store/wikipedia_dumps/
 SANDBOX/dolt-concept-store/wikipedia_fullcorpus/
+
+# Répertoires de sauvegarde (intentionnellement non versionnés)
+cleanup/backup_*/
+backup_*/
