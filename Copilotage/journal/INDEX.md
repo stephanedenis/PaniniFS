@@ -1,11 +1,12 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-03-02T17:45:00Z
+Généré: 2026-03-06T14:52:00Z
 
 ## Entrées
 
-### 2026
+### 2026 — Mars
 
+- [2026-03-06-github-copilot-website-homepage-model.md](2026-03-06-github-copilot-website-homepage-model.md) — 🌐 **Site paninifs.org** : Réactivation du workflow de déploiement GitHub Pages (bug YAML indentation corrigé dans `deploy-pages-mkdocs.yml.disabled`→`.yml`). Refonte des pages d'accueil FR+EN pour mettre en vedette le modèle principal (34 atomes, 4 catégories, 7 dhātu) et les percées multilingues (ja/zh/ru/nl) avec admonitions MkDocs Material.
 - [2026-03-02-hauru-research-details-universaux.md](2026-03-02-hauru-research-details-universaux.md) — 📊 **Recherche détaillée** : 4 nouvelles pages (FR+EN) — `resultats-couverture.md` (tableaux version-par-version, percées multilingues, spillover), `atomes-universaux.md` (34 atomes avec couches, primitives NSM, dhātu sanscrit, Jackendoff, exemples d'encodage), overview.md mis à jour. Nav réorganisé.
 - [2026-03-02-hauru-website-update-bilingual.md](2026-03-02-hauru-website-update-bilingual.md) — 🌐 **Site paninifs.org** : Mise à jour complète du site bilingue. Activation `docs_structure: folder` dans mkdocs-static-i18n → navigation EN opérationnelle. Fix build bloquant (cloud-free-compute.md include cassé). Fix YAML LinkedIn. Mise à jour 8 pages clés (FR+EN) : avancement, index, dhatu-framework, whats-new avec métriques Feb 2026 (34 atomes/14 langues, 7/7 EU≥90%, percées ja/zh/ru/nl). Création pages manquantes en/livre/index.md et en/dashboard.md.
 
