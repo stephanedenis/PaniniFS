@@ -67,7 +67,12 @@ plugins:
       type: timeago
       locale: fr
   - kroki:
-  # Options par défaut; l'URL est fournie via la variable d'environnement KROKI_URL dans CI
+      # fence_prefix vide = accepter ```plantuml``` directement (sans préfixe kroki-)
+      fence_prefix: ""
+      # mermaid est géré côté client par pymdownx.superfences ; ne pas le passer à Kroki
+      enable_mermaid: false
+      # L'URL du serveur Kroki peut être surchargée via la variable KROKI_SERVER_URL en CI
+      # (par défaut : https://kroki.io)
   - include-markdown
 
 
