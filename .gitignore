@@ -49,4 +49,12 @@ SANDBOX/dolt-concept-store/wikipedia_fullcorpus/
 
 # Répertoires de sauvegarde (intentionnellement non versionnés)
 cleanup/backup_*/
+cleanup/local_untracked_backup_*/
+cleanup/**/*.tgz
 backup_*/
+
+# Artéfacts de tests/CI locaux
+artifacts/
+
+# Fichiers PID/lock éphémères
+*.pid
