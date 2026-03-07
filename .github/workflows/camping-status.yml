@@ -12,6 +12,7 @@ on:
 jobs:
   camping-status:
     runs-on: ubuntu-latest
+    permissions: {}
     
     steps:
     - name: 📋 Camping Strategy Check
