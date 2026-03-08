@@ -196,5 +196,3 @@ if [[ "$apply_submodules" == true ]]; then
 	apply_submodules_recursively || true
 fi
 
-exit 0
-
