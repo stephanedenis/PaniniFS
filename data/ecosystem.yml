@@ -103,7 +103,7 @@ external:
     path: RESEARCH
     url: https://github.com/stephanedenis/PaniniFS-Research
     role: research
-    description: Monorepo de recherche (notes, expériences et archives). Migré depuis .seed_research/.
+    description: Monorepo de recherche (notes, expériences et archives). Migré depuis .seed_research/. Synchronisation initialisée le 6 septembre 2025.
     docs_url: https://stephanedenis.github.io/PaniniFS-Research/
     status: active
     languages: [markdown, python]
