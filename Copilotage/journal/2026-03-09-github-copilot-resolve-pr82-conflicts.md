@@ -11,6 +11,9 @@ La PR avait été créée pour ajouter le sous-module RESEARCH mais avait diverg
 Le commit `0889a17` avait « finalisé » le contenu de la PR #82 dans master (workflows,
 docs, governance) mais sans enregistrer le gitlink du sous-module RESEARCH dans l'index Git.
 
+**Session 2** (suite immédiate) : Correction de bugs CI pré-existants dans master et
+fermeture des PRs obsolètes.
+
 ## Décisions clés
 
 | Constat | Décision | Impact |
@@ -19,10 +22,14 @@ docs, governance) mais sans enregistrer le gitlink du sous-module RESEARCH dans 
 | 6 conflits : `.gitignore`, `Cargo.toml`, 3 fichiers Copilotage, `data/ecosystem.yml` | Conserver la version master pour tous (fichiers maintenus ou ignorés améliorés) | Aucune régression — master est la source de vérité |
 | pr82 avait supprimé `Cargo.toml`, `Copilotage/AGENT_CONVENTION.md`, etc. | Garder ces fichiers (ils ont été modifiés dans master après la bifurcation) | Conservation du travail de master post-bifurcation |
 | `.gitignore` de master plus complet (SANDBOX corpus + `backup_*/`) que pr82 | Conserver version master sans changement | Toutes les règles d'exclusion pertinentes sont présentes |
+| `docs/requirements.txt` dupliqué (13 lignes au lieu de 7) + ligne malformée à la jonction | Supprimer le duplicata et corriger la ligne 7 | Build CI passe |
+| `scripts/check_copilotage_independence.py` se détectait lui-même (contient la chaîne `governance/copilotage`) | Ajouter `EXCLUDE_FILES` et exclure le script de son propre scan | Guards CI passe |
 
 ## Fichiers modifiés
 
 - `RESEARCH` — Ajout du gitlink 160000 pointant vers `f60f54c` (PaniniFS-Research)
+- `docs/requirements.txt` — Correction (7 lignes uniques au lieu de 13 dupliquées)
+- `scripts/check_copilotage_independence.py` — Ajout de `EXCLUDE_FILES` pour s'auto-exclure
 - `Copilotage/journal/2026-03-09-github-copilot-resolve-pr82-conflicts.md` — Cette entrée
 - `Copilotage/journal/INDEX.md` — Mise à jour de l'index
 
@@ -32,9 +39,12 @@ docs, governance) mais sans enregistrer le gitlink du sous-module RESEARCH dans 
 - Vérification `git ls-tree` sur master, pr82 et ancêtre commun pour valider la stratégie
 - Confirmation que master contient déjà tout le contenu de PR #82 (hors gitlink RESEARCH)
 - Ajout du gitlink RESEARCH vérifié via `git status`
+- `python3 scripts/check_copilotage_independence.py` → `OK: no production dependency detected`
+- `docs/requirements.txt` validé : 7 lignes uniques, pip parse OK
 
 ## Prochaines étapes
 
-- La PR `copilot/pr-82-resolve-merge-conflicts` apporte le gitlink RESEARCH manquant
-- Après merge, fermer la PR #82 (`chore/add-research-submodule`) comme superseded par #94 + ce PR
+- ✅ PR #98 prête à merger (après validation humaine)
+- PR #82 (`chore/add-research-submodule`) → fermer comme superseded par #98
+- PR #76 (`wip/stash-20250905`) → fermer comme stale (basé sur master de sept 2025)
 - Initialiser le sous-module RESEARCH localement : `git submodule update --init RESEARCH`

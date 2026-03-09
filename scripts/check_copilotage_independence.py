@@ -26,6 +26,11 @@ EXCLUDE_DIRS = {
     '.git', '.github', '.venv', 'venv', 'node_modules', 'governance/copilotage', 'docs', 'e2e', 'tests',
 }
 
+# Files that are explicitly allowed to reference governance/copilotage (e.g. this script itself)
+EXCLUDE_FILES = {
+    'scripts/check_copilotage_independence.py',
+}
+
 IMPORT_PATTERNS = [
     re.compile(r"from\s+governance\.copilotage(\.|\s|$)"),
     re.compile(r"import\s+governance\.copilotage(\.|\s|$)"),
@@ -49,6 +54,9 @@ def iter_files():
         rel = p.relative_to(ROOT).as_posix()
         # skip excluded dirs by prefix
         if any(rel.startswith(d + '/') for d in EXCLUDE_DIRS):
+            continue
+        # skip explicitly excluded files (e.g. this script itself)
+        if rel in EXCLUDE_FILES:
             continue
         if any(p.match(glob) for glob in PROD_GLOBS):
             yield p
