@@ -1,11 +1,12 @@
 # Index des journaux — Copilotage
 
-Généré: 2026-03-06T22:42:35Z
+Généré: 2026-03-09T20:37:48Z
 
 ## Entrées
 
 ### 2026 — Mars
 
+- [2026-03-09-github-copilot-resolve-pr82-conflicts.md](2026-03-09-github-copilot-resolve-pr82-conflicts.md) — 🔀 **Conflits PR #82** : Résolution des conflits de fusion pour PR #82. Ajout du gitlink RESEARCH (160000 f60f54c) manquant dans master. Stratégie : conserver versions master pour les 6 fichiers conflictuels (modify/delete + content conflicts).
 - [2026-03-06-github-copilot-finalise-merge-pr82.md](2026-03-06-github-copilot-finalise-merge-pr82.md) — 🔀 **Merge PR #82** : Finalisation du merge de la PR #82 (ajout sous-module RESEARCH). Extraction des apports uniques (experiments/dhatu/, governance/knowledge/, cleanup/manifest.txt) et réactivation de 26 workflows CI/CD.
 - [2026-03-06-github-copilot-fix-plantuml-diagrams.md](2026-03-06-github-copilot-fix-plantuml-diagrams.md) — 🔧 **Fix PlantUML** : Correction de l'affichage des diagrammes PlantUML (bloc texte → graphique SVG). Cause : `fence_prefix: "kroki-"` par défaut dans mkdocs-kroki-plugin v1.3.0, empêchant la reconnaissance des blocs `` ```plantuml ``. Fix : `fence_prefix: ""` + `enable_mermaid: false` dans `mkdocs.yml`.
 - [2026-03-06-github-copilot-merge-plantuml-fix.md](2026-03-06-github-copilot-merge-plantuml-fix.md) — ✅ **Merge** : Validation humaine confirmée (diagrammes SVG OK via kroki.io). PR `copilot/fix-plantuml-diagrams-display` prête à merger dans `main`.
