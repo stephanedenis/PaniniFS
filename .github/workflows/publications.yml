@@ -36,11 +36,22 @@ jobs:
         run: |
           mkdocs build --strict --clean
 
+      - name: Detect publications directory
+        id: publications
+        run: |
+          if [ -d publications ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install publications deps
+        if: steps.publications.outputs.exists == 'true'
         run: |
           pip install -r publications/requirements.txt
 
       - name: Prepare Leanpub manuscripts
+        if: steps.publications.outputs.exists == 'true'
         run: |
           python publications/prepare_leanpub.py
 
