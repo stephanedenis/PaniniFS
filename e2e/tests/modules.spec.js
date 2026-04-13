@@ -37,7 +37,9 @@ test.describe('Modules documentation (aggregated)', () => {
       }
     } else {
       // Fallback mode: ensure at least one GitHub link is present
-      const ghLinks = await page.locator('a[href*="https://github.com/stephanedenis/PaniniFS/"]').count();
+      const ghLinks = await page
+        .locator('a[href*="github.com"][href*="Panini-FS"], a[href*="github.com"][href*="PaniniFS"]')
+        .count();
       expect(ghLinks).toBeGreaterThan(0);
     }
   });

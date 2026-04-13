@@ -66,6 +66,12 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: aligner les assertions Playwright sur l'intention operationnelle en acceptant `200` ou `404`.
 - Impact: suppression d'un echec CI contradictoire avec la politique explicite de tolerance actuelle des 404 research.
 
+### D11 — Correction fallback modules aggregation
+
+- Constat: run E2E suivant echoue au step `Run modules aggregation tests` car le fallback cherchait des liens GitHub avec un pattern trop strict (`PaniniFS` sans tiret) et ne trouvait rien (`count=0`).
+- Decision: assouplir le selector fallback pour accepter les variantes reelles `Panini-FS` et `PaniniFS` sur des URLs GitHub.
+- Impact: suppression d'un faux negatif E2E lie a un selecteur de nom de depot non robuste.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
@@ -76,6 +82,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - `scripts/check_copilotage_independence.py` — exclusion du script lui-meme du scan.
 - `e2e/tests/smoke.spec.js` — desambiguïsation du selector `Recherche` en mode strict Playwright.
 - `e2e/tests/research.spec.js` — tolerance explicite `200|404` sur les endpoints research signales comme intermittents.
+- `e2e/tests/modules.spec.js` — assouplissement du selector fallback des liens GitHub modules.
 
 ## Tests effectues
 
@@ -88,6 +95,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Execution locale de `scripts/check_copilotage_independence.py` apres correction du faux positif.
 - Analyse des logs du run `E2E - Playwright (live)` en echec et identification de la cause racine (`strict mode violation` sur locator ambigu).
 - Analyse des logs du run E2E suivant: echec de `research.spec.js` sur `feed.xml` en `404` malgre la mention workflow de tolerance; correction des assertions.
+- Analyse des logs du run E2E suivant: echec de `modules.spec.js` (fallback GitHub links) corrige par selector robuste sur nom de depot.
 
 ## Prochaines etapes
 
@@ -102,3 +110,4 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Trois echec CI non lies a CodeQL ont ete corriges: syntaxe YAML Docs Governance, syntaxe `docs/requirements.txt`, et faux positif du garde Copilotage.
 - Echec E2E Playwright live corrige par desambiguïsation du locator `Recherche` dans le smoke test.
 - Echec E2E research corrige par alignement des assertions HTTP avec la politique de tolerance temporaire des endpoints `research/*`.
+- Echec E2E modules corrige par desambiguïsation du pattern des liens GitHub en fallback.
