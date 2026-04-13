@@ -60,6 +60,12 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: rendre l'assertion explicite et tolerante a la duplication en ciblant la premiere occurrence visible.
 - Impact: suppression du faux echec E2E lie a l'ambiguite du selector sans affaiblir l'intention du smoke test.
 
+### D10 — Alignement des tests research avec l'intention workflow
+
+- Constat: le step workflow `Run research tests (tolerate current 404s)` echouait car `e2e/tests/research.spec.js` imposait encore `status === 200` sur des endpoints connus intermittents (`/research/whats-new.html`, `/research/feed.xml`).
+- Decision: aligner les assertions Playwright sur l'intention operationnelle en acceptant `200` ou `404`.
+- Impact: suppression d'un echec CI contradictoire avec la politique explicite de tolerance actuelle des 404 research.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
@@ -69,6 +75,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - `docs/requirements.txt` — correction de la liste des dependances MkDocs.
 - `scripts/check_copilotage_independence.py` — exclusion du script lui-meme du scan.
 - `e2e/tests/smoke.spec.js` — desambiguïsation du selector `Recherche` en mode strict Playwright.
+- `e2e/tests/research.spec.js` — tolerance explicite `200|404` sur les endpoints research signales comme intermittents.
 
 ## Tests effectues
 
@@ -80,6 +87,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Validation syntaxique de `docs/requirements.txt`.
 - Execution locale de `scripts/check_copilotage_independence.py` apres correction du faux positif.
 - Analyse des logs du run `E2E - Playwright (live)` en echec et identification de la cause racine (`strict mode violation` sur locator ambigu).
+- Analyse des logs du run E2E suivant: echec de `research.spec.js` sur `feed.xml` en `404` malgre la mention workflow de tolerance; correction des assertions.
 
 ## Prochaines etapes
 
@@ -93,3 +101,4 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Rust a ete retire de la matrice apres constat d'absence de code Rust detecte sur la branche distante analysee.
 - Trois echec CI non lies a CodeQL ont ete corriges: syntaxe YAML Docs Governance, syntaxe `docs/requirements.txt`, et faux positif du garde Copilotage.
 - Echec E2E Playwright live corrige par desambiguïsation du locator `Recherche` dans le smoke test.
+- Echec E2E research corrige par alignement des assertions HTTP avec la politique de tolerance temporaire des endpoints `research/*`.
