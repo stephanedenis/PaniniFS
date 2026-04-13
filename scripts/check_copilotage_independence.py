@@ -9,6 +9,7 @@ Rules:
 This is a best‑effort static scan. Use it as a pre‑commit hook or CI optional step.
 """
 from __future__ import annotations
+import os
 import re
 import sys
 from pathlib import Path
@@ -35,23 +36,31 @@ PATH_PATTERNS = [
     re.compile(r"governance/copilotage"),
 ]
 
+SELF_PATH = Path(__file__).resolve()
+
 def iter_files():
-    for p in ROOT.rglob('*'):
-        if p.is_dir():
-            # skip excluded dirs
-            rel = p.relative_to(ROOT).as_posix()
-            if rel in EXCLUDE_DIRS:
-                # prune by skipping children
-                for _ in []:
-                    pass
+    excluded_names = {Path(d).name for d in EXCLUDE_DIRS if '/' not in d}
+    excluded_prefixes = tuple(f"{d}/" for d in EXCLUDE_DIRS if '/' in d)
+
+    for dirpath, dirnames, filenames in os.walk(ROOT):
+        current = Path(dirpath)
+        rel_dir = current.relative_to(ROOT).as_posix()
+
+        dirnames[:] = [
+            dirname for dirname in dirnames
+            if dirname not in excluded_names
+            and not f"{rel_dir}/{dirname}".lstrip('./').startswith(excluded_prefixes)
+        ]
+
+        for filename in filenames:
+            p = current / filename
+            if p.resolve() == SELF_PATH:
                 continue
-            continue
-        rel = p.relative_to(ROOT).as_posix()
-        # skip excluded dirs by prefix
-        if any(rel.startswith(d + '/') for d in EXCLUDE_DIRS):
-            continue
-        if any(p.match(glob) for glob in PROD_GLOBS):
-            yield p
+            rel = p.relative_to(ROOT).as_posix()
+            if any(rel.startswith(prefix) for prefix in excluded_prefixes):
+                continue
+            if any(p.match(glob) for glob in PROD_GLOBS):
+                yield p
 
 def main():
     if not COPI_PATH.exists():

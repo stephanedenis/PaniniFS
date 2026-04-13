@@ -7,9 +7,9 @@ on:
   pull_request:
     branches: [ master, main ]
     paths:
-  - 'docs/**'
-  - 'modules/**/docs/**'
-  - 'mkdocs.yml'
+      - 'docs/**'
+      - 'modules/**/docs/**'
+      - 'mkdocs.yml'
   workflow_dispatch:
 
 jobs:

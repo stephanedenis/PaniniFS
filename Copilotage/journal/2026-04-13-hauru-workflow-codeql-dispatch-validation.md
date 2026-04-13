@@ -36,11 +36,32 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: desactiver CodeQL Default Setup au niveau repository pour laisser fonctionner le workflow Advanced.
 - Impact: les analyses du workflow `.github/workflows/codeql.yml` deviennent admissibles et executables normalement.
 
+### D6 — Correction du workflow Docs Governance
+
+- Constat: echec au parsing du workflow `.github/workflows/docs-governance.yml` avant creation de job, cause par une indentation invalide sous `paths:`.
+- Decision: reindenter la liste YAML sous `pull_request.paths`.
+- Impact: le workflow peut de nouveau etre charge et execute par GitHub Actions.
+
+### D7 — Reparation des dependances docs
+
+- Constat: `docs/requirements.txt` contenait une ligne fusionnee invalide pour `pip`, cassant l'installation des dependances MkDocs.
+- Decision: supprimer la duplication concatenee et conserver une liste propre des dependances.
+- Impact: l'etape `Install docs deps` redevient executable.
+
+### D8 — Suppression du faux positif du garde Copilotage
+
+- Constat: `scripts/check_copilotage_independence.py` se signalait lui-meme comme contrevenant en scannant sa propre source.
+- Decision: exclure explicitement le script lui-meme du parcours de fichiers.
+- Impact: le check reflète les vraies dependances du repo au lieu d'un auto-signalement artificiel.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
 - `Copilotage/journal/INDEX.md` — ajout de l'entree de ce journal.
 - `Copilotage/journal/2026-04-13-hauru-workflow-codeql-dispatch-validation.md` — creation de l'entree de session.
+- `.github/workflows/docs-governance.yml` — correction de l'indentation YAML sous `paths:`.
+- `docs/requirements.txt` — correction de la liste des dependances MkDocs.
+- `scripts/check_copilotage_independence.py` — exclusion du script lui-meme du scan.
 
 ## Tests effectues
 
@@ -48,6 +69,9 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Verification que CodeQL Advanced est actif apres activation.
 - Validation YAML locale du workflow corrige (parse OK).
 - Verification de coherence de matrice/langages du repo effectuee dans la session precedente (python, rust, javascript-typescript presents).
+- Validation YAML locale de `.github/workflows/docs-governance.yml`.
+- Validation syntaxique de `docs/requirements.txt`.
+- Execution locale de `scripts/check_copilotage_independence.py` apres correction du faux positif.
 
 ## Prochaines etapes
 
@@ -59,3 +83,4 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 
 - Run manuel valide apres desactivation de CodeQL Default Setup: JS et Python passent.
 - Rust a ete retire de la matrice apres constat d'absence de code Rust detecte sur la branche distante analysee.
+- Trois echec CI non lies a CodeQL ont ete corriges: syntaxe YAML Docs Governance, syntaxe `docs/requirements.txt`, et faux positif du garde Copilotage.
