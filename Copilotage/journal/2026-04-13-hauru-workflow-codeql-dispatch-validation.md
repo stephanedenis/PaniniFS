@@ -54,6 +54,12 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: exclure explicitement le script lui-meme du parcours de fichiers.
 - Impact: le check reflète les vraies dependances du repo au lieu d'un auto-signalement artificiel.
 
+### D9 — Correction E2E Playwright live (strict mode)
+
+- Constat: echec `E2E - Playwright (live)` sur `e2e/tests/smoke.spec.js` avec `strict mode violation` car le locator `getByRole('link', { name: /Recherche/i })` matchait 2 elements.
+- Decision: rendre l'assertion explicite et tolerante a la duplication en ciblant la premiere occurrence visible.
+- Impact: suppression du faux echec E2E lie a l'ambiguite du selector sans affaiblir l'intention du smoke test.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
@@ -62,6 +68,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - `.github/workflows/docs-governance.yml` — correction de l'indentation YAML sous `paths:`.
 - `docs/requirements.txt` — correction de la liste des dependances MkDocs.
 - `scripts/check_copilotage_independence.py` — exclusion du script lui-meme du scan.
+- `e2e/tests/smoke.spec.js` — desambiguïsation du selector `Recherche` en mode strict Playwright.
 
 ## Tests effectues
 
@@ -72,6 +79,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Validation YAML locale de `.github/workflows/docs-governance.yml`.
 - Validation syntaxique de `docs/requirements.txt`.
 - Execution locale de `scripts/check_copilotage_independence.py` apres correction du faux positif.
+- Analyse des logs du run `E2E - Playwright (live)` en echec et identification de la cause racine (`strict mode violation` sur locator ambigu).
 
 ## Prochaines etapes
 
@@ -84,3 +92,4 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Run manuel valide apres desactivation de CodeQL Default Setup: JS et Python passent.
 - Rust a ete retire de la matrice apres constat d'absence de code Rust detecte sur la branche distante analysee.
 - Trois echec CI non lies a CodeQL ont ete corriges: syntaxe YAML Docs Governance, syntaxe `docs/requirements.txt`, et faux positif du garde Copilotage.
+- Echec E2E Playwright live corrige par desambiguïsation du locator `Recherche` dans le smoke test.

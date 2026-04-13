@@ -9,6 +9,6 @@ test('homepage loads and shows title', async ({ page }) => {
 
 test('navigation has Recherche and Modules docs', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('link', { name: /Recherche/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Recherche/i }).first()).toBeVisible();
   await expect(page.getByRole('link', { name: /Modules/ })).toBeVisible();
 });
