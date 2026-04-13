@@ -24,6 +24,18 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: ajouter workflow_dispatch dans .github/workflows/codeql.yml.
 - Impact: possibilite de lancer un run CodeQL a la demande apres publication des changements sur le depot distant.
 
+### D4 — Correction du mode de build Rust CodeQL
+
+- Constat: echec explicite du job Rust (`Initialize CodeQL`) indiquant que `autobuild` n'est pas supporte pour Rust.
+- Decision: remettre `build-mode: none` pour `language: rust`.
+- Impact: suppression de l'erreur de configuration Rust au demarrage CodeQL.
+
+### D5 — Resolution du conflit Default Setup vs Advanced Setup
+
+- Constat: echec des jobs JS/Python a l'etape `Perform CodeQL Analysis` avec message indiquant un conflit (advanced configuration non traitee tant que default setup est active).
+- Decision: desactiver CodeQL Default Setup au niveau repository pour laisser fonctionner le workflow Advanced.
+- Impact: les analyses du workflow `.github/workflows/codeql.yml` deviennent admissibles et executables normalement.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
