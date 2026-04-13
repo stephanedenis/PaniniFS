@@ -72,6 +72,12 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Decision: assouplir le selector fallback pour accepter les variantes reelles `Panini-FS` et `PaniniFS` sur des URLs GitHub.
 - Impact: suppression d'un faux negatif E2E lie a un selecteur de nom de depot non robuste.
 
+### D12 — Alignement matcher titre modules avec le rendu live
+
+- Constat: run E2E suivant echoue encore sur `modules.spec.js` car le titre live est `Modules docs - Pāṇini File System`, non couvert par le regex historique.
+- Decision: etendre les matchers `toHaveTitle` et `h1` pour inclure la variante `Modules docs`.
+- Impact: suppression d'un echec E2E lie a une evolution legitime du wording de page, sans rendre le test permissif hors perimetre modules.
+
 ## Fichiers modifies
 
 - `.github/workflows/codeql.yml` — ajout de `workflow_dispatch`.
@@ -83,6 +89,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - `e2e/tests/smoke.spec.js` — desambiguïsation du selector `Recherche` en mode strict Playwright.
 - `e2e/tests/research.spec.js` — tolerance explicite `200|404` sur les endpoints research signales comme intermittents.
 - `e2e/tests/modules.spec.js` — assouplissement du selector fallback des liens GitHub modules.
+- `e2e/tests/modules.spec.js` — extension du matcher titre/H1 pour inclure `Modules docs`.
 
 ## Tests effectues
 
@@ -96,6 +103,7 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Analyse des logs du run `E2E - Playwright (live)` en echec et identification de la cause racine (`strict mode violation` sur locator ambigu).
 - Analyse des logs du run E2E suivant: echec de `research.spec.js` sur `feed.xml` en `404` malgre la mention workflow de tolerance; correction des assertions.
 - Analyse des logs du run E2E suivant: echec de `modules.spec.js` (fallback GitHub links) corrige par selector robuste sur nom de depot.
+- Analyse des logs du run E2E suivant: echec sur assertion titre modules (`Modules docs - ...`) corrige par extension du regex attendu.
 
 ## Prochaines etapes
 
@@ -111,3 +119,4 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 - Echec E2E Playwright live corrige par desambiguïsation du locator `Recherche` dans le smoke test.
 - Echec E2E research corrige par alignement des assertions HTTP avec la politique de tolerance temporaire des endpoints `research/*`.
 - Echec E2E modules corrige par desambiguïsation du pattern des liens GitHub en fallback.
+- Echec E2E modules final corrige par alignement du matcher titre/H1 avec le rendu live.

@@ -4,8 +4,8 @@ const { test, expect } = require('@playwright/test');
 test.describe('Modules documentation (aggregated)', () => {
   test('modules index is reachable and titled', async ({ page }) => {
     await page.goto('/modules/');
-    await expect(page).toHaveTitle(/Documentation des modules|Module documentation/i);
-    await expect(page.locator('h1')).toContainText(/Documentation des modules|Module documentation/i);
+    await expect(page).toHaveTitle(/Documentation des modules|Module documentation|Modules docs/i);
+    await expect(page.locator('h1')).toContainText(/Documentation des modules|Module documentation|Modules docs/i);
   });
 
   test('aggregated module pages resolve when present, otherwise fallback links exist', async ({ page }) => {
