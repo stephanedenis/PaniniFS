@@ -51,6 +51,11 @@ Suite au triage des workflows GitHub Actions, le workflow CodeQL Advanced etait 
 
 ## Prochaines etapes
 
-1. Publier les changements (`codeql.yml` + journal) sur `master`.
-2. Declencher un run manuel via `workflow_dispatch`.
-3. Verifier la completion des jobs CodeQL et corriger si un job de build langage echoue.
+1. Stabiliser la matrice CodeQL strictement sur les langages presents dans la branche distante analysee.
+2. Surveiller les prochains runs planifies/push pour verifier la stabilite dans le temps.
+3. Reintroduire un langage seulement apres confirmation de presence de code source tracke sur `master`.
+
+## Mise a jour execution
+
+- Run manuel valide apres desactivation de CodeQL Default Setup: JS et Python passent.
+- Rust a ete retire de la matrice apres constat d'absence de code Rust detecte sur la branche distante analysee.
