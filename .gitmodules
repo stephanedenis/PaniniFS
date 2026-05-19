@@ -27,11 +27,6 @@
 	url = git@github.com:stephanedenis/PaniniFS-AttributionRegistry.git
 	branch = main
 
-[submodule "copilotage/shared"]
-	path = copilotage/shared
-	url = git@github.com:stephanedenis/PaniniFS-CopilotageShared.git
-	branch = main
-
 [submodule "modules/ontowave-app"]
 	path = modules/ontowave-app
 	url = git@github.com:stephanedenis/OntoWave.git
@@ -40,3 +35,6 @@
 	path = RESEARCH
 	url = git@github.com:stephanedenis/PaniniFS-Research.git
 	branch = main
+[submodule "copilotage"]
+	path = copilotage
+	url = https://github.com/stephanedenis/Panini-Copilotage.git
