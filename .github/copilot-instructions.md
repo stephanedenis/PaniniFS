@@ -1,24 +1,53 @@
-# Instructions Copilot - Panini-FS
+# Copilot Instructions — PaniniFS
 
-📍 **CONTEXTE LOCAL :** Tu te trouves actuellement dans le sous-module `modules/core/filesystem`.
-**Mission stricte :** Stockage bit-perfect et intégration FUSE3.
+## Règle n°1 : Journal de bord obligatoire
 
-⚠️ **RÈGLES D'ANTI-DÉBORDEMENT :**
-- Gère uniquement les I/O fichier. Pas d'analyse sémantique.
-- Ne recrée jamais une logique qui appartient à un autre module de l'écosystème.
-- Ce module interagit avec le reste de l'écosystème via des interfaces claires.
+**Chaque session de travail DOIT produire une entrée dans `Copilotage/journal/`.**
 
-🗺️ **CARTOGRAPHIE DE L'ÉCOSYSTÈME PANINI :**
-1. **Hub/Orchestrateur** (Racine) : Lien entre les modules. Ne contient que l'orchestration (`src/panini_colabmcp`).
-2. **Panini-FS** (`modules/core/filesystem`) : Stockage FUSE3.
-3. **Panini-SemanticCore** (`modules/core/semantic`) : Extraction dhātu.
-4. **OntoWave** (`modules/ontowave`) : UX et UI.
-5. **Panini-AttributionRegistry** (`modules/data/attribution`) : Traçabilité et provenance.
-6. **Panini-AutonomousMissions** (`modules/missions/autonomous`) : Workflows IA.
-7. **Panini-PublicationEngine** (`modules/publication/engine`) : Formatage/Export.
-8. **Panini-UltraReactive** (`modules/reactive/ultra-reactive`) : Streaming temps réel.
-9. **Panini-CloudOrchestrator** (`modules/orchestration/cloud`) : Infra et Déploiement.
-10. **Panini-Research** (`research`) : Brouillons et laboratoire.
+### Procédure
 
-🔗 **RÈGLES GLOBALES :**
-Pour les conventions de code, la journalisation OBLIGATOIRE (`docs/journal-de-bord`) et l'autonomie, **réfère-toi impérativement aux directives globales présentes dans le Hub parent**.
+1. **En début de session** : Lire `Copilotage/journal/INDEX.md` et les dernières
+   entrées pour connaître le contexte récent du projet.
+2. **Pendant la session** : Accumuler les décisions prises, fichiers modifiés,
+   tests effectués.
+3. **Avant tout commit** : Créer (ou mettre à jour) un fichier journal du jour :
+   - **Nom** : `YYYY-MM-DD-<host>-<description-courte>.md`
+   - **Emplacement** : `Copilotage/journal/`
+   - **Sections obligatoires** :
+     - `## Contexte` — Pourquoi cette session
+     - `## Décisions clés` — Chaque décision avec constat → décision → impact
+     - `## Fichiers modifiés` — Liste et raison
+     - `## Tests effectués` — Résultats des validations
+     - `## Prochaines étapes` — Ce qui reste à faire
+4. **Inclure le journal dans le commit** : `git add Copilotage/journal/YYYY-MM-DD*.md`
+5. **Mettre à jour INDEX.md** si c'est une nouvelle entrée.
+
+### Pourquoi
+
+Un hook `pre-commit` **bloquera le commit** si aucun fichier
+`Copilotage/journal/<date-du-jour>*.md` n'est stagé. Cette règle assure la traçabilité
+de toutes les décisions architecturales et évite les trous de documentation.
+
+## Règle n°2 : Identification des agents
+
+Suivre les conventions de `Copilotage/AGENT_CONVENTION.md` pour l'identification
+(label de provenance, hostname, PID, modèle).
+
+## Règle n°3 : Base Dolt = cache calculé
+
+La base de données Dolt (`panini-unified-db`, `panini-concepts-db`) est un
+**cache calculé**, pas du capital accumulé. Elle est entièrement reconstructible
+via le pipeline déterministe. Ne pas traiter les fichiers `.dolt/` comme précieux.
+
+## Règle n°4 : Ontologie à 4 catégories
+
+Le système d'atomes couvre 4 catégories ontologiques :
+- **ENT** (entités) — objets, substances
+- **PROC** (processus) — actions, événements, émotions
+- **QUAL** (qualités) — propriétés, attributs
+- **ABS** (abstraits) — relations, structures, mesures
+
+Tout nouvel atome doit être mappé dans les 6 dictionnaires de
+`import_panlang_v2.py` : ATOM_DIMENSIONS, ATOM_NSM, ATOM_JACKENDOFF,
+ATOM_PUSTEJOVSKY, ATOM_DHATU, et ATOM_KEYWORDS dans
+`gutenberg_multilingual_validator.py`.

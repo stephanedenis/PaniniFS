@@ -9,6 +9,7 @@ jobs:
   noop:
     name: Health Ping
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
       - name: Print repo health info
         run: |

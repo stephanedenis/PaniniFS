@@ -7,7 +7,7 @@ on:
       - master
     paths:
       - mkdocs.yml
-  - docs/**
+      - docs/**
       - RESEARCH/**
       - RESEARCH
       - modules/**/docs/**

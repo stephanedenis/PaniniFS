@@ -1,0 +1,190 @@
+site_name: "Pāṇini File System"
+site_description: "Metalinguistic information processing and storage"
+site_url: "https://paninifs.org"
+site_author: "Stéphane Denis"
+
+# Repository
+repo_name: stephanedenis/PaniniFS
+repo_url: https://github.com/stephanedenis/PaniniFS
+
+# Theme configuration
+theme:
+  name: material
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  
+  font:
+    text: Roboto
+    code: Roboto Mono
+  
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/file-tree
+  
+  language: fr
+
+# Plugins
+plugins:
+  - search:
+      lang:
+        - fr
+        - en
+  - i18n:
+      docs_structure: folder
+      languages:
+        - locale: fr
+          name: Français
+          default: true
+        - locale: en
+          name: English
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago
+      locale: fr
+  - kroki:
+      # fence_prefix vide = accepter ```plantuml``` directement (sans préfixe kroki-)
+      fence_prefix: ""
+      # mermaid est géré côté client par pymdownx.superfences ; ne pas le passer à Kroki
+      enable_mermaid: false
+      # L'URL du serveur Kroki peut être surchargée via la variable KROKI_SERVER_URL en CI
+      # (par défaut : https://kroki.io)
+  - include-markdown
+
+
+# Markdown extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: stephanedenis
+      repo: PaniniFS
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Navigation
+nav:
+  - Accueil: index.md
+  - Vision: vision.md
+  - Vision sociale: vision-sociale.md
+  - Fondations linguistiques: linguistic-foundations.md
+  - Cadre Dhātu: dhatu-framework.md
+  - Schémas (PlantUML): diagrams.md
+  - Processus documentation: doc-process.md
+  - Guide de style: style-guide.md
+  - Références externes: references.md
+  - Publications: publications.md
+  - Avancement: avancement.md
+  - Licences: licences.md
+  - 🏕️ Dashboard: dashboard.md
+  - 📊 Guide Monitoring: monitoring-guide.md
+  - Infrastructure: infrastructure.md
+  - Surveillance: monitoring.md
+  - Écosystème:
+      - OntoWave (vision): ecosystem/ontowave.md
+      - Repos:
+          - Dépôt maître: ecosystem/repos/root.md
+          - Autonomous Missions: ecosystem/repos/autonomous-missions.md
+          - Semantic Core: ecosystem/repos/semantic-core.md
+          - Publication Engine: ecosystem/repos/publication-engine.md
+          - Ultra Reactive: ecosystem/repos/ultra-reactive.md
+          - Execution Orchestrator: ecosystem/repos/execution-orchestrator.md
+          - Datasets Ingestion: ecosystem/repos/datasets-ingestion.md
+          - Attribution Registry: ecosystem/repos/attribution-registry.md
+          - OntoWave App: ecosystem/repos/ontowave-app.md
+          - Copilotage Shared: ecosystem/repos/copilotage-shared.md
+          - Research: ecosystem/repos/research.md
+  - Catalogue des dépôts: ecosystem/catalogue.md
+  - Panorama & relations: ecosystem/panorama.md
+  - Modules docs: modules/index.md
+  - Recherche:
+      - Vue d'ensemble: research/overview.md
+      - Quoi de neuf (14 jours): research/whats-new.md
+      - Flux (RSS): research/whats-new-feed.html
+      - Résultats de couverture: research/resultats-couverture.md
+      - Atomes universaux (34): research/atomes-universaux.md
+      - Universaux sémantiques: research/universaux-semantique.md
+      - Expériences Dhātu v0.1 et typologie: research/experiences-dhatu-typologie-v0-1.md
+      - Inventaire Dhātu v0.1: research/inventaire-dhatu-v0-1.md
+      - Langage humain et développement: research/langage-humain-developpement.md
+      - Compression sémantique: research/compression-semantique.md
+  - Livre:
+    - livre/index.md
+  - Lecture intégrale: livre/lecture-integrale.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/stephanedenis
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/neuronspikes
+  alternate:
+    - name: Français
+      link: /
+      lang: fr
+    - name: English  
+      link: /en/
+      lang: en
+
+# Copyright
+copyright: >
+  © 2025 Stéphane Denis — Contenu sous licence
+  <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>
+  (sauf mention contraire). Code sous licence MIT.
+
+# Docs directory (renamed from docs_new → docs)
+docs_dir: docs

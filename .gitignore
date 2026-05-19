@@ -55,15 +55,22 @@ publications/out/
 publications/tmp/
 issues_packs/
 
-# Backups et archives locales (ne pas versionner)
-# Conserver cleanup/manifest.txt mais ignorer les dossiers de backup et archives générées
+SANDBOX/dolt-concept-store/gutenberg_corpus/
+SANDBOX/dolt-concept-store/wikipedia_corpus/
+SANDBOX/dolt-concept-store/wikipedia_exports/
+
+# Wikipedia dumps (large binary files)
+SANDBOX/dolt-concept-store/wikipedia_dumps/
+SANDBOX/dolt-concept-store/wikipedia_fullcorpus/
+
+# Répertoires de sauvegarde (intentionnellement non versionnés)
 cleanup/backup_*/
 cleanup/local_untracked_backup_*/
 cleanup/**/*.tgz
+backup_*/
 
 # Artéfacts de tests/CI locaux
 artifacts/
 
 # Fichiers PID/lock éphémères
 *.pid
-

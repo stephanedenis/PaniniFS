@@ -1,0 +1,464 @@
+{
+  "experiment": "E2 — RECONSTRUCTION PREPARATION",
+  "documents_analyzed": 37,
+  "languages": [
+    "es",
+    "de",
+    "en",
+    "it",
+    "fr"
+  ],
+  "documents": [
+    {
+      "filename": "pg1012.txt",
+      "language": "it",
+      "words": 97825,
+      "unique_atoms": 34,
+      "unique_concepts": 110
+    },
+    {
+      "filename": "pg1080.txt",
+      "language": "en",
+      "words": 3419,
+      "unique_atoms": 32,
+      "unique_concepts": 109
+    },
+    {
+      "filename": "pg11.txt",
+      "language": "en",
+      "words": 26521,
+      "unique_atoms": 34,
+      "unique_concepts": 119
+    },
+    {
+      "filename": "pg1232.txt",
+      "language": "en",
+      "words": 49942,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg1342.txt",
+      "language": "en",
+      "words": 127355,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg13846.txt",
+      "language": "fr",
+      "words": 115626,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg14287.txt",
+      "language": "fr",
+      "words": 196295,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg15532.txt",
+      "language": "es",
+      "words": 64240,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg16328.txt",
+      "language": "en",
+      "words": 39054,
+      "unique_atoms": 34,
+      "unique_concepts": 118
+    },
+    {
+      "filename": "pg1661.txt",
+      "language": "en",
+      "words": 104448,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg17396.txt",
+      "language": "fr",
+      "words": 80961,
+      "unique_atoms": 34,
+      "unique_concepts": 110
+    },
+    {
+      "filename": "pg174.txt",
+      "language": "en",
+      "words": 78958,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg17525.txt",
+      "language": "de",
+      "words": 16967,
+      "unique_atoms": 30,
+      "unique_concepts": 74
+    },
+    {
+      "filename": "pg17989.txt",
+      "language": "fr",
+      "words": 121499,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg18066.txt",
+      "language": "de",
+      "words": 65250,
+      "unique_atoms": 33,
+      "unique_concepts": 95
+    },
+    {
+      "filename": "pg19942.txt",
+      "language": "fr",
+      "words": 35828,
+      "unique_atoms": 34,
+      "unique_concepts": 115
+    },
+    {
+      "filename": "pg2000.txt",
+      "language": "es",
+      "words": 386573,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg219.txt",
+      "language": "en",
+      "words": 37913,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg2229.txt",
+      "language": "de",
+      "words": 30756,
+      "unique_atoms": 34,
+      "unique_concepts": 116
+    },
+    {
+      "filename": "pg22966.txt",
+      "language": "fr",
+      "words": 1962,
+      "unique_atoms": 27,
+      "unique_concepts": 42
+    },
+    {
+      "filename": "pg2407.txt",
+      "language": "de",
+      "words": 17588,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg2701.txt",
+      "language": "en",
+      "words": 212780,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg29220.txt",
+      "language": "de",
+      "words": 18141,
+      "unique_atoms": 34,
+      "unique_concepts": 119
+    },
+    {
+      "filename": "pg29668.txt",
+      "language": "en",
+      "words": 82763,
+      "unique_atoms": 34,
+      "unique_concepts": 119
+    },
+    {
+      "filename": "pg345.txt",
+      "language": "en",
+      "words": 160629,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg35.txt",
+      "language": "en",
+      "words": 32450,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg3601.txt",
+      "language": "it",
+      "words": 190347,
+      "unique_atoms": 34,
+      "unique_concepts": 117
+    },
+    {
+      "filename": "pg46.txt",
+      "language": "en",
+      "words": 28530,
+      "unique_atoms": 34,
+      "unique_concepts": 118
+    },
+    {
+      "filename": "pg4650.txt",
+      "language": "fr",
+      "words": 34066,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg5185.txt",
+      "language": "fr",
+      "words": 59887,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg55456.txt",
+      "language": "fr",
+      "words": 26272,
+      "unique_atoms": 34,
+      "unique_concepts": 116
+    },
+    {
+      "filename": "pg6498.txt",
+      "language": "de",
+      "words": 29882,
+      "unique_atoms": 34,
+      "unique_concepts": 117
+    },
+    {
+      "filename": "pg7205.txt",
+      "language": "de",
+      "words": 82841,
+      "unique_atoms": 34,
+      "unique_concepts": 117
+    },
+    {
+      "filename": "pg74.txt",
+      "language": "en",
+      "words": 70717,
+      "unique_atoms": 34,
+      "unique_concepts": 119
+    },
+    {
+      "filename": "pg799.txt",
+      "language": "fr",
+      "words": 53101,
+      "unique_atoms": 34,
+      "unique_concepts": 119
+    },
+    {
+      "filename": "pg84.txt",
+      "language": "en",
+      "words": 75011,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    },
+    {
+      "filename": "pg98.txt",
+      "language": "en",
+      "words": 135797,
+      "unique_atoms": 34,
+      "unique_concepts": 120
+    }
+  ],
+  "universal_atoms": {
+    "count": 3,
+    "total_atoms_seen": 28,
+    "universality_rate": 0.1071,
+    "atoms": [
+      "EXISTENCE",
+      "MOUVEMENT",
+      "POSSESSION"
+    ]
+  },
+  "universal_concepts": {
+    "count": 2,
+    "total_concepts_seen": 42,
+    "universality_rate": 0.0476,
+    "concepts": [
+      "MARCHER",
+      "SAISIR"
+    ]
+  },
+  "atom_stability": {
+    "most_stable": [
+      [
+        "POSSESSION",
+        0.2941
+      ],
+      [
+        "MOUVEMENT",
+        0.3454
+      ],
+      [
+        "EXISTENCE",
+        0.3769
+      ]
+    ],
+    "least_stable": [
+      [
+        "POSSESSION",
+        0.2941
+      ],
+      [
+        "MOUVEMENT",
+        0.3454
+      ],
+      [
+        "EXISTENCE",
+        0.3769
+      ]
+    ],
+    "details": {
+      "POSSESSION": {
+        "mean_proportion": 0.0917,
+        "std_dev": 0.027,
+        "cv": 0.2941,
+        "proportions": [
+          0.0421,
+          0.0894,
+          0.0876,
+          0.1238,
+          0.1076,
+          0.0516,
+          0.0772,
+          0.0996,
+          0.0824,
+          0.1192,
+          0.1137,
+          0.1161,
+          0.1159,
+          0.0729,
+          0.0937,
+          0.131,
+          0.1296,
+          0.1127,
+          0.0438,
+          0.1245,
+          0.0693,
+          0.0759,
+          0.0767,
+          0.1085,
+          0.11,
+          0.0927,
+          0.1152,
+          0.0979,
+          0.0773,
+          0.0688,
+          0.0611,
+          0.0589,
+          0.0351,
+          0.1437,
+          0.0676,
+          0.0948,
+          0.1056
+        ]
+      },
+      "MOUVEMENT": {
+        "mean_proportion": 0.076,
+        "std_dev": 0.0263,
+        "cv": 0.3454,
+        "proportions": [
+          0.1372,
+          0.0322,
+          0.073,
+          0.0466,
+          0.0497,
+          0.059,
+          0.0886,
+          0.0972,
+          0.0744,
+          0.0593,
+          0.0868,
+          0.0497,
+          0.1101,
+          0.0836,
+          0.1445,
+          0.0988,
+          0.1133,
+          0.0577,
+          0.0571,
+          0.1159,
+          0.0599,
+          0.0563,
+          0.0748,
+          0.0655,
+          0.0619,
+          0.0676,
+          0.0907,
+          0.0502,
+          0.0706,
+          0.131,
+          0.0699,
+          0.0694,
+          0.0565,
+          0.0694,
+          0.0699,
+          0.0556,
+          0.0595
+        ]
+      },
+      "EXISTENCE": {
+        "mean_proportion": 0.1234,
+        "std_dev": 0.0465,
+        "cv": 0.3769,
+        "proportions": [
+          0.0663,
+          0.1447,
+          0.1027,
+          0.1633,
+          0.1542,
+          0.1379,
+          0.1072,
+          0.0938,
+          0.1277,
+          0.135,
+          0.051,
+          0.1381,
+          0.1858,
+          0.098,
+          0.2433,
+          0.0641,
+          0.0951,
+          0.1368,
+          0.1823,
+          0.0429,
+          0.2075,
+          0.1252,
+          0.08,
+          0.1072,
+          0.1304,
+          0.1312,
+          0.0525,
+          0.1305,
+          0.1052,
+          0.0627,
+          0.0694,
+          0.1964,
+          0.1884,
+          0.1211,
+          0.0953,
+          0.1588,
+          0.1352
+        ]
+      }
+    }
+  },
+  "e2_readiness": {
+    "minimum_atom_set_for_reconstruction": [
+      "EXISTENCE",
+      "MOUVEMENT",
+      "POSSESSION"
+    ],
+    "coverage_with_universal_only": 0.2912,
+    "recommendation": "NEED MORE ATOMS — universal set too small for reconstruction"
+  }
+}

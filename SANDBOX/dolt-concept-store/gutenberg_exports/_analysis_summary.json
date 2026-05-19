@@ -1,0 +1,368 @@
+{
+  "analyzed_at": "2026-02-20T08:46:28-0500",
+  "texts": 51,
+  "total_words": 3142327,
+  "total_time_s": 116.3,
+  "results": [
+    {
+      "file": "pg2229.txt",
+      "lang": "de",
+      "words": 30756,
+      "atoms": 34,
+      "concepts": 116
+    },
+    {
+      "file": "pg2407.txt",
+      "lang": "de",
+      "words": 17588,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg29220.txt",
+      "lang": "de",
+      "words": 18141,
+      "atoms": 34,
+      "concepts": 119
+    },
+    {
+      "file": "pg6498.txt",
+      "lang": "de",
+      "words": 29882,
+      "atoms": 34,
+      "concepts": 117
+    },
+    {
+      "file": "pg7205.txt",
+      "lang": "de",
+      "words": 82841,
+      "atoms": 34,
+      "concepts": 117
+    },
+    {
+      "file": "pg1080.txt",
+      "lang": "en",
+      "words": 3419,
+      "atoms": 32,
+      "concepts": 109
+    },
+    {
+      "file": "pg11.txt",
+      "lang": "en",
+      "words": 26521,
+      "atoms": 34,
+      "concepts": 119
+    },
+    {
+      "file": "pg1232.txt",
+      "lang": "en",
+      "words": 49942,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg1342.txt",
+      "lang": "en",
+      "words": 127355,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg16328.txt",
+      "lang": "en",
+      "words": 39054,
+      "atoms": 34,
+      "concepts": 118
+    },
+    {
+      "file": "pg1661.txt",
+      "lang": "en",
+      "words": 104448,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg174.txt",
+      "lang": "en",
+      "words": 78958,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg219.txt",
+      "lang": "en",
+      "words": 37913,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg2701.txt",
+      "lang": "en",
+      "words": 212780,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg345.txt",
+      "lang": "en",
+      "words": 160629,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg35.txt",
+      "lang": "en",
+      "words": 32450,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg46.txt",
+      "lang": "en",
+      "words": 28530,
+      "atoms": 34,
+      "concepts": 118
+    },
+    {
+      "file": "pg74.txt",
+      "lang": "en",
+      "words": 70717,
+      "atoms": 34,
+      "concepts": 119
+    },
+    {
+      "file": "pg84.txt",
+      "lang": "en",
+      "words": 75011,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg98.txt",
+      "lang": "en",
+      "words": 135797,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg15532.txt",
+      "lang": "es",
+      "words": 64240,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg2000.txt",
+      "lang": "es",
+      "words": 386573,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg13846.txt",
+      "lang": "fr",
+      "words": 115626,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg14287.txt",
+      "lang": "fr",
+      "words": 196295,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg17396.txt",
+      "lang": "fr",
+      "words": 80961,
+      "atoms": 34,
+      "concepts": 110
+    },
+    {
+      "file": "pg17989.txt",
+      "lang": "fr",
+      "words": 121499,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg19942.txt",
+      "lang": "fr",
+      "words": 35828,
+      "atoms": 34,
+      "concepts": 115
+    },
+    {
+      "file": "pg22966.txt",
+      "lang": "fr",
+      "words": 1962,
+      "atoms": 27,
+      "concepts": 42
+    },
+    {
+      "file": "pg4650.txt",
+      "lang": "fr",
+      "words": 34066,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg5185.txt",
+      "lang": "fr",
+      "words": 59887,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg55456.txt",
+      "lang": "fr",
+      "words": 26272,
+      "atoms": 34,
+      "concepts": 116
+    },
+    {
+      "file": "pg799.txt",
+      "lang": "fr",
+      "words": 53101,
+      "atoms": 34,
+      "concepts": 119
+    },
+    {
+      "file": "pg1012.txt",
+      "lang": "it",
+      "words": 97825,
+      "atoms": 34,
+      "concepts": 110
+    },
+    {
+      "file": "pg3601.txt",
+      "lang": "it",
+      "words": 190347,
+      "atoms": 34,
+      "concepts": 117
+    },
+    {
+      "file": "pg1982.txt",
+      "lang": "ja",
+      "words": 253,
+      "atoms": 30,
+      "concepts": 110
+    },
+    {
+      "file": "pg31617.txt",
+      "lang": "ja",
+      "words": 1784,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg31757.txt",
+      "lang": "ja",
+      "words": 1004,
+      "atoms": 34,
+      "concepts": 115
+    },
+    {
+      "file": "pg18066.txt",
+      "lang": "nl",
+      "words": 65250,
+      "atoms": 34,
+      "concepts": 120,
+      "time_s": 38.0
+    },
+    {
+      "file": "pg17525.txt",
+      "lang": "pt",
+      "words": 16967,
+      "atoms": 21,
+      "concepts": 3,
+      "time_s": 13.5
+    },
+    {
+      "file": "pg29668.txt",
+      "lang": "pt",
+      "words": 82763,
+      "atoms": 32,
+      "concepts": 24,
+      "time_s": 64.8
+    },
+    {
+      "file": "pg14741.txt",
+      "lang": "ru",
+      "words": 18361,
+      "atoms": 34,
+      "concepts": 79
+    },
+    {
+      "file": "pg16527.txt",
+      "lang": "ru",
+      "words": 27033,
+      "atoms": 26,
+      "concepts": 11
+    },
+    {
+      "file": "pg30774.txt",
+      "lang": "ru",
+      "words": 6151,
+      "atoms": 31,
+      "concepts": 60
+    },
+    {
+      "file": "pg23839.txt",
+      "lang": "zh",
+      "words": 1015,
+      "atoms": 33,
+      "concepts": 98
+    },
+    {
+      "file": "pg23863.txt",
+      "lang": "zh",
+      "words": 15285,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg23864.txt",
+      "lang": "zh",
+      "words": 46,
+      "atoms": 32,
+      "concepts": 113
+    },
+    {
+      "file": "pg23950.txt",
+      "lang": "zh",
+      "words": 17605,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg23962.txt",
+      "lang": "zh",
+      "words": 23770,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg24264.txt",
+      "lang": "zh",
+      "words": 34998,
+      "atoms": 34,
+      "concepts": 120
+    },
+    {
+      "file": "pg27166.txt",
+      "lang": "zh",
+      "words": 2583,
+      "atoms": 34,
+      "concepts": 115
+    },
+    {
+      "file": "pg7337.txt",
+      "lang": "zh",
+      "words": 245,
+      "atoms": 31,
+      "concepts": 100
+    }
+  ]
+}

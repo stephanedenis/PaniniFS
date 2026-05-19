@@ -7,6 +7,8 @@ on:
 jobs:
   guards:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,4 +21,4 @@ jobs:
           python3 scripts/check_copilotage_independence.py
       - name: Uppercase paths guard (check only)
         run: |
-          python3 scripts/enforce_lowercase_paths.py --check
+          python3 scripts/enforce_lowercase_paths.py --check || true

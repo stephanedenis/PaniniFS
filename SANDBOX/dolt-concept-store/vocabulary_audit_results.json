@@ -1,0 +1,286 @@
+{
+  "timestamp": "2026-02-20T21:19:21",
+  "corpus_dir": "gutenberg_corpus",
+  "total_files": 11,
+  "languages": {
+    "de": {
+      "files": [
+        "pg19778_de.txt"
+      ],
+      "total_words": 25687,
+      "total_content_words": 10415,
+      "total_atom_alignments": 13366,
+      "avg_readiness": 0.8469,
+      "avg_lexical_coverage": 0.8029,
+      "unique_uncovered_count": 1232,
+      "top_uncovered_words": [
+        [
+          "thee",
+          22
+        ],
+        [
+          "könne",
+          10
+        ],
+        [
+          "befand",
+          8
+        ],
+        [
+          "steckte",
+          8
+        ],
+        [
+          "führte",
+          8
+        ]
+      ]
+    },
+    "en": {
+      "files": [
+        "pg11_en.txt",
+        "pg19942_en.txt"
+      ],
+      "total_words": 62320,
+      "total_content_words": 26207,
+      "total_atom_alignments": 32170,
+      "avg_readiness": 0.8926,
+      "avg_lexical_coverage": 0.873,
+      "unique_uncovered_count": 2468,
+      "top_uncovered_words": [
+        [
+          "grin",
+          12
+        ],
+        [
+          "said",
+          12
+        ],
+        [
+          "sneezing",
+          12
+        ],
+        [
+          "wow",
+          12
+        ],
+        [
+          "library",
+          12
+        ]
+      ]
+    },
+    "eo": {
+      "files": [
+        "pg17482_eo.txt"
+      ],
+      "total_words": 25383,
+      "total_content_words": 12086,
+      "total_atom_alignments": 11680,
+      "avg_readiness": 0.849,
+      "avg_lexical_coverage": 0.8227,
+      "unique_uncovered_count": 1585,
+      "top_uncovered_words": [
+        [
+          "jena",
+          12
+        ],
+        [
+          "ovojn",
+          12
+        ],
+        [
+          "eligi",
+          12
+        ],
+        [
+          "cxesxsxa",
+          12
+        ],
+        [
+          "uxaux",
+          12
+        ]
+      ]
+    },
+    "es": {
+      "files": [
+        "pg7109_es.txt"
+      ],
+      "total_words": 32648,
+      "total_content_words": 14546,
+      "total_atom_alignments": 13501,
+      "avg_readiness": 0.8739,
+      "avg_lexical_coverage": 0.7865,
+      "unique_uncovered_count": 2566,
+      "top_uncovered_words": [
+        [
+          "echado",
+          14
+        ],
+        [
+          "repuso",
+          14
+        ],
+        [
+          "dan",
+          12
+        ],
+        [
+          "alemania",
+          12
+        ],
+        [
+          "esas",
+          12
+        ]
+      ]
+    },
+    "fi": {
+      "files": [
+        "pg46569_fi.txt",
+        "pg52336_fi.txt"
+      ],
+      "total_words": 48050,
+      "total_content_words": 27768,
+      "total_atom_alignments": 22912,
+      "avg_readiness": 0.8047,
+      "avg_lexical_coverage": 0.6896,
+      "unique_uncovered_count": 5945,
+      "top_uncovered_words": [
+        [
+          "tohtori",
+          22
+        ],
+        [
+          "pyhä",
+          22
+        ],
+        [
+          "pystyyn",
+          20
+        ],
+        [
+          "mirri",
+          20
+        ],
+        [
+          "filosofi",
+          20
+        ]
+      ]
+    },
+    "fr": {
+      "files": [
+        "pg4650_fr.txt",
+        "pg55456_fr.txt"
+      ],
+      "total_words": 60307,
+      "total_content_words": 26878,
+      "total_atom_alignments": 28185,
+      "avg_readiness": 0.8578,
+      "avg_lexical_coverage": 0.7709,
+      "unique_uncovered_count": 3360,
+      "top_uncovered_words": [
+        [
+          "sciences",
+          14
+        ],
+        [
+          "métier",
+          14
+        ],
+        [
+          "nommé",
+          14
+        ],
+        [
+          "violée",
+          14
+        ],
+        [
+          "aient",
+          14
+        ]
+      ]
+    },
+    "it": {
+      "files": [
+        "pg28371_it.txt"
+      ],
+      "total_words": 23662,
+      "total_content_words": 11695,
+      "total_atom_alignments": 11305,
+      "avg_readiness": 0.8218,
+      "avg_lexical_coverage": 0.7641,
+      "unique_uncovered_count": 1691,
+      "top_uncovered_words": [
+        [
+          "mica",
+          10
+        ],
+        [
+          "bere",
+          10
+        ],
+        [
+          "mutamento",
+          10
+        ],
+        [
+          "accorse",
+          10
+        ],
+        [
+          "benchè",
+          10
+        ]
+      ]
+    },
+    "sa": {
+      "files": [
+        "pg9000_sa.txt"
+      ],
+      "total_words": 1438,
+      "total_content_words": 1368,
+      "total_atom_alignments": 599,
+      "avg_readiness": 0.555,
+      "avg_lexical_coverage": 0.4371,
+      "unique_uncovered_count": 752,
+      "top_uncovered_words": [
+        [
+          "yamah",
+          4
+        ],
+        [
+          "pranavah",
+          4
+        ],
+        [
+          "daxo",
+          4
+        ],
+        [
+          "xaamah",
+          4
+        ],
+        [
+          "ya~na",
+          4
+        ]
+      ]
+    }
+  },
+  "global": {
+    "total_words": 279495,
+    "total_content_words": 130963,
+    "total_covered": 101337,
+    "total_uncovered": 29626,
+    "total_atom_alignments": 133718,
+    "lexical_coverage_weighted": 0.7738,
+    "lexical_coverage_avg_doc": 0.7528,
+    "atom_density": 1.021,
+    "total_unique_uncovered": 19599,
+    "analysis_time_s": 641.8
+  }
+}

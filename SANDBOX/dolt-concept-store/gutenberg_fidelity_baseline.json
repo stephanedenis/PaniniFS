@@ -1,0 +1,287 @@
+{
+  "batch_size": 11,
+  "avg_reconstruction_readiness": 0.627,
+  "avg_lexical_coverage": 0.3776,
+  "avg_atom_density": 0.2594,
+  "per_document": {
+    "pg11_en.txt": {
+      "reconstruction_readiness": 0.731,
+      "lexical_coverage": 0.5286,
+      "atom_density": 0.3054,
+      "words": 26521,
+      "language": "en"
+    },
+    "pg17482_eo.txt": {
+      "reconstruction_readiness": 0.4816,
+      "lexical_coverage": 0.1555,
+      "atom_density": 0.1482,
+      "words": 25445,
+      "language": "en"
+    },
+    "pg19778_de.txt": {
+      "reconstruction_readiness": 0.7627,
+      "lexical_coverage": 0.6799,
+      "atom_density": 0.4438,
+      "words": 25800,
+      "language": "de"
+    },
+    "pg19942_en.txt": {
+      "reconstruction_readiness": 0.7799,
+      "lexical_coverage": 0.6253,
+      "atom_density": 0.3062,
+      "words": 35828,
+      "language": "en"
+    },
+    "pg28371_it.txt": {
+      "reconstruction_readiness": 0.4988,
+      "lexical_coverage": 0.2425,
+      "atom_density": 0.2297,
+      "words": 23730,
+      "language": "en"
+    },
+    "pg4650_fr.txt": {
+      "reconstruction_readiness": 0.512,
+      "lexical_coverage": 0.1362,
+      "atom_density": 0.1281,
+      "words": 34066,
+      "language": "en"
+    },
+    "pg46569_fi.txt": {
+      "reconstruction_readiness": 0.6275,
+      "lexical_coverage": 0.3432,
+      "atom_density": 0.2771,
+      "words": 18850,
+      "language": "fi"
+    },
+    "pg52336_fi.txt": {
+      "reconstruction_readiness": 0.6453,
+      "lexical_coverage": 0.3444,
+      "atom_density": 0.2716,
+      "words": 29212,
+      "language": "fi"
+    },
+    "pg55456_fr.txt": {
+      "reconstruction_readiness": 0.7374,
+      "lexical_coverage": 0.5822,
+      "atom_density": 0.3856,
+      "words": 26272,
+      "language": "fr"
+    },
+    "pg7109_es.txt": {
+      "reconstruction_readiness": 0.7099,
+      "lexical_coverage": 0.3992,
+      "atom_density": 0.2491,
+      "words": 32673,
+      "language": "es"
+    },
+    "pg9000_sa.txt": {
+      "reconstruction_readiness": 0.4105,
+      "lexical_coverage": 0.1162,
+      "atom_density": 0.109,
+      "words": 1454,
+      "language": "en"
+    }
+  },
+  "top_uncovered_words": [
+    [
+      "la",
+      3601
+    ],
+    [
+      "de",
+      1696
+    ],
+    [
+      "alice",
+      1522
+    ],
+    [
+      "il",
+      1119
+    ],
+    [
+      "candide",
+      1078
+    ],
+    [
+      "le",
+      1023
+    ],
+    [
+      "et",
+      979
+    ],
+    [
+      "ne",
+      814
+    ],
+    [
+      "un",
+      791
+    ],
+    [
+      "kaj",
+      678
+    ],
+    [
+      "en",
+      665
+    ],
+    [
+      "mi",
+      601
+    ],
+    [
+      "che",
+      599
+    ],
+    [
+      "les",
+      583
+    ],
+    [
+      "sxi",
+      559
+    ],
+    [
+      "di",
+      538
+    ],
+    [
+      "que",
+      493
+    ],
+    [
+      "non",
+      490
+    ],
+    [
+      "al",
+      417
+    ],
+    [
+      "se",
+      398
+    ],
+    [
+      "candido",
+      387
+    ],
+    [
+      "des",
+      380
+    ],
+    [
+      "je",
+      377
+    ],
+    [
+      "qui",
+      376
+    ],
+    [
+      "alicio",
+      353
+    ],
+    [
+      "vi",
+      353
+    ],
+    [
+      "dans",
+      350
+    ],
+    [
+      "per",
+      348
+    ],
+    [
+      "liisa",
+      346
+    ],
+    [
+      "hänen",
+      312
+    ],
+    [
+      "vous",
+      296
+    ],
+    [
+      "martin",
+      294
+    ],
+    [
+      "ke",
+      293
+    ],
+    [
+      "du",
+      289
+    ],
+    [
+      "he",
+      285
+    ],
+    [
+      "dit",
+      279
+    ],
+    [
+      "disse",
+      277
+    ],
+    [
+      "estas",
+      266
+    ],
+    [
+      "ce",
+      257
+    ],
+    [
+      "tre",
+      247
+    ],
+    [
+      "so",
+      237
+    ],
+    [
+      "dixo",
+      231
+    ],
+    [
+      "si",
+      227
+    ],
+    [
+      "con",
+      225
+    ],
+    [
+      "ma",
+      225
+    ],
+    [
+      "minä",
+      224
+    ],
+    [
+      "cacambo",
+      223
+    ],
+    [
+      "pas",
+      223
+    ],
+    [
+      "deux",
+      216
+    ],
+    [
+      "mas",
+      215
+    ]
+  ]
+}

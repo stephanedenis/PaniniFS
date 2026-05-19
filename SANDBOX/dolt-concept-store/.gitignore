@@ -1,0 +1,33 @@
+# Ignorer la base de données Dolt locale
+panini-concepts-db/
+
+# Ignorer les fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Ignorer les dossiers Dolt
+.dolt/
+.doltcfg/
+
+# Ignorer les logs
+*.log
+
+# Ignorer le corpus Gutenberg brut (reconstructible via gutenberg_ingest.py --download)
+gutenberg_corpus/
+
+# Ignorer le corpus Wikipedia brut (reconstructible via wikipedia_ingest.py --all)
+wikipedia_corpus/
+wikipedia_exports/
+
+# Ignorer les fichiers temporaires
+*.tmp
+*.temp
+.DS_Store
+
+# Ignorer les environnements virtuels Python
+venv/
+env/
+ENV/
+.venv/
