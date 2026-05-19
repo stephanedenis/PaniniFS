@@ -21,7 +21,10 @@
 10. **Panini-Research** (`research`) : Brouillons et laboratoire.
 
 🔗 **RÈGLES GLOBALES :**
-Pour les conventions de code, la journalisation OBLIGATOIRE (`docs/journal-de-bord`) et l'autonomie, **réfère-toi impérativement aux directives globales présentes dans le Hub parent**.
+Le submodule `copilotage/` est présent dans ce dépôt et contient les directives partagées de l'écosystème Panini.
+- **Journal de bord :** ce dépôt tient son propre journal dans `docs/journal-de-bord/YYYY-MM-DD.md`. Consulter `copilotage/regles/REGLES_JOURNAL_v1.md` pour les règles complètes.
+- **Règles d'autonomie et de copilotage :** `copilotage/regles/REGLES_COPILOTAGE_v0.0.2.md`
+- **Avant tout commit :** créer/mettre à jour `docs/journal-de-bord/$(date +%Y-%m-%d).md` puis stager le fichier.
 
 ## Règles spécifiques à ce module
 
